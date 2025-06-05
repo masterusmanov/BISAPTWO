@@ -1,0 +1,115 @@
+{
+    "signheader": {
+        "organization_name": "MINISTRY OF INVESTMENTS, INDUSTRY AND TRADE OF THE REPUBLIC OF UZBEKISTAN",
+        "trust_phone": "Trust phone:",
+        "office_phone": "Office phone:",
+        "corporate_mail": "Corporate email:",
+        "country_gerb": "Coat of arms of Uzbekistan"
+    },
+    "investment_project": "Information system for project evaluation",
+    "login": "Login",
+    "formlogin": "Login",
+    "formpassword": "Password",
+    "sidebar": {
+        "home": "Home",
+        "metod": "Methodology",
+        "nhh": "NHH",
+        "report": "Reports",
+        "contact": "Contact",
+         "projecttask": "Projects and tasks"
+    },
+    "header": "Employee",
+    "search": "Search",
+    "ministry": {
+        "ministryzero": "Ministry of Investment, Industry and Trade of the Republic of Uzbekistan",
+        "ministryone": "Ministry of Health",
+        "ministrytwo": "Ministry of Water Resources",
+        "project": "Project"
+    },
+    "accordions": {
+        "accordionone": "Concept",
+        "accordiontwo": "Technical specification",
+        "accordionthree": "LBX",
+        "accordionfour": "Government commission",
+        "data": "No data available yet"
+    },
+    "register": "Register",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "fathername": "Father's name",
+    "mail": "Email",
+    "phone": "Phone number",
+    "create": "Create",
+    "cancel": "Cancel",
+    "moderators": "Moderators",
+    "tabmod": {
+        "tabname": "Full Name",
+        "mail": "Email",
+        "createDate": "Created Date",
+        "action": "Actions"
+    },
+    "page": "Page",
+    "delmod": "Remove moderator",
+    "quesdelmod": "Are you sure you want to remove the moderator?",
+    "quesdel": "Do you want to delete?",
+    "delete": "Delete",
+    "no": "No",
+    "role": {
+        "role": "Role",
+        "selectrole": "Select roles",
+        "moderator": "Moderator",
+        "admin": "Admin",
+        "user": "User"
+    },
+    "organization": "Organization",
+    "newmoderator": "Create moderator",
+    "updatemoderator": "Edit moderator details",
+    "update": "Save",
+    "ministryorgan": "List of ministries and departments",
+    "minorgan": "List of ministries and departments",
+    "updatecreate": "Update",
+    "createproject": "Create project",
+    "amount": "Estimated project cost",
+    "sum": "mln $",
+    "createdata": "Creation date",
+    "profile": "Profile",
+    "logout": "Logout",
+    "buttons": {
+        "send": "Send",
+        "save": "Save",
+        "forrevison": "For revision",
+        "comment": "Comment",
+        "approve": "Approve"
+    },
+    "Project_initiator": "Project initiator",
+    "nameproject": "Project name",
+    "send_revision": "Send for revision",
+    "from_whom": "From whom",
+    "downfile": "Download file",
+    "sendcomment": "Send comment",
+    "fileattachment": "Attach file",
+    "approvesend": "Approval comment (optional)...",
+    "conseption": {
+        "accone": "Letter",
+        "acctwo": "Project concept",
+        "accthree": "Protocol with results of the Scientific and Technical Council (STC)",
+        "accfour": "Results of analysis of foreign delegations – Council decisions"
+    },
+    "techtasks": {
+        "accone": "Technical letter",
+        "acctwo": "Technical documentation",
+        "accthree": "Technical specifications",
+        "accfour": "Technical results of foreign delegation analysis — Council decisions"
+    },
+    "lbx": {
+        "accone": "LBX letter",
+        "acctwo": "LBX documentation",
+        "accthree": "LBX specification",
+        "accfour": "Result sheet"
+    },
+    "historywork": "Work history",
+    "review": "For review",
+    "returned_revision": "Returned for revision",
+    "remark": "A remark has been made"
+
+}

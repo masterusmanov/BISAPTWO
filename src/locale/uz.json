@@ -1,0 +1,115 @@
+{
+    "signheader": {
+        "organization_name": "O'ZBEKISTON RESPUBLIKASI INVESTITSIYALAR, SANOAT VA SAVDO VAZIRLIGI",
+        "trust_phone": "Ishonch telefoni:",
+        "office_phone": "Ofis telefon raqami:",
+        "corporate_mail": "Korporativ pochta:",
+        "country_gerb": "O'zbekiston gerbi"
+    },
+    "investment_project": "Loyihalarni baholash axborot tizimi",
+    "login": "Tizimga kirish",
+    "formlogin": "Login",
+    "formpassword": "Parol",
+    "sidebar": {
+        "home": "Bosh sahifa",
+        "metod": "Metadologiya",
+        "nhh": "NHH",
+        "report": "Xisobotlar",
+        "contact": "Aloqa",
+        "projecttask": "Loyihalar va vazifalar"
+    },
+    "header": "Xodim",
+    "search": "Izlash",
+    "ministry": {
+        "ministryzero": "Investitsiyalar, Sanoat va Savdo Vazirligi",
+        "ministryone": "Sog‘liqni saqlash vazirligi",
+        "ministrytwo": "Suv xo‘jaligi vazirligi",
+        "project": "Loyiha"
+    },
+    "accordions": {
+        "accordionone": "Kontseptsiya",
+        "accordiontwo": "Texnik topshiriq",
+        "accordionthree": "LBX",
+        "accordionfour": "Hukumat komissiyasi",
+        "data": "Hozircha ma'lumotlar yo'q"
+    },
+    "register": "Ro'yhatdan o'tish",
+    "firstname": "Ismi",
+    "lastname": "Familiyasi",
+    "fathername": "Otasining ismi",
+    "mail": "E-pochta",
+    "phone": "Telefon raqami",
+    "create": "Yaratish",
+    "cancel": "Bekor qilish",
+    "moderators": "Moderatorlar",
+    "tabmod": {
+        "tabname": "F.I.O",
+        "mail": "Pochta",
+        "createDate": "Yaratilgan sana",
+        "action": "Harakatlar"
+    },
+    "page": "Sahifa",
+    "delmod": "Moderatorni olib tashlang",
+    "quesdelmod": "Moderatorni olib tashlamoqchimisiz?",
+    "quesdel": "O‘chirmoqchimisiz?",
+    "delete": "O'chirish",
+    "no": "Yo'q",
+    "role": {
+        "role": "Roli",
+        "selectrole": "Rollarni tanlang",
+        "moderator": "Modertor",
+        "admin": "Admin",
+        "user": "Foydalanuvchi"
+    },
+    "organization": "Tashkilot",
+    "newmoderator": "Moderator yarating",
+    "updatemoderator": "Moderator ma'lumotlarini o'zgartirish",
+    "update": "Saqlash",
+    "ministryorgan": "Vazirliklar va idoralar ro'yxati",
+    "minorgan": "Vazirlik va idoralar ro'yxati",
+    "updatecreate": "Yangilash",
+    "createproject": "Loyiha yaratish",
+    "amount": "Loyihaning taxminiy qiymati",
+    "sum": "mln $",
+    "createdata": "Yaratilgan sana",
+    "profile": "Profil",
+    "logout": "Chiqish",
+    "buttons":{
+        "send": "Yuborish",
+        "save": "Saqlash",
+        "forrevison": "Qayta ko'rib chiqish",
+        "comment": "Izoh",
+        "approve": "Tasdiqlash"
+    },
+    "Project_initiator": "Loyiha tashabbuskori",
+    "nameproject": "Loyiha nomi",
+    "file_download": "Fayl.pdf",
+    "send_revision": "Qayta ko'rib chiqish uchun yuborish",
+    "from_whom": "Kimdan",
+    "downfile": "Faylni yuklab olish",
+    "sendcomment": "Izoh yuborish",
+    "fileattachment": "Fayl biriktirish",
+    "approvesend": "Tasdiqlash izohi (ixtiyoriy)...",
+    "conseption": {
+        "accone": "Xat",
+        "acctwo": "Loyiha konsepsiyasi",
+        "accthree": "Ilmiy-texnik kengash (ITK) natijalari bayonnomasi",
+        "accfour": "Xorijiy delegatsiyalar tahlili natijalari – Kengash qarorlari"
+    },
+    "techtasks": {
+        "accone": "Texnik xat",
+        "acctwo": "Texnik hujjatlar",
+        "accthree": "Texnik spetsifikatsiyalar",
+        "accfour": "Xorijiy delegatsiyalar tahlilining texnik natijalari — Kengash qarorlari"
+    },
+    "lbx": {
+        "accone": "LBX xat",
+        "acctwo": "LBX hujjatlar",
+        "accthree": "LBX spetsifikatsiya",
+        "accfour": "Natijalar varaqasi"
+    },
+    "historywork": "Ish tarixi",
+    "review": "Qayta ko'rib chiqish uchun",
+    "returned_revision": "Qayta ko'rib chiqish uchun qaytarildi",
+    "remark": "Izoh qoldirildi"
+}
