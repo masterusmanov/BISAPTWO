@@ -182,6 +182,7 @@ const minorganList = ref([])
 const email = ref('')
 const password = ref('')
 
+
 const currentLanguage = computed(() => locale.value)
 
 // Tildagi nomlarni olish funksiyasi

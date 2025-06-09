@@ -26,10 +26,8 @@
             <th class="px-4 py-3 text-left font-medium">№</th>
             <!-- <th class="px-4 py-3 text-left font-medium">{{$t('tabmod.tabname')}}</th> -->
             <th class="px-4 py-3 text-left font-medium">
-              {{$t('tabmod.minorgan') || "Minorgan"}}
-              <svg class="inline ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12l-5-5 1.41-1.41L10 9.17l3.59-3.58L15 7l-5 5z"/>
-              </svg>
+              {{$t('minorganname')}}
+             
             </th>
             <th class="px-4 py-3 text-left font-medium">
               {{$t('tabmod.mail')}}
@@ -63,9 +61,14 @@
             <td class="px-4 py-3 text-sm">
               {{ (currentPage - 1) * itemsPerPage + index + 1 }}
             </td>
-            <!-- <td class="px-4 py-3 text-sm">
-              {{ getDisplayName(item) }}
-            </td> -->
+            <td class="px-4 py-3 text-sm">
+              <span v-if="minorganLoading">
+                Yuklanmoqda...
+              </span>
+              <span v-else>
+                {{ getOrganizationName(item.organizations_id) }}
+              </span>
+            </td>
             <td class="px-4 py-3 text-sm text-blue-600">
               {{ item.email || 'N/A' }}
             </td>
@@ -271,6 +274,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useMinorgan } from '../../service/minorgan/index.js'
 import { minorganStore } from '../../stores/minorganStore.js'
+import axios from 'axios'
 
 const { t: $t, locale } = useI18n()
 const router = useRouter()
@@ -291,6 +295,9 @@ const editItem = ref({
   name: '',
   email: ''
 })
+
+const minorganList = ref([])
+const minorganLoading = ref(false)
 
 // API function with better error handling
 const getList = async (page = currentPage.value) => {
@@ -348,6 +355,63 @@ const getList = async (page = currentPage.value) => {
     store.state.load = false;
   }
 };
+
+// Minorgan ma'lumotlarini olish funktsiyasi
+const fetchMinorganData = async () => {
+  minorganLoading.value = true
+  
+  try {
+    const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      params: {
+        start_id: 29,
+        end_id: 64,
+      }
+    })
+
+    let data = response.data
+
+    if (!Array.isArray(data)) {
+      if (data.data && Array.isArray(data.data)) {
+        data = data.data
+      } else if (data.items && Array.isArray(data.items)) {
+        data = data.items
+      }
+    }
+
+    const filteredData = data.filter(item => {
+      const id = parseInt(item.id)
+      return id >= 29 && id <= 64
+    })
+
+    minorganList.value = filteredData.map(item => ({
+      id: item.id,
+      uz: item.name_uz || item.uz || item.name?.uz,
+      oz: item.name_oz || item.oz || item.name?.oz,
+      ru: item.name_ru || item.ru || item.name?.ru,
+      name: item.name
+    }))
+
+  } catch (error) {
+    console.error('Minorgan ma\'lumotlarini olishda xato:', error)
+  } finally {
+    minorganLoading.value = false
+  }
+}
+
+// Tashkilot nomini olish funktsiyasi
+const getOrganizationName = (orgId) => {
+  if (!orgId || !minorganList.value.length) return 'N/A'
+  
+  const org = minorganList.value.find(item => item.id == orgId)
+  if (org) {
+    return org.uz || org.name || org.ru || 'Noma\'lum tashkilot'
+  }
+  return 'Noma\'lum tashkilot'
+}
 
 // Format date function
 const formatDate = (dateString) => {
@@ -555,8 +619,9 @@ watch(currentPage, (newPage, oldPage) => {
 })
 
 // Lifecycle
-onMounted(() => {
+onMounted(async() => {
   console.log('Component mounted, fetching data...') // Debug log
+  await fetchMinorganData()
   getList()
 })
 </script>
