@@ -13,7 +13,7 @@
       <!-- Loyihalar ro'yxati -->
       <div v-for="el of projectsList" :key="el.id" class="mt-[16px]">
           <div @click="handleClick(el)" 
-               class="flex items-center space-x-2 p-2 rounded-[8px] bg-[#F8F8F8]  cursor-pointer transition-all duration-200"
+               class="flex items-center space-x-2 p-2 rounded-[8px] bg-[#F8F8F8] cursor-pointer transition-all duration-200"
                :class="{'bg-white border border-blue-500 shadow-sm': selectedProject && selectedProject.id === el.id}">
               <div>
                   <img :src="gerb" alt="Gerb" class="w-[50px]">

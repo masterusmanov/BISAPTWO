@@ -19,11 +19,11 @@ const shouldShowInternalSidebar = computed(() => {
       <Sidebar />
       <section id="main" class="flex-1 flex flex-col border-2 rounded-[16px] border-gray-200">
         <Header/>
-        <div class="flex bg-white min-h-0 flex-1 p-4 w-full overflow-hidden">
+        <div class="flex bg-white min-h-0 flex-1 p-4 w-full overflow-hidden rounded-b-[14px]">
           <!-- Ichki scroll ishlashi uchun InternalSidebar'ga height va scroll qo'shamiz -->
           <InternalSidebar
             v-if="shouldShowInternalSidebar"
-            class="h-full overflow-y-auto"
+            class="h-full  overflow-y-auto"
           />
           <router-view class="flex-1 h-full overflow-y-auto" />
         </div>
