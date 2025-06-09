@@ -16,42 +16,39 @@
           <h3 class="text-[14px] font-medium text-gray-900">{{ $t('accordions.accordionone') }}</h3>
         </div>
         <div class="flex items-center space-x-2">
-          <button 
-            @click="showModal('revision')" 
-            :disabled="!hasProjectConceptDocuments"
-            :class="{
-              'bg-[#4A51DD] hover:bg-[#46497d]': hasProjectConceptDocuments,
-              'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-refresh text-[16px]'></i> 
-            <span>{{ $t('buttons.forrevison') }}</span>
-          </button>
-          <button 
-            @click="showModal('comment')"
-            :disabled="!hasProjectConceptDocuments"
-            :class="{
-              'bg-[#FD5656] hover:bg-[#c57575]': hasProjectConceptDocuments,
-              'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <span class="font-bold">!</span> 
-            <span>{{ $t('buttons.comment') }}</span>
-          </button>
-          <button 
-            @click="showModal('approve')"
-            :disabled="!hasProjectConceptDocuments"
-            :class="{
-              'bg-[#07A920] hover:bg-[#62a962]': hasProjectConceptDocuments,
-              'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-check-double text-[16px]'></i> 
-            <span>{{ $t('buttons.approve') }}</span>
-          </button>
+          <!-- Tasdiqlangan holat ko'rsatish -->
+          <div v-if="isConceptionApproved" class="flex items-center text-green-600 text-sm font-medium">
+            <i class='bx bx-check-circle text-[18px] mr-1'></i>
+            <span>Tasdiqlangan</span>
+          </div>
+          
+          <!-- Tugmalar faqat tasdiqlanmagan holatda ko'rinadi -->
+          <template v-else>
+            <button 
+              @click="showModal('revision')" 
+              :disabled="!hasProjectConceptDocuments"
+              class="bg-[#4A51DD] hover:bg-[#46497d] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <i class='bx bx-refresh text-[16px]'></i> 
+              <span>{{ $t('buttons.forrevison') }}</span>
+            </button>
+            <button 
+              @click="showModal('comment')"
+              :disabled="!hasProjectConceptDocuments"
+              class="bg-[#FD5656] hover:bg-[#c57575] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <span class="font-bold">!</span> 
+              <span>{{ $t('buttons.comment') }}</span>
+            </button>
+            <button 
+              @click="showModal('approve')"
+              :disabled="!hasProjectConceptDocuments"
+              class="bg-[#07A920] hover:bg-[#62a962] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <i class='bx bx-check-double text-[16px]'></i> 
+              <span>{{ $t('buttons.approve') }}</span>
+            </button>
+          </template>
         </div>
       </div>
       
@@ -166,26 +163,30 @@
         v-show="openSections.technical"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-        <div class="space-y-2 px-4">
-          <!-- Technical Items -->
-          <div v-for="(item, index) in technicalItems" :key="item.key" class="flex items-center justify-between bg-[#F8F8F8] rounded-lg">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-16 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
-                {{ index + 1 }}
-              </div>
-              <div>
-                <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                <p class="font-medium text-sm text-gray-700">{{ $t(`${item.title}`) }}</p>
-              </div>
+      <div v-if="technicalDocuments.length > 0" class="space-y-4">
+        <div v-for="(item, index) in technicalDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
+              {{ index + 1 }}
             </div>
-            <div class="flex items-center space-x-2 pr-4">
-              <button @click="downloadFile()" class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50">
-                <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
-                <span>{{ $t('downfile') }}</span>
-              </button>
+            <div>
+              <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+              <p class="font-medium text-gray-700 text-sm">
+                {{ getDocumentTitle(item.type) }}
+              </p>
             </div>
           </div>
+          <div class="flex items-center space-x-2 pr-4">
+            <button 
+              @click="downloadFile(item.fileUrl, item.fileName)" 
+              class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
+            >
+              <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
+              <span>{{ $t('downfile') }}</span>
+            </button>
+          </div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -410,6 +411,9 @@ const filesData = ref(null);
 const loading = ref(false);
 const error = ref('');
 
+// technical items
+const technicalDocuments = ref([]);
+
 // API dan kelgan hujjatlar
 const conceptionDocuments = ref([]);
 
@@ -441,8 +445,13 @@ const isConceptionAccepted = computed(() => {
 });
 
 const hasTechnicalDocuments = computed(() => {
-  // Technical hujjatlar mavjudligini tekshirish
-  return false; // Hozircha false
+  if (!projectData.value?.project_documents) return false;
+  
+  const technicalDoc = projectData.value.project_documents.find(
+    doc => doc.type === 'PROJECT_TS'
+  );
+  
+  return technicalDoc && technicalDoc.documents && technicalDoc.documents.length > 0;
 });
 
 const hasLBXDocuments = computed(() => {
@@ -451,7 +460,7 @@ const hasLBXDocuments = computed(() => {
 });
 
 const canAccessTechnical = computed(() => {
-  return isConceptionAccepted.value && hasTechnicalDocuments.value;
+  return isConceptionApproved.value && hasTechnicalDocuments.value;
 });
 
 const canAccessLBX = computed(() => {
@@ -733,6 +742,19 @@ const handleSubmitModal = async () => {
     // Ma'lumotlarni yangilash
     await fetchFilesConsep();
 
+    if (modalType.value === 'approve') {
+
+      // Project document status ni yangilash
+    if (projectData.value?.project_documents) {
+      const projectConceptDoc = projectData.value.project_documents.find(
+        doc => doc.type === 'PROJECT_CONCEPT'
+      );
+      if (projectConceptDoc) {
+        projectConceptDoc.status = 'ACCEPTED';
+      }
+    }
+}
+
   } catch (error) {
     // Loading toast ni yopish
     if (loadingToastId) toast.remove(loadingToastId);
@@ -939,6 +961,7 @@ const fetchFilesConsep = async () => {
     lastLoadedProjectId.value = selectedProject.id;
     
     await processConceptionDocuments();
+    await processTechnicalDocuments();
     
     if (!hasProjectConceptDocuments.value) {
       toast.info('Hujjatlar mavjud emas', { autoClose: 2000 });
@@ -970,6 +993,54 @@ const fetchFilesConsep = async () => {
     loading.value = false;
   }
 };
+
+// Konsepsiya tasdiqlangan holatini tekshirish
+const isConceptionApproved = computed(() => {
+  if (!projectData.value?.project_documents) return false;
+  
+  const projectConceptDoc = projectData.value.project_documents.find(
+    doc => doc.type === 'PROJECT_CONCEPT'
+  );
+  
+  return projectConceptDoc?.status === 'ACCEPTED';
+});
+
+
+const processTechnicalDocuments = async () => {
+  if (!projectData.value) return;
+
+  const technicalDoc = projectData.value.project_documents?.find(
+    doc => doc.type === 'PROJECT_TS'
+  );
+
+  if (!technicalDoc || !technicalDoc.documents) {
+    technicalDocuments.value = [];
+    return;
+  }
+
+  const filesList = await fetchFilesList();
+  
+  if (!filesList) {
+    technicalDocuments.value = [];
+    return;
+  }
+
+  const processedDocuments = technicalDoc.documents.map(doc => {
+    const fileInfo = getFileById(doc.file_id, filesList);
+    
+    return {
+      id: doc.id,
+      type: doc.type,
+      file_id: doc.file_id,
+      fileUrl: fileInfo?.url || null,
+      fileName: fileInfo?.name || 'Nomsiz fayl',
+      projectId: doc.project_id || projectData.value.id
+    };
+  });
+
+  technicalDocuments.value = processedDocuments;
+};
+
 
 // Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const watchSelectedProject = () => {

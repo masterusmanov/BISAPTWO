@@ -32,7 +32,7 @@
             <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
           </button>
           <button 
-            v-if="sectionStatuses.conception !== 'ACCEPTED'"
+            v-if="projectDatatwo !== 'ACCEPTED'"
             :disabled="!allConceptionFilesUploaded || isLoading.conception || sectionStatuses.conception === 'ACCEPTED'"
             @click="sendConceptionFiles"
             :class="{
@@ -73,31 +73,45 @@
               </div>
             </div>
             <div class="flex items-center space-x-2 pr-4">
-              <input 
-                type="file" 
-                :id="`conception-file${index + 2}`"
-                @change="handleFileUpload($event, 'conception', item.key)"
-                class="hidden"
-                accept=".pdf"
-                :disabled="sectionStatuses.conception === 'ACCEPTED'"
-              />
-              <label 
-                :for="`conception-file${index + 2}`"
-                :class="{
-                  'bg-blue-500 hover:bg-blue-600 text-white': fileStates.conception[item.key].uploaded,
-                  'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.conception[item.key].uploaded,
-                  'cursor-not-allowed opacity-50': sectionStatuses.conception === 'ACCEPTED'
-                }"
-                class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+              <!-- Agar projectDatatwo ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
+              <div v-if="projectDatatwo === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                    clip-rule="evenodd"
+                  />
                 </svg>
-                <span>{{ fileStates.conception[item.key].uploaded ? fileStates.conception[item.key].fileName : 'Fayl biriktirish' }}</span>
-              </label>
+                Tasdiqlandi
+              </div>
               
-              <div 
-                v-if="fileStates.conception[item.key].uploaded && sectionStatuses.conception !== 'ACCEPTED'"
+              <!-- Agar projectDatatwo ACCEPTED bo'lmasa, file upload ko'rsatish -->
+              <template v-else>
+                <input 
+                  type="file" 
+                  :id="`conception-file${index + 2}`"
+                  @change="handleFileUpload($event, 'conception', item.key)"
+                  class="hidden"
+                  accept=".pdf"
+                  :disabled="projectDatatwo === 'ACCEPTED'"
+                />
+                <label 
+                  :for="`conception-file${index + 2}`"
+                  :class="{
+                    'bg-blue-500 hover:bg-blue-600 text-white': fileStates.conception[item.key].uploaded,
+                    'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.conception[item.key].uploaded,
+                    'cursor-not-allowed opacity-50': sectionStatuses.conception === 'ACCEPTED'
+                  }"
+                  class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+                  </svg>
+                  <span>{{ fileStates.conception[item.key].uploaded ? fileStates.conception[item.key].fileName : 'Fayl biriktirish' }}</span>
+                </label>
+                
+                <div 
+                  v-if="fileStates.conception[item.key].uploaded && sectionStatuses.conception !== 'ACCEPTED'"
                 >
                   <button 
                     v-if="!fileStates.conception[item.key].saved"
@@ -107,21 +121,22 @@
                   >
                     {{ isLoading.files[`conception_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
                   </button>
-
-                <div 
-                  v-else
-                  class="flex items-center text-green-600 text-sm font-medium px-2"
-                >
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path 
-                      fill-rule="evenodd" 
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  Saqlandi
+            
+                  <div 
+                    v-else
+                    class="flex items-center text-green-600 text-sm font-medium px-2"
+                  >
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path 
+                        fill-rule="evenodd" 
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Saqlandi
+                  </div>
                 </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -654,7 +669,7 @@ const allLbxFilesUploaded = computed(() =>
 );
 
 const isTechnicalEnabled = computed(() => 
-  sectionStatuses.conception === 'ACCEPTED'
+  projectDatatwo.value === 'ACCEPTED'
 );
 
 const isLbxEnabled = computed(() => 
@@ -703,6 +718,7 @@ const saveFile = async (section, item) => {
 
     const response = await api.post('/files/create', formData, {
       headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'multipart/form-data'
       }
     });
@@ -750,14 +766,20 @@ const createProjectDocument = async (type, projectId) => {
       project_id: projectId
     }
 
-    const response = await api.post('/project-documents/create', projectDoc);
-    console.log('Project document created:', projectDoc);
-
-    console.log(response.data);
+    const response = await api.post('/project-documents/create', projectDoc, {
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Project document created response:', response.data);
     
-    
-    // return response.data.data.id;
-    return projectDoc.project_id;
+    // Response dan to'g'ri project document ID ni qaytarish
+    if (response.data && response.data.data && response.data.data.id) {
+      return response.data.data.id; // Project document ID
+    } else {
+      throw new Error('Project document ID not found in response');
+    }
   } catch (error) {
     console.error('Project document creation error:', error);
     throw error;
@@ -766,7 +788,6 @@ const createProjectDocument = async (type, projectId) => {
 
 const sendConceptionFiles = async () => {
   isLoading.conception = true;
-
   try {
     // Get ministry ID from sessionStorage
     const ministryId = JSON.parse(sessionStorage.getItem('selectMinistry'));
@@ -776,27 +797,35 @@ const sendConceptionFiles = async () => {
     }
 
     // Create project document
-    const projectDocumentId = await createProjectDocument('PROJECT_CONCEPT', ministryId.id);
-    sessionStorage.setItem('conceptionDocumentId', JSON.stringify(projectDocumentId));
-    console.log("nima uchun undefined", projectDocumentId);
+    const projectDocumentResponse = await createProjectDocument('PROJECT_CONCEPT', ministryId.id);
+    console.log("Project document response:", projectDocumentResponse);
     
-    documentIds.conception = projectDocumentId.project_id;
-    sessionStorage.setItem('conceptionDocumentId', projectDocumentId.project_id);
+    // projectDocumentResponse ni to'g'ri olish
+    const projectDocumentId = projectDocumentResponse; // yoki projectDocumentResponse.id agar response object bo'lsa
+    
+    sessionStorage.setItem('conceptionDocumentId', projectDocumentId);
+    documentIds.conception = projectDocumentId;
 
-    // Prepare document data
+    // Prepare document data - to'g'ri project_document_id ishlatish
     const documentData = {
-      project_document_id: projectDocumentId,
+      project_document_id: projectDocumentId, // Bu projectDocumentId bo'lishi kerak, ministryId.id emas
       letter_file_id: fileIds.conception.letter_file_id,
       solution_file_id: fileIds.conception.solution_file_id,
       concept_project_file_id: fileIds.conception.concept_project_file_id,
       protocol_file_id: fileIds.conception.protocol_file_id
     };
 
-    console.log(documentData);
+    console.log("Document data being sent:", documentData);
     
-
     // Send document data
-    const response = await api.post('/documents/create', documentData);
+    const response = await api.post('/documents/create', documentData, {
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log("Documents create response:", response.data);
 
     if (response.data) {
       sectionStatuses.conception = 'TO_REVIEW';
