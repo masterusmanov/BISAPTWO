@@ -461,7 +461,7 @@
             </div>
 
             <!-- Files List -->
-            <div class="space-y-2 px-4 mt-4">
+            <!-- <div class="space-y-2 px-4 mt-4">
               <h3 class="font-medium text-gray-900 mb-2">Hujjatlar ro'yxati</h3>
               <div v-for="(item, index) in getSectionItems(currentSection)" :key="item.key" class="flex items-center justify-between bg-gray-100 rounded-lg">
                 <div class="flex items-center space-x-3">
@@ -487,7 +487,7 @@
                   </button>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -514,6 +514,12 @@ const projectDatatwo = computed(() => {
   return projectData.value?.project_documents[0]?.status || '';
 });
 
+const projectDatatwoansware = computed(() => {
+  return projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.answer || '';
+});
+
+
+
 // Ma'lumotni olish funksiyasi
 const fetchProjectData = async () => {
   const selectedMinistry = JSON.parse(sessionStorage.getItem('selectMinistry'));
@@ -538,7 +544,7 @@ const fetchProjectData = async () => {
       }
     });
     projectData.value = response.data.data;
-    console.log("Project data:", projectData.value);
+    console.log("Project data now:", projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.answer);
   } catch (err) {
     console.error(err);
     error.value = 'Ma\'lumotni olishda xatolik yuz berdi';
@@ -654,6 +660,8 @@ const fileIds = reactive({
   technical: {},
   lbx: {}
 });
+
+
 
 // Computed properties
 const allConceptionFilesUploaded = computed(() => 

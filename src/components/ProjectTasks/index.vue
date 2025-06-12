@@ -1,28 +1,90 @@
 <template>
-    <div class="flex w-full ">
-      <div class="sidebar rounded-lb-[16px] h-full bg-white border-r border-gray-300">
-        <div class="border border-gray-400 flex items-center px-2 space-x-1 py-[5px] rounded-[8px] mt-[10px]">
-            <label for="search"><i class='bx bx-search text-lg text-gray-500 mt-1'></i></label>
-            <input type="text" id="search" name="search" :placeholder="$t(`search`)" class=" w-full outline-none">
+  <div class="flex w-full">
+    <div class="sidebar rounded-lb-[16px] h-full bg-white border-r border-gray-300">
+      <div class="border border-gray-400 flex items-center px-2 space-x-1 py-[5px] rounded-[8px] mt-[10px]">
+        <label for="search"><i class='bx bx-search text-lg text-gray-500 mt-1'></i></label>
+        <input 
+          type="text" 
+          id="search" 
+          name="search" 
+          v-model="searchQuery"
+          :placeholder="$t(`search`)" 
+          class="w-full outline-none"
+          @input="filterProjectsBySearch"
+        >
+      </div>
+      
+      <!-- Tashkilotlar bo'yicha accordion -->
+      <div class="space-y-2 mt-4">
+        <div v-for="organization in groupedProjectsByOrganization" :key="organization.id" class="border border-gray-200 rounded-lg">
+          <!-- Accordion Header -->
+          <button
+            @click="toggleOrganizationAccordion(organization.id)"
+            class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-t-lg transition-colors"
+            :class="{'rounded-lg': !openAccordions.includes(organization.id)}"
+          >
+            <div class="flex items-center space-x-3">
+              <img :src="gerb" alt="Gerb" class="w-[40px]">
+              <div class="text-left">
+                <p class="text-[12px] font-bold text-gray-800">
+                  {{ organization.name.slice(0, 25) }}...
+                </p>
+                <p class="text-[10px] text-gray-500">
+                  {{$t('projects_count')}}: {{ organization.projects.length }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div>
+              <i 
+                class='bx text-lg text-gray-600 transition-transform duration-200'
+                :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
+              ></i>
+            </div>
+          </button>
+          
+          <!-- Accordion Content -->
+          <div 
+            v-show="openAccordions.includes(organization.id)"
+            class="border-t border-gray-200 bg-white rounded-b-lg overflow-hidden"
+          >
+            <div class="max-h-60 overflow-y-auto">
+              <div 
+                v-for="project in organization.projects" 
+                :key="project.id" 
+                @click="saveToLocalStorage(project, organization.name)"
+                class="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0"
+                :class="{'bg-blue-50 border-l-4 border-l-blue-500': selectedProject && selectedProject.id === project.id}"
+              >
+                <div class="flex-shrink-0">
+                  <div class="w-[40px] h-[40px] bg-blue-100 rounded-lg flex items-center justify-center">
+                    <img :src="gerb" alt="Gerb" class="w-[20px]">
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-[11px] text-gray-800 truncate">
+                    {{$t('ministry.project')}}: <span class="font-normal">{{project.name ? project.name.slice(0, 20) : 'No name'}}...</span>
+                  </p>
+                  <p class="text-[9px] text-gray-500">
+                    ID: {{ project.id }}
+                  </p>
+                  <p class="text-[9px] text-gray-400">
+                    {{ formatDate(project.created_at) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <!-- Loyihalar ro'yxati -->
-        <div v-for="el of projectsList" :key="el.id" class="mt-[16px]">
-            <div @click="saveToLocalStorage(el)" 
-                 class="flex items-center space-x-2 p-2 rounded-[8px] bg-[#F8F8F8]  cursor-pointer transition-all duration-200"
-                 :class="{'bg-white border border-blue-500 shadow-sm': selectedProject && selectedProject.id === el.id}">
-                <div>
-                    <img :src="gerb" alt="Gerb" class="w-[50px]">
-                    <p class="w-[8px] h-[8px] rounded-full bg-green-500 float-right"></p>
-                </div>
-                <div>
-                  <p class="text-[14px] font-[700]">{{ getOrgName(el.organizations_id).slice(0, 30) }}</p>
-                    <p class="text-[12px] font-bold">{{$t('ministry.project')}}: <span class="font-normal">{{$t(`${el.name}`).slice(0, 25)}}</span></p>
-                </div>
-            </div>
+        <!-- Agar hech qanday tashkilot topilmasa -->
+        <div v-if="groupedProjectsByOrganization.length === 0" class="text-center py-8 text-gray-500">
+          <i class='bx bx-search text-4xl mb-2'></i>
+          <p class="text-sm">{{$t('no_organizations_found')}}</p>
         </div>
+      </div>
     </div>
-  
+
     <!-- Tanlangan loyiha ma'lumotlarini ko'rsatish -->
     <div v-if="selectedProject" class="ml-4 w-[100%] bg-gray-100 rounded-lg border border-blue-200">
       <div class="bg-white p-4 rounded-lg flex items-center space-x-6">
@@ -31,36 +93,59 @@
           <p class="w-[8px] h-[8px] rounded-full bg-green-500 float-right"></p>
         </div>
         <div class="space-y-2">
-          <p class="text-sm font-[700]">{{selectedProject.organizationName}}</p>
+          <p class="text-sm font-[700]">{{ selectedProject.organizationName }}</p>
           <p class="text-sm"><strong>{{$t('ministry.project')}}:</strong> {{ selectedProject.name }}</p>
+          <p class="text-xs text-gray-500">Project ID: {{ selectedProject.id }}</p>
         </div>
       </div>
       <div class="p-4">
         <AccordionMode/>
       </div>
     </div>
+    
+    <!-- Debug info (remove in production) -->
+    <div v-if="!selectedProject" class="ml-4 w-[100%] bg-red-50 p-4 rounded-lg border border-red-200">
+      <p class="text-red-600">No project selected. Click on a project to select it.</p>
+      <p class="text-xs text-gray-500 mt-2">Debug: selectedProject = {{ selectedProject }}</p>
     </div>
-  </template>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import axios from 'axios'
+import { toast } from 'vue3-toastify';
+import "vue3-toastify/dist/index.css";
+import notificationministry from "../../constants/notificationministry"
+import gerb from '../../assets/images/sign/gerb.png';
+import AccordionMode from './AccordionMode.vue';
+
+const notfministry = ref(notificationministry)
+const { t: $t, locale } = useI18n()
+
+// Yangi state-lar
+const openAccordions = ref([]) // Ochiq accordionlar
+const searchQuery = ref('') // Qidiruv uchun
+const groupedProjectsByOrganization = ref([]) // Tashkilotlar bo'yicha guruhlangan loyihalar
+
+// Mavjud state-lar
+const selectedProject = ref(null)
+const loading = ref(false)
+const error = ref('')
+const meInfo = ref(null);
+const organizationId = ref(null);
+const organizationNames = ref({})
+const minorganListwo = ref([])
+const projectsList = ref([])
+const organizationList = ref([])
+const filteredProjects = ref([])
+
+const saveToLocalStorage = (selectItem, organizationName = null) => {
+  console.log('saveToLocalStorage called with:', selectItem, organizationName);
   
-  <script setup>
-  import { ref, onMounted, computed } from 'vue'
-  import { useI18n } from 'vue-i18n'
-  import axios from 'axios'
-  import { toast } from 'vue3-toastify';
-  import "vue3-toastify/dist/index.css";
-  import notificationministry from "../../constants/notificationministry"
-  import gerb from '../../assets/images/sign/gerb.png';
-  import AccordionMode from './AccordionMode.vue';
-  
-  const notfministry = ref(notificationministry)
-  const { t: $t, locale } = useI18n()
-  
-  // Tanlangan loyiha uchun reaktiv o'zgaruvchi
-  const selectedProject = ref(null)
-  
-  const saveToLocalStorage = (selectItem) => {
   // Organization nomini olish
-  const orgName = getOrgName(selectItem.organizations_id);
+  const orgName = organizationName || getOrgName(selectItem.organizations_id);
   
   // selectItem ga organization nomini qo'shish
   const itemWithOrgName = {
@@ -68,130 +153,197 @@
     organizationName: orgName
   };
   
-  selectedProject.value = itemWithOrgName; // Reaktiv o'zgaruvchini yangilash
+  console.log('Setting selectedProject to:', itemWithOrgName);
+  selectedProject.value = itemWithOrgName;
   sessionStorage.setItem('selectMinistry', JSON.stringify(itemWithOrgName));
+  
+  // Force reactivity update
+  console.log('selectedProject.value after setting:', selectedProject.value);
 }
+
+// Accordion funksiyalari
+const toggleOrganizationAccordion = (organizationId) => {
+  const index = openAccordions.value.indexOf(organizationId)
+  if (index > -1) {
+    openAccordions.value.splice(index, 1)
+  } else {
+    openAccordions.value.push(organizationId)
+  }
+}
+
+// Loyihalarni tashkilot bo'yicha guruhlash
+const groupProjectsByOrganization = () => {
+  const grouped = new Map()
   
-  const loading = ref(false)
-  const error = ref('')
-  const meInfo = ref(null);
-  const organizationId = ref(null);
-  const organizationNames = ref({})
-  const minorganListwo = ref([])
-  const projectsList = ref([]) // Backenddan kelgan loyihalar ro'yxati
-  const organizationList = ref([]) // Backenddan kelgan loyihalar ro'yxati
-  const filteredProjects = ref([])
-  
-    
-  const currentLanguage = computed(() => locale.value)
-  
-  const getLocalizedName = (item) => {
-    if (!item) return ''
-  
-    const lang = currentLanguage.value
-  
-    // Avval hozirgi tilni tekshirish
-    if (item[lang]) return item[lang]
-  
-    // name obyektidan izlash
-    if (item.name && typeof item.name === 'object') {
-      if (item.name[lang]) return item.name[lang]
-      // Fallback tartibi: oz uchun uz dan foydalanish, keyin boshqalar
-      if (lang === 'oz' && item.name.uz) return item.name.uz
+  projectsList.value.forEach(project => {
+    if (project.organizations_id) {
+      const orgId = project.organizations_id
+      const orgName = getOrgName(orgId)
       
-      const fallbackOrder = ['uz', 'ru', 'eng', 'en']
-      for (const fallbackLang of fallbackOrder) {
-        if (item.name[fallbackLang]) return item.name[fallbackLang]
+      if (!grouped.has(orgId)) {
+        grouped.set(orgId, {
+          id: orgId,
+          name: orgName,
+          projects: []
+        })
       }
-      // Agar hech qaysi til topilmasa, birinchi qiymatni qaytarish
-      const firstKey = Object.keys(item.name)[0]
-      if (firstKey) return item.name[firstKey]
+      
+      grouped.get(orgId).projects.push(project)
     }
+  })
   
-    // oz tili uchun uz dan fallback
-    if (lang === 'oz' && item.uz) return item.uz
-  
-    // Oddiy string nom
-    if (typeof item.name === 'string') return item.name
-  
-    // Fallback qiymatlar
-    const fallbackFields = ['title', 'label', 'text']
-    for (const field of fallbackFields) {
-      if (item[field]) {
-        if (typeof item[field] === 'object') {
-          if (item[field][lang]) return item[field][lang]
-          if (lang === 'oz' && item[field].uz) return item[field].uz
-        } else if (typeof item[field] === 'string') {
-          return item[field]
-        }
-      }
-    }
-  
-    // Default: ID bilan
-    return `${$t('organization')} ${item.id}`
+  groupedProjectsByOrganization.value = Array.from(grouped.values())
+}
+
+// Qidiruv funksiyasi
+const filterProjectsBySearch = () => {
+  if (!searchQuery.value.trim()) {
+    groupProjectsByOrganization()
+    return
   }
   
-  const fetchMinorganIdData = async (orgId) => {
-      loading.value = true;
-      error.value = '';
+  const filtered = new Map()
   
-      try {
-          const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-              },
-              params: {
-                  start_id: 29,
-                  end_id: 64,
-              }
-          });
-  
-        let data = response.data;
-          console.log(data);
-          
-  
-          // Agar API javobi array emas bo'lsa, ma'lumotlarni qayta ishlash
-          if (!Array.isArray(data)) {
-              if (data.data && Array.isArray(data.data)) {
-                  data = data.data;
-              } else if (data.items && Array.isArray(data.items)) {
-                  data = data.items;
-              } else {
-                  throw new Error("API noto'g'ri formatda javob qaytardi");
-              }
-          }
-  
-          // ID bo'yicha filter qilish (orgId ga mos keladigan ma'lumotni topish)
-          const filteredData = data.filter(item => {
-              const id = parseInt(item.id);
-              return id === orgId; // Faqat berilgan ID ga mos keladigan ma'lumot
-          });
-  
-          // Agar ma'lumot topilsa, uni ko'rsatish
-          if (filteredData.length > 0) {
-              const selectedOrg = filteredData[0];
-              minorganListwo.value = [{
-                  id: selectedOrg.id,
-                  uz: selectedOrg.name_uz || selectedOrg.uz || selectedOrg.name?.uz,
-                  oz: selectedOrg.name_oz || selectedOrg.oz || selectedOrg.name?.oz,
-                  ru: selectedOrg.name_ru || selectedOrg.ru || selectedOrg.name?.ru,
-                  en: selectedOrg.name_en || selectedOrg.en || selectedOrg.name?.en,
-              }];
-          } else {
-              throw new Error("Berilgan ID ga mos ma'lumot topilmadi");
-          }
-  
-      } catch (err) {
-          console.error('Xatolik:', err);
-          error.value = err.message;
-          minorganListwo.value = []; // Agar xatolik bo'lsa, ro'yxatni tozalash
-      } finally {
-          loading.value = false;
+  projectsList.value.forEach(project => {
+    if (project.organizations_id) {
+      const orgId = project.organizations_id
+      const orgName = getOrgName(orgId)
+      
+      // Tashkilot nomi yoki loyiha nomi bo'yicha qidirish
+      const matchesOrganization = orgName.toLowerCase().includes(searchQuery.value.toLowerCase())
+      const matchesProject = project.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      
+      if (matchesOrganization || matchesProject) {
+        if (!filtered.has(orgId)) {
+          filtered.set(orgId, {
+            id: orgId,
+            name: orgName,
+            projects: []
+          })
+        }
+        
+        filtered.get(orgId).projects.push(project)
       }
-  };
+    }
+  })
+  
+  groupedProjectsByOrganization.value = Array.from(filtered.values())
+}
 
-  const getOrganizationName = async (orgId) => {
+// Format funksiyalari
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('uz-UZ')
+}
+
+const currentLanguage = computed(() => locale.value)
+
+const getLocalizedName = (item) => {
+  if (!item) return ''
+
+  const lang = currentLanguage.value
+
+  // Avval hozirgi tilni tekshirish
+  if (item[lang]) return item[lang]
+
+  // name obyektidan izlash
+  if (item.name && typeof item.name === 'object') {
+    if (item.name[lang]) return item.name[lang]
+    // Fallback tartibi: oz uchun uz dan foydalanish, keyin boshqalar
+    if (lang === 'oz' && item.name.uz) return item.name.uz
+    
+    const fallbackOrder = ['uz', 'ru', 'eng', 'en']
+    for (const fallbackLang of fallbackOrder) {
+      if (item.name[fallbackLang]) return item.name[fallbackLang]
+    }
+    // Agar hech qaysi til topilmasa, birinchi qiymatni qaytarish
+    const firstKey = Object.keys(item.name)[0]
+    if (firstKey) return item.name[firstKey]
+  }
+
+  // oz tili uchun uz dan fallback
+  if (lang === 'oz' && item.uz) return item.uz
+
+  // Oddiy string nom
+  if (typeof item.name === 'string') return item.name
+
+  // Fallback qiymatlar
+  const fallbackFields = ['title', 'label', 'text']
+  for (const field of fallbackFields) {
+    if (item[field]) {
+      if (typeof item[field] === 'object') {
+        if (item[field][lang]) return item[field][lang]
+        if (lang === 'oz' && item[field].uz) return item[field].uz
+      } else if (typeof item[field] === 'string') {
+        return item[field]
+      }
+    }
+  }
+
+  // Default: ID bilan
+  return `${$t('organization')} ${item.id}`
+}
+
+const fetchMinorganIdData = async (orgId) => {
+  loading.value = true;
+  error.value = '';
+
+  try {
+    const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      params: {
+        start_id: 29,
+        end_id: 64,
+      }
+    });
+
+    let data = response.data;
+    console.log(data);
+
+    // Agar API javobi array emas bo'lsa, ma'lumotlarni qayta ishlash
+    if (!Array.isArray(data)) {
+      if (data.data && Array.isArray(data.data)) {
+        data = data.data;
+      } else if (data.items && Array.isArray(data.items)) {
+        data = data.items;
+      } else {
+        throw new Error("API noto'g'ri formatda javob qaytardi");
+      }
+    }
+
+    // ID bo'yicha filter qilish (orgId ga mos keladigan ma'lumotni topish)
+    const filteredData = data.filter(item => {
+      const id = parseInt(item.id);
+      return id === orgId; // Faqat berilgan ID ga mos keladigan ma'lumot
+    });
+
+    // Agar ma'lumot topilsa, uni ko'rsatish
+    if (filteredData.length > 0) {
+      const selectedOrg = filteredData[0];
+      minorganListwo.value = [{
+        id: selectedOrg.id,
+        uz: selectedOrg.name_uz || selectedOrg.uz || selectedOrg.name?.uz,
+        oz: selectedOrg.name_oz || selectedOrg.oz || selectedOrg.name?.oz,
+        ru: selectedOrg.name_ru || selectedOrg.ru || selectedOrg.name?.ru,
+        en: selectedOrg.name_en || selectedOrg.en || selectedOrg.name?.en,
+      }];
+    } else {
+      throw new Error("Berilgan ID ga mos ma'lumot topilmadi");
+    }
+
+  } catch (err) {
+    console.error('Xatolik:', err);
+    error.value = err.message;
+    minorganListwo.value = []; // Agar xatolik bo'lsa, ro'yxatni tozalash
+  } finally {
+    loading.value = false;
+  }
+};
+
+const getOrganizationName = async (orgId) => {
   // Agar allaqachon yuklangan bo'lsa, uni qaytarish
   if (organizationNames.value[orgId]) {
     return organizationNames.value[orgId]
@@ -243,175 +395,301 @@
     console.error('Xatolik:', err);
     return `Xatolik: ${orgId}`;
   }
-  }
+}
 
-  const preloadOrganizationNames = async () => {
+const preloadOrganizationNames = async () => {
   for (const project of projectsList.value) {
     if (project.organizations_id && !organizationNames.value[project.organizations_id]) {
       await getOrganizationName(project.organizations_id);
     }
   }
+  
+  // Tashkilotlar nomlarini yuklash tugagach, gruppalash
+  groupProjectsByOrganization()
 }
-  
-  const getUserMe = async () => {
-      const token = sessionStorage.getItem('token');
-      if (!token) {
-          error.value = 'Token topilmadi';
-          return null;
-      }
-      try {
-          const response = await axios.get('https://back.miit.uz/api/bisap/test/user/me', {
-              headers: {
-                  'Authorization': `Bearer ${token}`
-              }
-          });
-          return response.data;
-      } catch (err) {
-          error.value = 'Xato yuz berdi: ' + err.message;
-          return null;
-      }
-  };
-  
-  // Loyihalar ro'yxatini backenddan olish
-  const fetchProjectsList = async () => {
-    try {
-      const response = await axios.get('https://back.miit.uz/api/bisap/test/project/list?limit=100000&page=1', {
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
-      })
-      
-      projectsList.value = response.data?.data?.results || response.data || []
-      filteredProjects.value = projectsList.value
-      
-    } catch (err) {
-      console.error('Loyihalar ro\'yxatini olishda xato:', err)
-    }
-  }
 
-  const fetchOrganizationList = async () => {
-    try {
-      const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
-      })
-      
-      organizationList.value = response.data?.data?.results || response.data || []
-      console.log('Organization List:', organizationList.value);
-      
-      // filteredProjects.value = organizationList.value
-      
-    } catch (err) {
-      console.error('Organization ro\'yxatini olishda xato:', err)
-    }
+const getUserMe = async () => {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    error.value = 'Token topilmadi';
+    return null;
   }
-
-  // Mount lifecycle
-  onMounted(async () => {
-   await fetchProjectsList()
-   await fetchOrganizationList()// Sahifa yuklanganda loyihalar ro'yxatini oling
-   await preloadOrganizationNames()
-    // Sahifa yuklanganda sessionStorage dan tanlangan loyihani olish
-    const savedProject = sessionStorage.getItem('selectMinistry')
-    if (savedProject) {
-      try {
-        selectedProject.value = JSON.parse(savedProject)
-      } catch (err) {
-        console.error('SessionStorage dan ma\'lumot olishda xato:', err)
-      }
-    }
-    
-    // User ma'lumotlarini olish
-    getUserMe().then(data => {
-      if (data) {
-        meInfo.value = data;
-        organizationId.value = meInfo.value.data.organizations_id;
-        fetchMinorganIdData(organizationId.value);
+  try {
+    const response = await axios.get('https://back.miit.uz/api/bisap/test/user/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
     });
-  })
+    return response.data;
+  } catch (err) {
+    error.value = 'Xato yuz berdi: ' + err.message;
+    return null;
+  }
+};
 
-  const getOrgName = (orgId) => {
+// Loyihalar ro'yxatini backenddan olish
+const fetchProjectsList = async () => {
+  try {
+    const response = await axios.get('https://back.miit.uz/api/bisap/test/project/list?limit=100000&page=1', {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      }
+    })
+    
+    projectsList.value = response.data?.data?.results || response.data || []
+    filteredProjects.value = projectsList.value
+    
+  } catch (err) {
+    console.error('Loyihalar ro\'yxatini olishda xato:', err)
+  }
+}
+
+const fetchOrganizationList = async () => {
+  try {
+    const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      }
+    })
+    
+    organizationList.value = response.data?.data?.results || response.data || []
+    console.log('Organization List:', organizationList.value);
+    
+  } catch (err) {
+    console.error('Organization ro\'yxatini olishda xato:', err)
+  }
+}
+
+// Mount lifecycle
+onMounted(async () => {
+  await fetchProjectsList()
+  await fetchOrganizationList()
+  await preloadOrganizationNames()
+  
+  // Sahifa yuklanganda sessionStorage dan tanlangan loyihani olish
+  const savedProject = sessionStorage.getItem('selectMinistry')
+  if (savedProject) {
+    try {
+      selectedProject.value = JSON.parse(savedProject)
+    } catch (err) {
+      console.error('SessionStorage dan ma\'lumot olishda xato:', err)
+    }
+  }
+  
+  // User ma'lumotlarini olish
+  getUserMe().then(data => {
+    if (data) {
+      meInfo.value = data;
+      organizationId.value = meInfo.value.data.organizations_id;
+      fetchMinorganIdData(organizationId.value);
+    }
+  });
+})
+
+const getOrgName = (orgId) => {
   return organizationNames.value[orgId] || 'Yuklanmoqda...'
 }
-  
-  // Tilni o'zgartirish funksiyasi
-  const changeLanguage = (lang) => {
-    locale.value = lang
+
+// Tilni o'zgartirish funksiyasi
+const changeLanguage = (lang) => {
+  locale.value = lang
+}
+
+// Tilni tekshirish uchun debug funksiya
+const debugCurrentLanguage = () => {
+  console.log('Hozirgi til:', currentLanguage.value)
+  console.log('Locale:', locale.value)
+}
+
+// Export qilish agar boshqa komponentlarda kerak bo'lsa
+defineExpose({
+  changeLanguage,
+  debugCurrentLanguage,
+  currentLanguage: currentLanguage
+})
+</script>
+
+<style lang="scss" scoped>
+.sidebar {
+  width: 280px;
+  padding: 4px;
+  overflow-y: scroll;
+}
+
+.router-link-exact-active {
+  background: white !important;
+  border: 1px solid #3b82f6 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fade-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  // Tilni tekshirish uchun debug funksiya
-  const debugCurrentLanguage = () => {
-    console.log('Hozirgi til:', currentLanguage.value)
-    console.log('Locale:', locale.value)
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  // Export qilish agar boshqa komponentlarda kerak bo'lsa
-  defineExpose({
-    changeLanguage,
-    debugCurrentLanguage,
-    currentLanguage: currentLanguage
-  })
-  </script>
-  
-  <style lang="scss" scoped>
-    .sidebar {
-        width: 280px;
-        padding: 4px;
-        overflow-y: scroll;
-    }
-    
-    .router-link-exact-active {
-        background: white !important;
-        border: 1px solid #3b82f6 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-  
-    @keyframes fade-slide-in {
-        0% {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        100% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      .modal-content {
-        animation: fade-slide-in 0.4s ease-out;
-      }
-      
-      .rotate-180 {
-        transform: rotate(180deg);
-      }
-      
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-      
-      .max-h-60::-webkit-scrollbar {
-        width: 6px;
-      }
-      
-      .max-h-60::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-      }
-      
-      .max-h-60::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
-      }
-      
-      .max-h-60::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-      }
-  </style>
+}
+
+.modal-content {
+  animation: fade-slide-in 0.4s ease-out;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.max-h-60::-webkit-scrollbar {
+  width: 6px;
+}
+
+.max-h-60::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.max-h-60::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.max-h-60::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Accordion animations */
+.accordion-enter-active,
+.accordion-leave-active {
+  transition: all 0.3s ease;
+}
+
+.accordion-enter-from {
+  opacity: 0;
+  max-height: 0;
+}
+
+.accordion-enter-to {
+  opacity: 1;
+  max-height: 300px;
+}
+
+.accordion-leave-from {
+  opacity: 1;
+  max-height: 300px;
+}
+
+.accordion-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+/* Smooth hover transitions */
+.hover-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Selected project highlight */
+.selected-project {
+  background: linear-gradient(90deg, #dbeafe 0%, #f3f4f6 100%);
+  border-left: 4px solid #3b82f6;
+  transform: translateX(4px);
+}
+
+/* Organization accordion hover effect */
+.organization-accordion:hover {
+  background: linear-gradient(45deg, #f8fafc, #f1f5f9);
+}
+
+/* Project item hover effect */
+.project-item:hover {
+  background: linear-gradient(45deg, #f9fafb, #f3f4f6);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Search input focus effect */
+input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Chevron rotation animation */
+.chevron-transition {
+  transition: transform 0.2s ease;
+}
+
+/* Scrollbar customization for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Empty state styling */
+.empty-state {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Badge animations */
+.badge-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
+</style>
