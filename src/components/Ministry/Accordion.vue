@@ -25,7 +25,7 @@
           <p v-if="projectDatatwo === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
             <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
           </p>
-          <button 
+          <button v-if="projectDatatwo !== 'ACCEPTED'"
             @click="openHistoryModal('conception')"
             class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
           >
@@ -426,38 +426,55 @@
         </div>
 
         <!-- Modal Content -->
-        <div class="p-8 max-h-[70vh] overflow-y-auto">
+        <div class=" max-h-[70vh] overflow-y-auto">
           <div class="space-y-2">
+            
             <!-- Status history -->
-            <div v-if="sectionStatuses[currentSection] === 'TO_REVIEW'" class="flex items-center justify-between p-4">
+            <!-- <div v-if="projectDatatwo === 'TO_REVIEW'" class="flex items-center justify-between p-4">
               <div>
                 <p class="text-[#4A51DD] text-[14px] font-[500] flex items-center">
                   <i class='bx bx-refresh text-[18px] mr-1'></i> 
                   Ko'rib chiqish
                 </p>
-                <p class="text-[12px] text-gray-500">{{ formatDate(new Date()) }}</p>
+                <p class="text-[12px] text-gray-500">{{ formatDate(projectDatatthree) }}</p>
+              </div> -->
+              <!-- <div class="text-[14px]">
+                <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
+              </div> -->
+            <!-- </div> -->
+
+            <div v-if="projectDatatwo === 'TO_REVIEW'" class="flex items-center justify-between">
+              <div class="space-y-2 bg-gray-200 w-full p-4">
+                <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
+                  <i class='bx bx-info-circle text-[18px] mr-1'></i>
+                  {{"Qayta ko'rib chiqish uchun"}}
+                </p>
+                <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
               </div>
               <!-- <div class="text-[14px]">
                 <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
               </div> -->
             </div>
 
-            <div v-else-if="sectionStatuses[currentSection] === 'REJECTED'" class="flex items-center justify-between p-4">
-              <div>
-                <p class="text-[14px] font-semibold text-[#4A51DD]">{{$t('returned_revision')}}</p>
+            <div v-if="projectDatatwo === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
+              <p class="text-justify">{{ projectDatatwoansware || 'Izoh mavjud emas' }}</p>
+            </div>
+
+            <div v-else-if="projectDatatwo === 'REJECTED'" class="flex items-center justify-between">
+              <div class="space-y-2 bg-gray-200 w-full p-4">
                 <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
                   <i class='bx bx-info-circle text-[18px] mr-1'></i>
                   {{$t('remark')}}
                 </p>
-                <p class="text-[12px] text-gray-500">{{ formatDate(new Date()) }}</p>
+                <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
               </div>
               <!-- <div class="text-[14px]">
                 <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
               </div> -->
             </div>
 
-            <div v-if="sectionStatuses[currentSection] === 'REJECTED'" class="p-4 bg-red-50 border-l-4 border-red-400 rounded">
-              <p class="text-justify">{{ rejectionComments[currentSection] || 'Izoh mavjud emas' }}</p>
+            <div v-if="projectDatatwo === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
+              <p class="text-justify">{{ projectDatatwoansware || 'Izoh mavjud emas' }}</p>
             </div>
 
             <!-- Files List -->
@@ -512,6 +529,9 @@ const error = ref(null);
 // Computed property holatiga o'tkazamiz
 const projectDatatwo = computed(() => {
   return projectData.value?.project_documents[0]?.status || '';
+});
+const projectDatatthree = computed(() => {
+  return projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.created_at || '';
 });
 
 const projectDatatwoansware = computed(() => {
