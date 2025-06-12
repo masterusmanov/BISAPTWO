@@ -11,20 +11,23 @@
       </button>
       
       <!-- Loyihalar ro'yxati -->
-      <div v-for="el of projectsList" :key="el.id" class="mt-[16px]">
-          <div @click="handleClick(el)" 
-               class="flex items-center space-x-2 p-2 rounded-[8px] bg-[#F8F8F8] cursor-pointer transition-all duration-200"
-               :class="{'bg-white border border-blue-500 shadow-sm': selectedProject && selectedProject.id === el.id}">
-              <div>
-                  <img :src="gerb" alt="Gerb" class="w-[50px]">
-                  <p class="w-[8px] h-[8px] rounded-full bg-green-500 float-right"></p>
-              </div>
-              <div>
-                  <p class="text-[12px] text-justify font-bold">{{ getLocalizedName(minorganListwo[0]).slice(0, 15) }}...</p>
-                  <p class="font-bold text-[10px]">{{$t('ministry.project')}}: <span class="font-normal">{{$t(`${el.name}`).slice(0, 25)}}</span></p>
-              </div>
-          </div>
-      </div>
+      <div v-for="el of projectsList.slice().reverse()" :key="el.id" class="mt-[16px]">
+        <div @click="handleClick(el)" 
+             class="flex items-center space-x-2 p-2 rounded-[8px] bg-[#F8F8F8] cursor-pointer transition-all duration-200"
+             :class="{'bg-white border border-blue-500 shadow-sm': selectedProject && selectedProject.id === el.id}">
+            <div class="relative w-[50px] h-[50px] flex-shrink-0">
+                <img :src="gerb" alt="Gerb" class="w-full h-full object-contain">
+                <div class="absolute bottom-1 -right-1 w-[8px] h-[8px] rounded-full bg-green-500"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-[12px] font-bold truncate">{{ getLocalizedName(minorganListwo[0]) }}</p>
+                <p class="font-bold text-[10px] truncate">
+                    {{$t('ministry.project')}}: 
+                    <span class="font-normal">{{$t(`${el.name}`)}}</span>
+                </p>
+            </div>
+        </div>
+    </div>
   </div>
 
   <!-- Modal -->

@@ -58,7 +58,7 @@
               >
                 <div class="flex-shrink-0">
                   <div class="w-[40px] h-[40px] bg-blue-100 rounded-lg flex items-center justify-center">
-                    <img :src="gerb" alt="Gerb" class="w-[20px]">
+                    <img :src="gerb" alt="Gerb" class="w-[25px]">
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
