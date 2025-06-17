@@ -83,9 +83,10 @@
                   {{ index + 1 }}
                 </div>
                 <div>
-                  <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+                  <p class="text-sm text-gray-700">{{ item.date_time }}</p>
                   <p class="font-medium text-gray-700 text-sm">
-                    {{ getDocumentTitle(item.type) }}
+                    <!-- {{ getDocumentTitle(item.filename) }} -->
+                      {{ item.fileName }}
                   </p>
                 </div>
               </div>
@@ -362,7 +363,7 @@
           </div>
 
           <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-          <div v-if="modalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+          <!-- <div v-if="modalType !== 'approve'" class="flex items-center space-x-2 pr-4">
             <input 
               type="file" 
               :id="modalType + '-file'"
@@ -383,7 +384,7 @@
               </svg>
               <span>{{ fileState.uploaded ? fileState.fileName : 'Fayl biriktirish' }}</span>
             </label>
-          </div>
+          </div> -->
 
           <!-- Action buttons -->
           <div class="flex items-center justify-center space-x-4 my-4">
@@ -905,7 +906,7 @@ const modalConfig = computed(() => {
       title: "Tasdiqlash",
       titleColor: 'text-[#07A920]',
       icon: 'bx bx-check-circle text-[#07A920]',
-      placeholder: "Tasdiqlash izohi (ixtiyoriy)...",
+      placeholder: "Tasdiqlash izohi ...",
       buttonText: "Tasdiqlash",
       buttonClass: 'bg-[#07A920] hover:bg-[#069A1E]'
     }
@@ -929,7 +930,6 @@ const getSelectedProject = () => {
 
 // Modal funktsiyalari
 const showModal = (type) => {
-  const showModal = (type) => {
   if (!hasProjectConceptDocuments.value || filteredConceptionDocuments.value.length === 0) {
     toast.warning('Hujjatlar mavjud emas!', { autoClose: 2000 });
     return;
@@ -938,7 +938,6 @@ const showModal = (type) => {
   modalType.value = type;
   openmodal.value = true;
   resetForm();
-};
 };
 
 const closeModal = () => {
@@ -1257,16 +1256,14 @@ const processConceptionDocuments = async () => {
   const selectedProject = getSelectedProject();
   
   const processedDocuments = projectConceptDoc.documents.map(doc => {
-    const fileInfo = getFileById(doc.file_id, filesList);
-    console.log(`File ID: ${doc.file_id}, File Info:`, fileInfo);
+    const fileInfo = getFileById(doc.id, filesList);
+    console.log(`File ID: ${doc.id}, File Info:`, fileInfo);
     
     return {
       id: doc.id,
-      type: doc.type,
-      file_id: doc.file_id,
+      date_time: doc.created_at,
       fileUrl: fileInfo?.url || null,
       fileName: fileInfo?.name || 'Nomsiz fayl',
-      projectId: doc.project_id || projectData.value.id
     };
   });
 
