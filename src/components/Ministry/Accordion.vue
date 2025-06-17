@@ -124,16 +124,27 @@
             
                   <div 
                     v-else
-                    class="flex items-center text-green-600 text-sm font-medium px-2"
+                    class="flex items-center space-x-2"
                   >
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path 
-                        fill-rule="evenodd" 
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    Saqlandi
+                    <div class="flex items-center text-green-600 text-sm font-medium">
+                      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path 
+                          fill-rule="evenodd" 
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      Saqlandi
+                    </div>
+                    <button 
+                      @click="deleteFile('conception', item.key)"
+                      :disabled="isLoading.files[`delete_conception_${item.key}`]"
+                      class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      <i v-if="!isLoading.files[`delete_conception_${item.key}`]" class='bx bx-x'></i>
+                      <i v-else class='bx bx-loader-alt animate-spin'></i>
+                      <!-- {{ isLoading.files[`delete_conception_${item.key}`] ? '' : 'O\'chirish' }} -->
+                    </button>
                   </div>
                 </div>
               </template>
@@ -273,16 +284,27 @@
               
               <div 
                 v-else
-                class="flex items-center text-green-600 text-sm font-medium px-2"
+                class="flex items-center space-x-2"
               >
-                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path 
-                    fill-rule="evenodd" 
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                Saqlandi
+                <div class="flex items-center text-green-600 text-sm font-medium">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path 
+                      fill-rule="evenodd" 
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  Saqlandi
+                </div>
+                <button 
+                  @click="deleteFile('technical', item.key)"
+                  :disabled="isLoading.files[`delete_technical_${item.key}`]"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  <i v-if="!isLoading.files[`delete_technical_${item.key}`]" class='bx bx-trash'></i>
+                  <i v-else class='bx bx-loader-alt animate-spin'></i>
+                  {{ isLoading.files[`delete_technical_${item.key}`] ? '' : 'O\'chirish' }}
+                </button>
               </div>
             </div>
           </template>
@@ -405,12 +427,23 @@
                 </button>
                 <div 
                   v-else
-                  class="flex items-center text-green-600 text-sm font-medium px-2"
+                  class="flex items-center space-x-2"
                 >
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                  Saqlandi
+                  <div class="flex items-center text-green-600 text-sm font-medium">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Saqlandi
+                  </div>
+                  <button 
+                    @click="deleteFile('lbx', item.key)"
+                    :disabled="isLoading.files[`delete_lbx_${item.key}`]"
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    <i v-if="!isLoading.files[`delete_lbx_${item.key}`]" class='bx bx-trash'></i>
+                    <i v-else class='bx bx-loader-alt animate-spin'></i>
+                    {{ isLoading.files[`delete_lbx_${item.key}`] ? '' : 'O\'chirish' }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -452,19 +485,6 @@
           <div class="space-y-2">
             
             <!-- Status history -->
-            <!-- <div v-if="projectDatatwo === 'TO_REVIEW'" class="flex items-center justify-between p-4">
-              <div>
-                <p class="text-[#4A51DD] text-[14px] font-[500] flex items-center">
-                  <i class='bx bx-refresh text-[18px] mr-1'></i> 
-                  Ko'rib chiqish
-                </p>
-                <p class="text-[12px] text-gray-500">{{ formatDate(projectDatatthree) }}</p>
-              </div> -->
-              <!-- <div class="text-[14px]">
-                <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
-              </div> -->
-            <!-- </div> -->
-
             <div v-if="projectDatatwo === 'TO_REVIEW'" class="flex items-center justify-between">
               <div class="space-y-2 bg-gray-200 w-full p-4">
                 <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
@@ -473,9 +493,6 @@
                 </p>
                 <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
               </div>
-              <!-- <div class="text-[14px]">
-                <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
-              </div> -->
             </div>
 
             <div v-if="projectDatatwo === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
@@ -490,43 +507,11 @@
                 </p>
                 <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
               </div>
-              <!-- <div class="text-[14px]">
-                <p>{{$t('from_whom')}}: <span class="text-[#6DA1F8] font-[700]">Рустам Маннопов</span></p>
-              </div> -->
             </div>
 
             <div v-if="projectDatatwo === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
               <p class="text-justify">{{ projectDatatwoansware || 'Izoh mavjud emas' }}</p>
             </div>
-
-            <!-- Files List -->
-            <!-- <div class="space-y-2 px-4 mt-4">
-              <h3 class="font-medium text-gray-900 mb-2">Hujjatlar ro'yxati</h3>
-              <div v-for="(item, index) in getSectionItems(currentSection)" :key="item.key" class="flex items-center justify-between bg-gray-100 rounded-lg">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-16 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                    <p class="font-medium text-gray-700 text-sm">
-                      {{ item.title }}
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2 pr-4">
-                  <button 
-                    @click="downloadFile(currentSection, item.key)" 
-                    :disabled="!fileStates[currentSection][item.key].saved"
-                    class="px-6 py-2 rounded text-sm font-medium transition-colors flex items-center bg-white text-[#4A51DD] hover:bg-gray-50 border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
-                    <span>Yuklash</span>
-                    <i class='bx bxs-download text-[20px] ml-[10px]'></i>
-                  </button>
-                </div>
-              </div>
-            </div> -->
           </div>
         </div>
       </div>
@@ -798,6 +783,61 @@ const saveFile = async (section, item) => {
   } catch (error) {
     console.error('File upload error:', error);
     toast.error('Faylni saqlashda xatolik yuz berdi!', {
+      autoClose: 3000
+    });
+  } finally {
+    isLoading.files[loadingKey] = false;
+  }
+};
+
+// Yangi deleteFile funksiyasi
+const deleteFile = async (section, item) => {
+  const fileData = fileStates[section][item];
+  if (!fileData.fileId) return;
+
+  // Create unique key for loading state
+  const loadingKey = `delete_${section}_${item}`;
+  isLoading.files[loadingKey] = true;
+
+  try {
+    // API ga delete so'rovi yuborish (agar kerak bo'lsa)
+    // await api.delete(`/files/${fileData.fileId}`);
+    
+    // File state ni tozalash
+    fileStates[section][item] = {
+      uploaded: false,
+      fileName: '',
+      file: null,
+      saved: false,
+      fileId: null
+    };
+    
+    // fileIds dan ham o'chirish
+    const sectionItems = section === 'conception' ? conceptionItems.value : 
+                       section === 'technical' ? technicalItems.value : 
+                       lbxItems.value;
+    
+    const itemConfig = sectionItems.find(i => i.key === item);
+    if (itemConfig) {
+      delete fileIds[section][itemConfig.fileKey];
+    }
+    
+    // Input elementini tozalash - bu muhim!
+    const inputId = section === 'conception' ? `conception-file${conceptionItems.value.findIndex(i => i.key === item) + 2}` :
+                    section === 'technical' ? `technical-file${technicalItems.value.findIndex(i => i.key === item) + 1}` :
+                    `lbx-file${lbxItems.value.findIndex(i => i.key === item) + 1}`;
+    
+    const inputElement = document.getElementById(inputId);
+    if (inputElement) {
+      inputElement.value = '';
+    }
+    
+    toast.success('Fayl muvaffaqiyatli o\'chirildi!', {
+      autoClose: 2000
+    });
+  } catch (error) {
+    console.error('File delete error:', error);
+    toast.error('Faylni o\'chirishda xatolik yuz berdi!', {
       autoClose: 3000
     });
   } finally {
