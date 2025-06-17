@@ -26,24 +26,36 @@
           <template v-else>
             <button 
               @click="showModal('revision')" 
-              :disabled="!hasProjectConceptDocuments"
-              class="bg-[#4A51DD] hover:bg-[#46497d] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :class="{
+                'bg-[#4A51DD] hover:bg-[#46497d]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
+                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
               <i class='bx bx-refresh text-[16px]'></i> 
               <span>{{ $t('buttons.forrevison') }}</span>
             </button>
             <button 
               @click="showModal('comment')"
-              :disabled="!hasProjectConceptDocuments"
-              class="bg-[#FD5656] hover:bg-[#c57575] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :class="{
+                'bg-[#FD5656] hover:bg-[#c57575]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
+                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
               <span class="font-bold">!</span> 
               <span>{{ $t('buttons.comment') }}</span>
             </button>
             <button 
               @click="showModal('approve')"
-              :disabled="!hasProjectConceptDocuments"
-              class="bg-[#07A920] hover:bg-[#62a962] text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :class="{
+                'bg-[#07A920] hover:bg-[#62a962]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
+                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
               <i class='bx bx-check-double text-[16px]'></i> 
               <span>{{ $t('buttons.approve') }}</span>
@@ -116,77 +128,101 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
           <h3 class="font-medium text-gray-900 text-sm my-[8px]">{{ $t('accordions.accordiontwo') }}</h3>
-          <span v-if="!isConceptionAccepted" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
+          <span v-if="!isConceptionApproved" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
           <span v-else-if="!hasTechnicalDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
         </div>
         <div class="flex items-center space-x-2">
-          <button 
-            @click="showModal('revision')" 
-            :disabled="!canAccessTechnical"
-            :class="{
-              'bg-[#4A51DD] hover:bg-[#46497d]': canAccessTechnical,
-              'bg-gray-300 cursor-not-allowed': !canAccessTechnical
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-refresh text-[16px]'></i>
-            <span>{{ $t('buttons.forrevison') }}</span>
-          </button>
-          <button 
-            @click="showModal('comment')"
-            :disabled="!canAccessTechnical"
-            :class="{
-              'bg-[#FD5656] hover:bg-[#c57575]': canAccessTechnical,
-              'bg-gray-300 cursor-not-allowed': !canAccessTechnical
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <span class="font-bold">!</span>
-            <span>{{ $t('buttons.comment') }}</span>
-          </button>
-          <button 
-            @click="showModal('approve')"
-            :disabled="!canAccessTechnical"
-            :class="{
-              'bg-[#07A920] hover:bg-[#62a962]': canAccessTechnical,
-              'bg-gray-300 cursor-not-allowed': !canAccessTechnical
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-check-double text-[16px]'></i>
-            <span>{{ $t('buttons.approve') }}</span>
-          </button>
+          <!-- Tasdiqlangan holat ko'rsatish -->
+          <div v-if="isTechnicalApproved" class="flex items-center text-green-600 text-sm font-medium">
+            <i class='bx bx-check-circle text-[18px] mr-1'></i>
+            <span>Tasdiqlangan</span>
+          </div>
+          
+          <!-- Tugmalar faqat tasdiqlanmagan holatda ko'rinadi -->
+          <template v-else>
+            <button 
+              @click="showTechnicalModal('revision')" 
+              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+              :class="{
+                'bg-[#4A51DD] hover:bg-[#46497d]': canAccessTechnical && hasTechnicalDocuments,
+                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <i class='bx bx-refresh text-[16px]'></i>
+              <span>{{ $t('buttons.forrevison') }}</span>
+            </button>
+            <button 
+              @click="showTechnicalModal('comment')"
+              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+              :class="{
+                'bg-[#FD5656] hover:bg-[#c57575]': canAccessTechnical && hasTechnicalDocuments,
+                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <span class="font-bold">!</span>
+              <span>{{ $t('buttons.comment') }}</span>
+            </button>
+            <button 
+              @click="showTechnicalModal('approve')"
+              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+              :class="{
+                'bg-[#07A920] hover:bg-[#62a962]': canAccessTechnical && hasTechnicalDocuments,
+                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+              }"
+              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+            >
+              <i class='bx bx-check-double text-[16px]'></i>
+              <span>{{ $t('buttons.approve') }}</span>
+            </button>
+          </template>
         </div>
       </div>
       
       <div 
-        v-show="openSections.technical"
+        v-show="openSections.technical && canAccessTechnical"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-      <div v-if="technicalDocuments.length > 0" class="space-y-4">
-        <div v-for="(item, index) in technicalDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
-              {{ index + 1 }}
-            </div>
-            <div>
-              <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-              <p class="font-medium text-gray-700 text-sm">
-                {{ getDocumentTitle(item.type) }}
-              </p>
+        <div class="space-y-2 px-4">
+          <!-- Loading state -->
+          <div v-if="loadingTechnical" class="text-center py-4">
+            <i class='bx bx-loader-alt bx-spin text-2xl text-blue-500'></i>
+            <p class="text-sm text-gray-600 mt-2">Yuklanmoqda...</p>
+          </div>
+          
+          <!-- Technical Items from API -->
+          <div v-else-if="filteredTechnicalDocuments.length > 0" class="space-y-4">
+            <div v-for="(item, index) in filteredTechnicalDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
+              <div class="flex items-center space-x-3 mt-4">
+                <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
+                  {{ index + 1 }}
+                </div>
+                <div>
+                  <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+                  <p class="font-medium text-gray-700 text-sm">
+                    {{ getTechnicalDocumentTitle(item.type) }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 pr-4">
+                <button 
+                  @click="downloadFile(item.fileUrl, item.fileName)" 
+                  class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
+                  :disabled="!item.fileUrl"
+                >
+                  <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
+                  <span>{{ $t('downfile') }}</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="flex items-center space-x-2 pr-4">
-            <button 
-              @click="downloadFile(item.fileUrl, item.fileName)" 
-              class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
-            >
-              <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
-              <span>{{ $t('downfile') }}</span>
-            </button>
+          
+          <!-- No data state -->
+          <div v-else-if="!loadingTechnical" class="text-center py-4 text-gray-500">
+            <p>Ma'lumot topilmadi</p>
           </div>
         </div>
-      </div>
       </div>
     </div>
 
@@ -208,7 +244,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
           <h3 class="font-medium text-gray-900 text-sm">{{ $t('accordions.accordionthree') }}</h3>
-          <span v-if="!isConceptionAccepted" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
+          <span v-if="!isTechnicalApproved" class="text-xs text-gray-500">(Texnik vazifa tasdiqlanmagan)</span>
           <span v-else-if="!hasLBXDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
         </div>
         <div class="flex items-center space-x-2">
@@ -279,7 +315,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- konsepsiya Modal -->
   <div v-if="openmodal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
     <div class="modal-content bg-gray-200 rounded-lg shadow-xl w-full max-w-[800px] text-black relative">
       <!-- Modal header -->
@@ -373,6 +409,101 @@
       </div>
     </div>
   </div>
+
+  <!-- Technical Modal (konsepsiya modal dan alohida) -->
+<div v-if="openTechnicalModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+  <div class="modal-content bg-gray-200 rounded-lg shadow-xl w-full max-w-[800px] text-black relative">
+    <!-- Modal header -->
+    <div class="bg-white border-b rounded-t-lg pl-4 border-gray-300 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <!-- Icon -->
+        <i :class="technicalModalConfig.icon" class="text-[20px]"></i>
+        <p class="text-[15px] font-[700]" :class="technicalModalConfig.titleColor">
+          {{ technicalModalConfig.title }}
+        </p>
+      </div>
+      <button 
+        @click="closeTechnicalModal" 
+        class="text-gray-700 text-[42px] hover:text-red-500 border-l border-gray-300 px-4 leading-none"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal content -->
+    <div class="bg-white p-4 m-4 rounded-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[12px] font-[500]" :class="technicalModalConfig.titleColor">
+            {{ technicalModalConfig.title }}
+          </p>
+          <p class="text-[12px] text-gray-500">
+            {{ formatDate(new Date()) }}
+          </p>
+        </div>
+      </div>
+
+      <form @submit.prevent="handleSubmitTechnicalModal">
+        <!-- Textarea -->
+        <div class="my-4 border border-gray-300 rounded-md p-4">
+          <textarea 
+            v-model="technicalFormData.answare"
+            :id="technicalModalType + '_textarea'"
+            cols="30" 
+            rows="5" 
+            class="w-full outline-none text-[14px] resize-none" 
+            :placeholder="technicalModalConfig.placeholder"
+          ></textarea>
+        </div>
+
+        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
+        <div v-if="technicalModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+          <input 
+            type="file" 
+            :id="technicalModalType + '-file'"
+            @change="handleTechnicalFileUpload"
+            class="hidden"
+            accept=".pdf"
+          />
+          <label 
+            :for="technicalModalType + '-file'"
+            :class="{
+              'bg-blue-500 hover:bg-blue-600 text-white': technicalFileState.uploaded,
+              'bg-blue-400 hover:bg-blue-600 text-white': !technicalFileState.uploaded
+            }"
+            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+            </svg>
+            <span>{{ technicalFileState.uploaded ? technicalFileState.fileName : 'Fayl biriktirish' }}</span>
+          </label>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center justify-center space-x-4 my-4">
+          <!-- Submit button -->
+          <button 
+            type="submit" 
+            :disabled="isTechnicalSubmitting"
+            :class="[
+              technicalModalConfig.buttonClass, 
+              'py-2 text-white rounded-md font-medium', 
+              technicalModalType === 'approve' ? 'w-full' : 'w-[65%]',
+              isTechnicalSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            ]"
+          >
+            <span v-if="!isTechnicalSubmitting">{{ technicalModalConfig.buttonText }}</span>
+            <span v-else class="flex items-center justify-center">
+              <i class='bx bx-loader-alt bx-spin mr-2'></i>
+              Yuborilmoqda...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -386,8 +517,28 @@ const openmodal = ref(false);
 const modalType = ref('');
 const isSubmitting = ref(false);
 
+const openTechnicalModal = ref(false);
+const technicalModalType = ref('');
+const isTechnicalSubmitting = ref(false);
+
+// Loading states
+const loading = ref(false);
+const loadingTechnical = ref(false);
+
+// Technical file upload holati
+const technicalFileState = reactive({
+  uploaded: false,
+  fileName: '',
+  file: null
+});
+
 // Form data
 const formData = reactive({
+  answare: ''
+});
+
+// Technical form data
+const technicalFormData = reactive({
   answare: ''
 });
 
@@ -408,7 +559,6 @@ const openSections = reactive({
 // Project data
 const projectData = ref(null);
 const filesData = ref(null);
-const loading = ref(false);
 const error = ref('');
 
 // technical items
@@ -416,14 +566,6 @@ const technicalDocuments = ref([]);
 
 // API dan kelgan hujjatlar
 const conceptionDocuments = ref([]);
-
-// Technical items
-const technicalItems = ref([
-  { key: 'tech1', title: 'techtasks.accone' },
-  { key: 'tech2', title: 'techtasks.acctwo' },
-  { key: 'tech3', title: 'techtasks.accthree' },
-  { key: 'tech4', title: 'techtasks.accfour' }
-]);
 
 // LBX items
 const lbxItems = ref([
@@ -439,9 +581,14 @@ const filesCacheTime = ref(null);
 const CACHE_DURATION = 5 * 60 * 1000; // 5 daqiqa
 
 // Computed properties
-const isConceptionAccepted = computed(() => {
-  // Bu yerda konsepsiya tasdiqlangan yoki yo'qligini tekshirish logikasi
-  return false; // Hozircha false
+const isConceptionApproved = computed(() => {
+  if (!projectData.value?.project_documents) return false;
+  
+  const projectConceptDoc = projectData.value.project_documents.find(
+    doc => doc.type === 'PROJECT_CONCEPT'
+  );
+  
+  return projectConceptDoc?.status === 'ACCEPTED';
 });
 
 const hasTechnicalDocuments = computed(() => {
@@ -460,11 +607,11 @@ const hasLBXDocuments = computed(() => {
 });
 
 const canAccessTechnical = computed(() => {
-  return isConceptionApproved.value && hasTechnicalDocuments.value;
+  return isConceptionApproved.value;
 });
 
 const canAccessLBX = computed(() => {
-  return isConceptionAccepted.value && hasLBXDocuments.value;
+  return isTechnicalApproved.value && hasLBXDocuments.value;
 });
 
 // PROJECT_CONCEPT tipidagi hujjatlar mavjudligini tekshirish
@@ -479,6 +626,213 @@ const hasProjectConceptDocuments = computed(() => {
   
   return projectConceptDoc && projectConceptDoc.documents && projectConceptDoc.documents.length > 0;
 });
+
+const isTechnicalApproved = computed(() => {
+  if (!projectData.value?.project_documents) return false;
+  
+  const technicalDoc = projectData.value.project_documents.find(
+    doc => doc.type === 'PROJECT_TS'
+  );
+  
+  return technicalDoc?.status === 'ACCEPTED';
+});
+
+const filteredTechnicalDocuments = computed(() => {
+  if (!technicalDocuments.value || technicalDocuments.value.length === 0) {
+    return [];
+  }
+  
+  const selectedProject = getSelectedProject();
+  if (!selectedProject || !selectedProject.id) {
+    return [];
+  }
+  
+  return technicalDocuments.value;
+});
+
+// Technical modal konfiguratsiyasi
+const technicalModalConfig = computed(() => {
+  const configs = {
+    revision: {
+      title: "Ko'rib chiqish uchun yuborish (Texnik)",
+      titleColor: 'text-[#4A51DD]',
+      icon: 'bx bx-refresh text-[#4A51DD]',
+      placeholder: "Texnik vazifa bo'yicha ko'rib chiqish uchun izoh yozing...",
+      buttonText: "Ko'rib chiqish uchun yuborish",
+      buttonClass: 'bg-[#4A51DD] hover:bg-[#3A41CD]'
+    },
+    comment: {
+      title: "Izoh yuborish (Texnik)",
+      titleColor: 'text-[#FF4444]',
+      icon: 'bx bx-message-square-error text-[#FF4444]',
+      placeholder: "Texnik vazifa bo'yicha izohingizni yozing...",
+      buttonText: "Izoh yuborish",
+      buttonClass: 'bg-[#FF4444] hover:bg-[#EE3333]'
+    },
+    approve: {
+      title: "Tasdiqlash (Texnik)",
+      titleColor: 'text-[#07A920]',
+      icon: 'bx bx-check-circle text-[#07A920]',
+      placeholder: "Texnik vazifa tasdiqlash izohi (ixtiyoriy)...",
+      buttonText: "Tasdiqlash",
+      buttonClass: 'bg-[#07A920] hover:bg-[#069A1E]'
+    }
+  };
+  return configs[technicalModalType.value] || configs.revision;
+});
+
+
+// Technical modal funktsiyalari
+const showTechnicalModal = (type) => {
+  if (!canAccessTechnical.value) {
+    toast.warning('Avval konsepsiya tasdiqlanishi kerak!', { autoClose: 2000 });
+    return;
+  }
+  
+  if (!hasTechnicalDocuments.value) {
+    toast.warning('PROJECT_TS tipidagi hujjatlar topilmadi!', { autoClose: 2000 });
+    return;
+  }
+  
+  technicalModalType.value = type;
+  openTechnicalModal.value = true;
+  resetTechnicalForm();
+};
+
+const closeTechnicalModal = () => {
+  openTechnicalModal.value = false;
+  technicalModalType.value = '';
+  resetTechnicalForm();
+};
+
+const resetTechnicalForm = () => {
+  technicalFormData.answare = '';
+  Object.assign(technicalFileState, {
+    uploaded: false,
+    fileName: '',
+    file: null
+  });
+};
+
+// Technical fayl yuklash
+const handleTechnicalFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    technicalFileState.uploaded = true;
+    technicalFileState.fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+    technicalFileState.file = file;
+  }
+};
+
+// Technical form yuborish
+const handleSubmitTechnicalModal = async () => {
+  if (!technicalFormData.answare || !technicalFormData.answare.trim()) {
+    toast.error('Iltimos, javob kiriting!', { autoClose: 1500 });
+    return;
+  }
+
+  isTechnicalSubmitting.value = true;
+  let loadingToastId = null;
+  
+  try {
+    // Loading toast ko'rsatish
+    loadingToastId = toast.info('Ma\'lumot yuborilmoqda...', {
+      autoClose: false,
+      closeButton: false
+    });
+
+    let fileId = null;
+
+    // 1. Agar fayl yuklangan bo'lsa, avval faylni serverga yuklash
+    if (technicalFileState.file && technicalModalType.value !== 'approve') {
+      fileId = await uploadFileToServer(technicalFileState.file);
+      if (!fileId) {
+        if (loadingToastId) toast.remove(loadingToastId);
+        toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
+        isTechnicalSubmitting.value = false;
+        return;
+      }
+    }
+
+    // 2. Type ni aniqlash
+    const typeMap = {
+      'revision': 'TO_REVIEW',
+      'comment': 'REJECTED',
+      'approve': 'ACCEPTED'
+    };
+    const answerType = typeMap[technicalModalType.value];
+
+    // 3. PROJECT_TS tipidagi hujjatni olish
+    const technicalDoc = projectData.value?.project_documents?.find(
+      doc => doc.type === 'PROJECT_TS'
+    );
+
+    if (!technicalDoc) {
+      if (loadingToastId) toast.remove(loadingToastId);
+      toast.error('PROJECT_TS hujjati topilmadi!', { autoClose: 2000 });
+      isTechnicalSubmitting.value = false;
+      return;
+    }
+
+    // 4. Birinchi document ni olish
+    const firstDocument = technicalDoc.documents?.[0];
+    if (!firstDocument) {
+      if (loadingToastId) toast.remove(loadingToastId);
+      toast.error('Texnik hujjat topilmadi!', { autoClose: 2000 });
+      isTechnicalSubmitting.value = false;
+      return;
+    }
+
+    // 5. Javobni yuborish
+    const answerData = {
+      project_document_id: technicalDoc.id,
+      documents_id: firstDocument.id,
+      answer: technicalFormData.answare,
+      type: answerType
+    };
+
+    // Agar fayl ID mavjud bo'lsa, qo'shish
+    if (fileId) {
+      answerData.file_id = fileId;
+    }
+
+    await sendAnswer(answerData);
+
+    // Loading toast ni yopish
+    if (loadingToastId) toast.remove(loadingToastId);
+    
+    toast.success(`${technicalModalConfig.value.title} muvaffaqiyatli yuborildi!`, {
+      autoClose: 2000
+    });
+
+    closeTechnicalModal();
+    
+    // Ma'lumotlarni yangilash
+    await fetchFilesConsep();
+
+    if (technicalModalType.value === 'approve') {
+      // Technical document status ni yangilash
+      if (projectData.value?.project_documents) {
+        const technicalDoc = projectData.value.project_documents.find(
+          doc => doc.type === 'PROJECT_TS'
+        );
+        if (technicalDoc) {
+          technicalDoc.status = 'ACCEPTED';
+        }
+      }
+    }
+
+  } catch (error) {
+    // Loading toast ni yopish
+    if (loadingToastId) toast.remove(loadingToastId);
+    
+    console.error('Technical javob yuborishda xato:', error);
+    toast.error('Xatolik yuz berdi!', { autoClose: 2000 });
+  } finally {
+    isTechnicalSubmitting.value = false;
+  }
+};
+
 
 // SessionStorage'dagi selectMinistry bilan moslikni tekshirish
 const filteredConceptionDocuments = computed(() => {
@@ -513,6 +867,17 @@ const getDocumentTitle = (type) => {
     'CONCEPT_PROJECT': 'Konsepsiya loyihasi',
     'PROTOCOL': 'Bayonnoma',
     'SOLUTION': 'Yechim'
+  };
+  return titles[type] || type;
+};
+
+// Technical hujjat tipiga qarab nomni olish
+const getTechnicalDocumentTitle = (type) => {
+  const titles = {
+    'TECHNICAL_TASK': 'Texnik topshiriq',
+    'TECHNICAL_PROJECT': 'Texnik loyiha',
+    'TECHNICAL_SPEC': 'Texnik spetsifikatsiya',
+    'TECHNICAL_DOC': 'Texnik hujjat'
   };
   return titles[type] || type;
 };
@@ -564,14 +929,16 @@ const getSelectedProject = () => {
 
 // Modal funktsiyalari
 const showModal = (type) => {
-  if (!hasProjectConceptDocuments.value) {
-    toast.warning('PROJECT_CONCEPT tipidagi hujjatlar topilmadi!', { autoClose: 2000 });
+  const showModal = (type) => {
+  if (!hasProjectConceptDocuments.value || filteredConceptionDocuments.value.length === 0) {
+    toast.warning('Hujjatlar mavjud emas!', { autoClose: 2000 });
     return;
   }
   
   modalType.value = type;
   openmodal.value = true;
   resetForm();
+};
 };
 
 const closeModal = () => {
@@ -662,7 +1029,6 @@ const handleSubmitModal = async () => {
   }
 
   isSubmitting.value = true;
-  // vue3-toastify da loading toast uchun update usuli ishlatiladi
   let loadingToastId = null;
   
   try {
@@ -678,7 +1044,6 @@ const handleSubmitModal = async () => {
     if (fileState.file && modalType.value !== 'approve') {
       fileId = await uploadFileToServer(fileState.file);
       if (!fileId) {
-        // Loading toast ni yopish
         if (loadingToastId) toast.remove(loadingToastId);
         toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
         isSubmitting.value = false;
@@ -743,17 +1108,16 @@ const handleSubmitModal = async () => {
     await fetchFilesConsep();
 
     if (modalType.value === 'approve') {
-
       // Project document status ni yangilash
-    if (projectData.value?.project_documents) {
-      const projectConceptDoc = projectData.value.project_documents.find(
-        doc => doc.type === 'PROJECT_CONCEPT'
-      );
-      if (projectConceptDoc) {
-        projectConceptDoc.status = 'ACCEPTED';
+      if (projectData.value?.project_documents) {
+        const projectConceptDoc = projectData.value.project_documents.find(
+          doc => doc.type === 'PROJECT_CONCEPT'
+        );
+        if (projectConceptDoc) {
+          projectConceptDoc.status = 'ACCEPTED';
+        }
       }
     }
-}
 
   } catch (error) {
     // Loading toast ni yopish
@@ -768,6 +1132,12 @@ const handleSubmitModal = async () => {
 
 // Accordion section ochish/yopish
 const toggleSection = (section) => {
+  // Technical sectionni ochishdan oldin tekshirish
+  if (section === 'technical' && !canAccessTechnical.value) {
+    toast.warning('Avval konsepsiya tasdiqlanishi kerak!', { autoClose: 2000 });
+    return;
+  }
+  
   openSections[section] = !openSections[section];
 };
 
@@ -865,7 +1235,8 @@ const processConceptionDocuments = async () => {
     doc => doc.type === 'PROJECT_CONCEPT'
   );
 
-  console.log('ProjectConceptDoc:', projectConceptDoc);
+  console.log('ProjectConceptDoc2025:', projectConceptDoc);
+  // sessionStorage.setItem('selectstatus', projectConceptDoc.status);
 
   if (!projectConceptDoc || !projectConceptDoc.documents) {
     console.log('PROJECT_CONCEPT tipidagi hujjatlar topilmadi');
@@ -908,7 +1279,6 @@ const processConceptionDocuments = async () => {
 const lastLoadedProjectId = ref(null);
 let intervalId = null;
 
-// OPTIMALLASHTIRILGAN FUNKTSIYA
 const fetchFilesConsep = async () => {
   if (loading.value) {
     console.log('Ma\'lumot yuklanish jarayonida, kutib turing...');
@@ -933,7 +1303,8 @@ const fetchFilesConsep = async () => {
 
   if (lastLoadedProjectId.value === selectedProject.id && projectData.value) {
     console.log('Bu project uchun ma\'lumot allaqachon yuklangan');
-    processConceptionDocuments();
+    await processConceptionDocuments();
+    await processTechnicalDocuments();
     return projectData.value;
   }
 
@@ -994,55 +1365,62 @@ const fetchFilesConsep = async () => {
   }
 };
 
-// Konsepsiya tasdiqlangan holatini tekshirish
-const isConceptionApproved = computed(() => {
-  if (!projectData.value?.project_documents) return false;
-  
-  const projectConceptDoc = projectData.value.project_documents.find(
-    doc => doc.type === 'PROJECT_CONCEPT'
-  );
-  
-  return projectConceptDoc?.status === 'ACCEPTED';
-});
-
-
+// Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const processTechnicalDocuments = async () => {
-  if (!projectData.value) return;
+  console.log('ProcessTechnicalDocuments ishlayapti');
+  
+  if (!projectData.value) {
+    console.log('ProjectData yo\'q');
+    return;
+  }
 
   const technicalDoc = projectData.value.project_documents?.find(
     doc => doc.type === 'PROJECT_TS'
   );
 
+  console.log('TechnicalDoc:', technicalDoc);
+
   if (!technicalDoc || !technicalDoc.documents) {
+    console.log('PROJECT_TS tipidagi hujjatlar topilmadi');
     technicalDocuments.value = [];
     return;
   }
 
-  const filesList = await fetchFilesList();
-  
-  if (!filesList) {
-    technicalDocuments.value = [];
-    return;
-  }
+  loadingTechnical.value = true;
 
-  const processedDocuments = technicalDoc.documents.map(doc => {
-    const fileInfo = getFileById(doc.file_id, filesList);
+  try {
+    const filesList = await fetchFilesList();
     
-    return {
-      id: doc.id,
-      type: doc.type,
-      file_id: doc.file_id,
-      fileUrl: fileInfo?.url || null,
-      fileName: fileInfo?.name || 'Nomsiz fayl',
-      projectId: doc.project_id || projectData.value.id
-    };
-  });
+    console.log('Technical uchun fayllar ro\'yxati:', filesList);
+    
+    if (!filesList) {
+      console.log('Fayllar ro\'yxati olinmadi');
+      technicalDocuments.value = [];
+      return;
+    }
 
-  technicalDocuments.value = processedDocuments;
+    const processedDocuments = technicalDoc.documents.map(doc => {
+      const fileInfo = getFileById(doc.file_id, filesList);
+      console.log(`Technical File ID: ${doc.file_id}, File Info:`, fileInfo);
+      
+      return {
+        id: doc.id,
+        type: doc.type,
+        file_id: doc.file_id,
+        fileUrl: fileInfo?.url || null,
+        fileName: fileInfo?.name || 'Nomsiz fayl',
+        projectId: doc.project_id || projectData.value.id
+      };
+    });
+
+    technicalDocuments.value = processedDocuments;
+
+    console.log('Technical hujjatlari tayyor:', technicalDocuments.value);
+  } finally {
+    loadingTechnical.value = false;
+  }
 };
 
-
-// Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const watchSelectedProject = () => {
   if (intervalId) {
     clearInterval(intervalId);
@@ -1093,7 +1471,9 @@ defineExpose({
   projectData,
   filesData,
   conceptionDocuments,
+  technicalDocuments,
   loading,
+  loadingTechnical,
   error
 });
 </script>

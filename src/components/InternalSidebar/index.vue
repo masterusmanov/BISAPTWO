@@ -399,6 +399,8 @@ const fetchProjectsList = async () => {
     })
     
     projectsList.value = response.data?.data?.results || response.data || []
+    console.log('Loyihalar ro\'yxati:', projectsList.value);
+    
     filteredProjects.value = projectsList.value
     
   } catch (err) {

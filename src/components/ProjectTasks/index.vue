@@ -30,7 +30,7 @@
                   {{ organization.name.slice(0, 25) }}...
                 </p>
                 <p class="text-[10px] text-gray-500">
-                  {{$t('projects_count')}}: {{ organization.projects.length }}
+                  {{$t('Loyihalar')}}: {{ `${organization.projects.length} ta` }}
                 </p>
               </div>
             </div>
@@ -48,30 +48,34 @@
             v-show="openAccordions.includes(organization.id)"
             class="border-t border-gray-200 bg-white rounded-b-lg overflow-hidden"
           >
-            <div class="max-h-60 overflow-y-auto">
+            <div class="max-h-60 overflow-y-auto" >
               <div 
-                v-for="project in organization.projects" 
+                v-for="project in organization.projects.slice().reverse()" 
                 :key="project.id" 
                 @click="saveToLocalStorage(project, organization.name)"
                 class="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0"
-                :class="{'bg-blue-50 border-l-4 border-l-blue-500': selectedProject && selectedProject.id === project.id}"
+                :class="{
+                  'bg-blue-50 border-l-4 border-l-blue-500': selectedProject && selectedProject.id === project.id,
+                  'bg-blue-200': project.status === 'NEW'
+                }"
               >
                 <div class="flex-shrink-0">
                   <div class="w-[40px] h-[40px] bg-blue-100 rounded-lg flex items-center justify-center">
                     <img :src="gerb" alt="Gerb" class="w-[25px]">
                   </div>
                 </div>
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 items min-w-0" >
                   <p class="font-bold text-[11px] text-gray-800 truncate">
                     {{$t('ministry.project')}}: <span class="font-normal">{{project.name ? project.name.slice(0, 20) : 'No name'}}...</span>
                   </p>
                   <p class="text-[9px] text-gray-500">
-                    ID: {{ project.id }}
+                    ID: {{ project.id }} 
                   </p>
                   <p class="text-[9px] text-gray-400">
-                    {{ formatDate(project.created_at) }}
+                    {{project.created_at }} addada
                   </p>
                 </div>
+                <div v-if="project.status === 'NEW'" class="w-[10px] h-[10px] rounded-full bg-green-600 float-right"></div>
               </div>
             </div>
           </div>

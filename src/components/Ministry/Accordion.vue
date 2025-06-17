@@ -143,132 +143,154 @@
       </div>
     </div>
 
-    <!-- Texnik vazifa Section -->
-    <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isTechnicalEnabled }">
-      <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
-        <div 
-          @click="isTechnicalEnabled && toggleSection('technical')" 
-          class="flex items-center space-x-2"
-          :class="{ 'cursor-pointer': isTechnicalEnabled, 'cursor-not-allowed': !isTechnicalEnabled }"
-        >
-          <svg 
-            :class="{ 'rotate-90': openSections.technical }" 
-            class="w-4 h-4 transform transition-transform duration-200" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <h3 class="font-medium text-gray-900 text-sm">Texnik vazifa</h3>
-          <span v-if="!isTechnicalEnabled" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <p v-if="sectionStatuses.technical === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
-            <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
-          </p>
-          <p v-if="sectionStatuses.technical === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
-            ! Izoh
-          </p>
-          <p v-if="sectionStatuses.technical === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
-            <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
-          </p>
-          <button 
-            v-if="isTechnicalEnabled"
-            @click="openHistoryModal('technical')"
-            class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
-          >
-            <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
-          </button>
-          <button 
-            v-if="isTechnicalEnabled && sectionStatuses.technical !== 'ACCEPTED'"
-            :disabled="!allTechnicalFilesUploaded || isLoading.technical"
-            @click="sendTechnicalFiles"
-            :class="{
-              'bg-blue-500 hover:bg-blue-600 text-white': allTechnicalFilesUploaded && !isLoading.technical,
-              'bg-gray-300 text-gray-500 cursor-not-allowed': !allTechnicalFilesUploaded || isLoading.technical
-            }"
-            class="px-3 py-1 text-sm rounded transition-colors"
-          >
-            <i v-if="!isLoading.technical" class='bx bxl-telegram'></i>
-            <i v-else class='bx bx-loader-alt animate-spin'></i>
-            {{ isLoading.technical ? 'Yuborilmoqda...' : 'Yuborish' }}
-          </button>
-        </div>
-      </div>
-      
-      <!-- Technical section content -->
-      <div 
-        v-show="openSections.technical && isTechnicalEnabled"
-        class="pb-4 transition-all duration-300 ease-in-out"
+   <!-- Texnik vazifa Section -->
+<div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isTechnicalEnabled }">
+  <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
+    <div 
+      @click="isTechnicalEnabled && toggleSection('technical')" 
+      class="flex items-center space-x-2"
+      :class="{ 'cursor-pointer': isTechnicalEnabled, 'cursor-not-allowed': !isTechnicalEnabled }"
+    >
+      <svg 
+        :class="{ 'rotate-90': openSections.technical }" 
+        class="w-4 h-4 transform transition-transform duration-200" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
       >
-        <div class="space-y-2 px-4">
-          <div v-for="(item, index) in technicalItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
-            <div class="flex items-center space-x-3">
-              <div 
-                :class="{
-                  'bg-blue-500': fileStates.technical[item.key].uploaded,
-                  'bg-gray-300': !fileStates.technical[item.key].uploaded
-                }"
-                class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
-              >
-                {{ index + 1 }}
-              </div>
-              <div>
-                <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                <p class="font-medium text-gray-700 text-sm">
-                  {{ item.title }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center space-x-2 pr-4">
-              <input 
-                type="file" 
-                :id="`technical-file${index + 1}`"
-                @change="handleFileUpload($event, 'technical', item.key)"
-                class="hidden"
-                accept=".pdf,.doc,.docx"
-                :disabled="sectionStatuses.technical === 'ACCEPTED'"
-              />
-              <label 
-                :for="`technical-file${index + 1}`"
-                :class="{
-                  'bg-blue-500 hover:bg-blue-600 text-white': fileStates.technical[item.key].uploaded,
-                  'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.technical[item.key].uploaded,
-                  'cursor-not-allowed opacity-50': sectionStatuses.technical === 'ACCEPTED'
-                }"
-                class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-                </svg>
-                <span>{{ fileStates.technical[item.key].uploaded ? fileStates.technical[item.key].fileName : 'Fayl biriktirish' }}</span>
-              </label>
-              
-              <div v-if="fileStates.technical[item.key].uploaded && sectionStatuses.technical !== 'ACCEPTED'">
-                <button 
-                  v-if="!fileStates.technical[item.key].saved"
-                  @click="saveFile('technical', item.key)"
-                  :disabled="isLoading.files[`technical_${item.key}`]"
-                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
-                >
-                  {{ isLoading.files[`technical_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
-                </button>
-                <div 
-                  v-else
-                  class="flex items-center text-green-600 text-sm font-medium px-2"
-                >
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                  Saqlandi
-                </div>
-              </div>
-            </div>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+      <h3 class="font-medium text-gray-900 text-sm">Texnik vazifa</h3>
+      <span v-if="!isTechnicalEnabled" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <p v-if="technicalProjectStatus === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
+        <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
+      </p>
+      <p v-if="technicalProjectStatus === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
+        ! Izoh
+      </p>
+      <p v-if="technicalProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
+        <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
+      </p>
+      <button 
+        v-if="isTechnicalEnabled && technicalProjectStatus !== 'ACCEPTED'"
+        @click="openHistoryModal('technical')"
+        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      >
+        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+      </button>
+      <button 
+        v-if="isTechnicalEnabled && technicalProjectStatus !== 'ACCEPTED'"
+        :disabled="!allTechnicalFilesUploaded || isLoading.technical"
+        @click="sendTechnicalFiles"
+        :class="{
+          'bg-blue-500 hover:bg-blue-600 text-white': allTechnicalFilesUploaded && !isLoading.technical,
+          'bg-gray-300 text-gray-500 cursor-not-allowed': !allTechnicalFilesUploaded || isLoading.technical
+        }"
+        class="px-3 py-1 text-sm rounded transition-colors"
+      >
+        <i v-if="!isLoading.technical" class='bx bxl-telegram'></i>
+        <i v-else class='bx bx-loader-alt animate-spin'></i>
+        {{ isLoading.technical ? 'Yuborilmoqda...' : 'Yuborish' }}
+      </button>
+    </div>
+  </div>
+  
+  <!-- Technical section content -->
+  <div 
+    v-show="openSections.technical && isTechnicalEnabled"
+    class="pb-4 transition-all duration-300 ease-in-out"
+  >
+    <div class="space-y-2 px-4">
+      <div v-for="(item, index) in technicalItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
+        <div class="flex items-center space-x-3">
+          <div 
+            :class="{
+              'bg-blue-500': fileStates.technical[item.key].uploaded,
+              'bg-gray-300': !fileStates.technical[item.key].uploaded
+            }"
+            class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+          >
+            {{ index + 1 }}
           </div>
+          <div>
+            <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+            <p class="font-medium text-gray-700 text-sm">
+              {{ item.title }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 pr-4">
+          <!-- Agar technicalProjectStatus ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
+          <div v-if="technicalProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path 
+                fill-rule="evenodd" 
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                clip-rule="evenodd"
+              />
+            </svg>
+            Tasdiqlandi
+          </div>
+          
+          <!-- Agar technicalProjectStatus ACCEPTED bo'lmasa, file upload ko'rsatish -->
+          <template v-else>
+            <input 
+              type="file" 
+              :id="`technical-file${index + 1}`"
+              @change="handleFileUpload($event, 'technical', item.key)"
+              class="hidden"
+              accept=".pdf,.doc,.docx"
+              :disabled="technicalProjectStatus === 'ACCEPTED'"
+            />
+            <label 
+              :for="`technical-file${index + 1}`"
+              :class="{
+                'bg-blue-500 hover:bg-blue-600 text-white': fileStates.technical[item.key].uploaded,
+                'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.technical[item.key].uploaded,
+                'cursor-not-allowed opacity-50': technicalProjectStatus === 'ACCEPTED'
+              }"
+              class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+              </svg>
+              <span>{{ fileStates.technical[item.key].uploaded ? fileStates.technical[item.key].fileName : 'Fayl biriktirish' }}</span>
+            </label>
+            
+            <div 
+              v-if="fileStates.technical[item.key].uploaded && technicalProjectStatus !== 'ACCEPTED'"
+            >
+              <button 
+                v-if="!fileStates.technical[item.key].saved"
+                @click="saveFile('technical', item.key)"
+                :disabled="isLoading.files[`technical_${item.key}`]"
+                class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {{ isLoading.files[`technical_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
+              </button>
+              
+              <div 
+                v-else
+                class="flex items-center text-green-600 text-sm font-medium px-2"
+              >
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Saqlandi
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- LBX Section -->
     <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isLbxEnabled }">
@@ -700,9 +722,7 @@ const isTechnicalEnabled = computed(() =>
   projectDatatwo.value === 'ACCEPTED'
 );
 
-const isLbxEnabled = computed(() => 
-  sectionStatuses.technical === 'ACCEPTED'
-);
+
 
 // Methods
 const toggleSection = (section) => {
@@ -875,27 +895,36 @@ const sendTechnicalFiles = async () => {
   isLoading.technical = true;
 
   try {
-    const ministryId = sessionStorage.getItem('selectMinistry');
-    if (!ministryId) {
+    const ministryId = JSON.parse(sessionStorage.getItem('selectMinistry'));
+    console.log('Ministry ID:', ministryId.id);
+
+    if (!ministryId.id) {
       throw new Error('Ministry ID not found in sessionStorage');
     }
 
     // Create project document for technical
-    const projectDocumentId = await createProjectDocument('PROJECT_TS', ministryId);
-    documentIds.technical = projectDocumentId;
+    const projectDocumentId = await createProjectDocument('PROJECT_TS', ministryId.id);
     sessionStorage.setItem('technicalDocumentId', projectDocumentId);
+    documentIds.technical = projectDocumentId;
 
     // Prepare document data
     const documentData = {
       project_document_id: projectDocumentId,
-      technical_task_file_id: fileIds.technical.item1,
-      technical_docs_file_id: fileIds.technical.item2,
-      schemas_file_id: fileIds.technical.item3,
-      additional_tech_file_id: fileIds.technical.item4
+      technical_task_file_id: fileIds.technical.technical_task_file_id,
+      technical_docs_file_id: fileIds.technical.technical_docs_file_id,
+      schemas_file_id: fileIds.technical.schemas_file_id,
+      additional_tech_file_id: fileIds.technical.additional_tech_file_id
     };
 
     // Send document data
-    const response = await api.post('/documents/create', documentData);
+    const response = await api.post('/documents/create', documentData, {
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log("Technical Documents create response:", response.data);
 
     if (response.data) {
       sectionStatuses.technical = 'TO_REVIEW';
@@ -1051,6 +1080,89 @@ const checkDocumentStatuses = async () => {
     console.error('Error checking document statuses:', error);
   }
 };
+
+
+// technikal section ============================
+// Texnik vazifa uchun computed properties
+const technicalProjectStatus = computed(() => {
+  // Texnik vazifa uchun project document index ni topish
+  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+  return technicalDoc?.status || '';
+});
+
+const technicalProjectCreatedAt = computed(() => {
+  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+  return technicalDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+});
+
+const technicalProjectAnswer = computed(() => {
+  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+  return technicalDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+});
+
+// LBX uchun computed properties
+const lbxProjectStatus = computed(() => {
+  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+  return lbxDoc?.status || '';
+});
+
+const lbxProjectCreatedAt = computed(() => {
+  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+  return lbxDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+});
+
+const lbxProjectAnswer = computed(() => {
+  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+  return lbxDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+});
+
+// Modal content uchun section bo'yicha ma'lumot olish
+const getCurrentSectionData = (section) => {
+  if (section === 'conception') {
+    return {
+      status: projectDatatwo.value,
+      createdAt: projectDatatthree.value,
+      answer: projectDatatwoansware.value
+    };
+  } else if (section === 'technical') {
+    return {
+      status: technicalProjectStatus.value,
+      createdAt: technicalProjectCreatedAt.value,
+      answer: technicalProjectAnswer.value
+    };
+  } else if (section === 'lbx') {
+    return {
+      status: lbxProjectStatus.value,
+      createdAt: lbxProjectCreatedAt.value,
+      answer: lbxProjectAnswer.value
+    };
+  }
+  return {
+    status: '',
+    createdAt: '',
+    answer: ''
+  };
+};
+
+// isLbxEnabled ni yangilash
+const isLbxEnabled = computed(() => 
+  technicalProjectStatus.value === 'ACCEPTED'
+);
+
+// Modal content ni yangilash
+const updateModalContent = () => {
+  // Modal content templateni yangilash kerak bo'ladi
+  // currentSection.value ga qarab tegishli ma'lumotlarni ko'rsatish
+  const sectionData = getCurrentSectionData(currentSection.value);
+  
+  return {
+    status: sectionData.status,
+    createdAt: sectionData.createdAt,
+    answer: sectionData.answer
+  };
+};
+
+// / technical section ==============================================
 
 watch(() => sessionStorage.getItem('selectMinistry'), (newVal) => {
   if (newVal) {
