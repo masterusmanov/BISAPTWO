@@ -68,12 +68,6 @@
                   <p class="font-bold text-[11px] text-gray-800 truncate">
                     {{$t('ministry.project')}}: <span class="font-normal">{{project.name ? project.name.slice(0, 20) : 'No name'}}...</span>
                   </p>
-                  <p class="text-[9px] text-gray-500">
-                    ID: {{ project.id }} 
-                  </p>
-                  <p class="text-[9px] text-gray-400">
-                    {{project.created_at }} addada
-                  </p>
                 </div>
                 <div v-if="project.status === 'NEW'" class="w-[10px] h-[10px] rounded-full bg-green-600 float-right"></div>
               </div>
