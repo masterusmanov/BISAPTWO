@@ -16,6 +16,7 @@
           <h3 class="text-[14px] font-medium text-gray-900">{{ $t('accordions.accordionone') }}</h3>
         </div>
         <div class="flex items-center space-x-2">
+          
           <!-- Tasdiqlangan holat ko'rsatish -->
           <div v-if="isConceptionApproved" class="flex items-center text-green-600 text-sm font-medium">
             <i class='bx bx-check-circle text-[18px] mr-1'></i>
@@ -59,6 +60,14 @@
             >
               <i class='bx bx-check-double text-[16px]'></i> 
               <span>{{ $t('buttons.approve') }}</span>
+            </button>
+            <button 
+            @click.stop="manualRefresh" 
+            :disabled="loading"
+            class="ml-2 p-1 text-white bg-blue-500 flex items-center hover:bg-blue-600 transition-colors rounded"
+            title="Ma'lumotlarni yangilash"
+            >
+              <i :class="{ 'bx-spin': loading }" class='bx bx-refresh text-[16px]'></i>
             </button>
           </template>
         </div>
@@ -513,6 +522,188 @@ import "vue3-toastify/dist/index.css";
 import { toast } from 'vue3-toastify';
 import axios from 'axios';
 
+
+const clearAllCache = () => {
+  console.log('🧹 Cache tozalanmoqda...');
+  filesCache.value = null;
+  filesCacheTime.value = null;
+  projectData.value = null;
+  lastLoadedProjectId.value = null;
+  conceptionDocuments.value = [];
+  technicalDocuments.value = [];
+  console.log('✅ Cache tozalandi');
+};
+
+// 2. Forced refresh funktsiyasi
+const fetchFilesConsepForced = async (bypassCache = true) => {
+  console.log('🔄 Forced refresh boshlanmoqda');
+  
+  if (bypassCache) {
+    clearAllCache();
+  }
+
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    error.value = 'Token topilmadi';
+    toast.error('Token topilmadi!', { autoClose: 2000 });
+    return null;
+  }
+
+  const selectedProject = getSelectedProject();
+  if (!selectedProject || !selectedProject.id) {
+    error.value = 'Loyiha tanlanmagan';
+    toast.error('Loyiha tanlanmagan!', { autoClose: 2000 });
+    return null;
+  }
+
+  loading.value = true;
+  error.value = '';
+
+  try {
+    const timestamp = new Date().getTime();
+    
+    const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedProject.id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      },
+      params: {
+        _t: timestamp
+      }
+    });
+    
+    console.log('📥 API javobi:', response.data);
+    
+    if (!response.data || !response.data.data) {
+      throw new Error('Project ma\'lumotlari topilmadi');
+    }
+    
+    projectData.value = response.data.data;
+    lastLoadedProjectId.value = selectedProject.id;
+    
+    await processConceptionDocumentsNew();
+    await processTechnicalDocumentsNew();
+    
+    toast.success('Ma\'lumotlar yangilandi!', { autoClose: 1500 });
+    return response.data;
+    
+  } catch (error) {
+    console.error('❌ Forced refresh xatosi:', error);
+    toast.error('Xatolik yuz berdi!', { autoClose: 2000 });
+    return null;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 3. Yangi conception processing
+const processConceptionDocumentsNew = async () => {
+  console.log('🔄 ProcessConceptionDocuments NEW');
+  
+  if (!projectData.value) {
+    conceptionDocuments.value = [];
+    return;
+  }
+
+  const projectDocuments = projectData.value.project_documents;
+  console.log('📋 Project documents:', projectDocuments);
+
+  let projectConceptDoc = null;
+
+  if (Array.isArray(projectDocuments)) {
+    projectConceptDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
+  } else if (projectDocuments && typeof projectDocuments === 'object') {
+    if (projectDocuments.type === 'PROJECT_CONCEPT') {
+      projectConceptDoc = projectDocuments;
+    }
+  }
+
+  if (!projectConceptDoc || !projectConceptDoc.documents) {
+    conceptionDocuments.value = [];
+    return;
+  }
+
+  // MUHIM: doc.file dan to'g'ridan-to'g'ri olish
+  const processedDocuments = projectConceptDoc.documents.map((doc, index) => {
+    console.log(`📄 Doc ${index + 1}:`, doc);
+    
+    const fileInfo = doc.file; // BU JUDA MUHIM!
+    console.log(`📎 File info:`, fileInfo);
+    
+    let fileUrl = null;
+    if (fileInfo?.url) {
+      fileUrl = fileInfo.url.startsWith('http') ? fileInfo.url : `https://back.miit.uz${fileInfo.url}`;
+    }
+    
+    return {
+      id: doc.id,
+      date_time: doc.created_at,
+      fileUrl: fileUrl,
+      fileName: fileInfo?.name || 'Nomsiz fayl',
+      fileId: fileInfo?.id
+    };
+  });
+
+  conceptionDocuments.value = processedDocuments;
+  console.log('✅ Conception documents:', conceptionDocuments.value);
+};
+
+// 4. Yangi technical processing
+const processTechnicalDocumentsNew = async () => {
+  console.log('🔧 ProcessTechnicalDocuments NEW');
+  
+  if (!projectData.value) {
+    technicalDocuments.value = [];
+    return;
+  }
+
+  const projectDoc = projectData.value.project_documents;
+  
+  if (!projectDoc || projectDoc.type !== 'PROJECT_TS') {
+    technicalDocuments.value = [];
+    return;
+  }
+
+  if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
+    technicalDocuments.value = [];
+    return;
+  }
+
+  loadingTechnical.value = true;
+
+  try {
+    const processedDocuments = projectDoc.documents.map((doc, index) => {
+      console.log(`🔧 Technical doc ${index + 1}:`, doc);
+      
+      const fileInfo = doc.file; // BU HAM MUHIM!
+      
+      let fileUrl = null;
+      if (fileInfo?.url) {
+        fileUrl = fileInfo.url.startsWith('http') ? fileInfo.url : `https://back.miit.uz${fileInfo.url}`;
+      }
+      
+      return {
+        id: doc.id,
+        type: doc.type,
+        file_id: fileInfo?.id,
+        fileUrl: fileUrl,
+        fileName: fileInfo?.name || 'Nomsiz fayl',
+        projectId: projectData.value.id
+      };
+    });
+
+    technicalDocuments.value = processedDocuments;
+  } finally {
+    loadingTechnical.value = false;
+  }
+};
+
+
+
+
 // Modal holatlari
 const openmodal = ref(false);
 const modalType = ref('');
@@ -802,7 +993,7 @@ const handleSubmitTechnicalModal = async () => {
     }
 
     const typeMap = {
-      'revision': 'TO_REVIEW',
+      'revision': 'RESOLVED',
       'comment': 'REJECTED',
       'approve': 'ACCEPTED'
     };
@@ -842,13 +1033,16 @@ const handleSubmitTechnicalModal = async () => {
     toast.success(`${technicalModalConfig.value.title} muvaffaqiyatli yuborildi!`, { autoClose: 2000 });
 
     closeTechnicalModal();
-    await fetchFilesConsep();
 
     if (technicalModalType.value === 'approve') {
       if (projectData.value?.project_documents?.type === 'PROJECT_TS') {
         projectData.value.project_documents.status = 'ACCEPTED';
       }
     }
+    console.log('🔄 Technical modal yuborildi, forced refresh...');
+    setTimeout(async () => {
+      await fetchFilesConsepForced(true);
+    }, 1000);
 
   } catch (error) {
     if (loadingToastId) toast.remove(loadingToastId);
@@ -857,6 +1051,13 @@ const handleSubmitTechnicalModal = async () => {
   } finally {
     isTechnicalSubmitting.value = false;
   }
+};
+
+// Manual refresh funktsiyasi
+const manualRefresh = async () => {
+  console.log('🔄 Manual refresh bosildi');
+  toast.info('Ma\'lumotlar yangilanmoqda...', { autoClose: 1000 });
+  await fetchFilesConsepForced(true);
 };
 
 
@@ -1115,13 +1316,17 @@ const handleSubmitModal = async () => {
     toast.success(`${modalConfig.value.title} muvaffaqiyatli yuborildi!`, { autoClose: 2000 });
 
     closeModal();
-    await fetchFilesConsep();
 
     if (modalType.value === 'approve') {
       if (projectData.value?.project_documents?.type === 'PROJECT_CONCEPT') {
         projectData.value.project_documents.status = 'ACCEPTED';
       }
     }
+
+        console.log('🔄 Modal yuborildi, forced refresh...');
+    setTimeout(async () => {
+      await fetchFilesConsepForced(true);
+    }, 1000);
 
   } catch (error) {
     if (loadingToastId) toast.remove(loadingToastId);
@@ -1226,67 +1431,7 @@ const getFileById = (fileId, filesList) => {
 
 // Conception hujjatlarini qayta ishlash
 const processConceptionDocuments = async () => {
-  console.log('ProcessConceptionDocuments ishlayapti');
-  
-  if (!projectData.value) {
-    console.log('ProjectData yo\'q');
-    return;
-  }
-
-  // YANGI: project_documents array yoki object ekanligini tekshirish
-  const projectDocuments = projectData.value.project_documents;
-  
-  console.log('Project documents type:', typeof projectDocuments);
-  console.log('Project documents value:', projectDocuments);
-
-  let projectConceptDoc = null;
-
-  // Agar array bo'lsa
-  if (Array.isArray(projectDocuments)) {
-    projectConceptDoc = projectDocuments.find(
-      doc => doc.type === 'PROJECT_CONCEPT'
-    );
-  } 
-  // Agar object bo'lsa va type PROJECT_CONCEPT bo'lsa
-  else if (projectDocuments && typeof projectDocuments === 'object') {
-    if (projectDocuments.type === 'PROJECT_CONCEPT') {
-      projectConceptDoc = projectDocuments;
-    }
-  }
-
-  console.log('ProjectConceptDoc found:', projectConceptDoc);
-
-  if (!projectConceptDoc || !projectConceptDoc.documents) {
-    console.log('PROJECT_CONCEPT tipidagi hujjatlar topilmadi');
-    conceptionDocuments.value = [];
-    return;
-  }
-
-  // YANGI: files list olishni to'g'rilab
-  const filesList = await fetchFilesList();
-  
-  console.log('Fayllar ro\'yxati:', filesList);
-  
-  if (!filesList) {
-    console.log('Fayllar ro\'yxati olinmadi');
-    conceptionDocuments.value = [];
-    return;
-  }
-
-  const processedDocuments = projectConceptDoc.documents.map(doc => {
-    const fileInfo = getFileById(doc.id, filesList);
-    console.log(`File ID: ${doc.id}, File Info:`, fileInfo);
-    
-    return {
-      id: doc.id,
-      date_time: doc.created_at,
-      fileUrl: fileInfo?.url || null,
-      fileName: fileInfo?.name || 'Nomsiz fayl',
-    };
-  });
-
-  conceptionDocuments.value = processedDocuments;
-  console.log('Conception hujjatlari tayyor:', conceptionDocuments.value);
+  await processConceptionDocumentsNew();
 };
 
 // Oxirgi yuklangan project ID ni saqlash
@@ -1384,65 +1529,7 @@ const fetchFilesConsep = async () => {
 
 // Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const processTechnicalDocuments = async () => {
-  console.log('=== PROCESS TECHNICAL DOCUMENTS NEW VERSION ===');
-  
-  if (!projectData.value) {
-    console.log('ProjectData yo\'q');
-    technicalDocuments.value = [];
-    return;
-  }
-
-  const projectDoc = projectData.value.project_documents;
-  
-  if (!projectDoc) {
-    console.log('project_documents mavjud emas');
-    technicalDocuments.value = [];
-    return;
-  }
-
-  console.log('Technical project document:', JSON.stringify(projectDoc, null, 2));
-
-  // Faqat PROJECT_TS tipidagi documentlarni qayta ishlash
-  if (projectDoc.type !== 'PROJECT_TS') {
-    console.log('Bu PROJECT_TS emas, type:', projectDoc.type);
-    technicalDocuments.value = [];
-    return;
-  }
-
-  if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
-    console.log('PROJECT_TS documents mavjud emas yoki array emas');
-    technicalDocuments.value = [];
-    return;
-  }
-
-  loadingTechnical.value = true;
-
-  try {
-    console.log('PROJECT_TS documents length:', projectDoc.documents.length);
-
-    const processedDocuments = projectDoc.documents.map((doc, index) => {
-      console.log(`Processing technical document ${index + 1}:`, JSON.stringify(doc, null, 2));
-      
-      const fileInfo = doc.file;
-      console.log(`Technical file info for doc ${doc.id}:`, fileInfo);
-      
-      const fileUrl = fileInfo?.url ? `https://back.miit.uz${fileInfo.url}` : null;
-      
-      return {
-        id: doc.id,
-        type: doc.type,
-        file_id: fileInfo?.id,
-        fileUrl: fileUrl,
-        fileName: fileInfo?.name || 'Nomsiz fayl',
-        projectId: projectData.value.id
-      };
-    });
-
-    technicalDocuments.value = processedDocuments;
-    console.log('Technical documents processed:', technicalDocuments.value);
-  } finally {
-    loadingTechnical.value = false;
-  }
+  await processTechnicalDocumentsNew();
 };
 
 const watchSelectedProject = () => {
