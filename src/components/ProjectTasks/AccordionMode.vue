@@ -583,23 +583,53 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 daqiqa
 
 // Computed properties
 const isConceptionApproved = computed(() => {
-  if (!projectData.value?.project_documents) return false;
+  console.log('isConceptionApproved check...');
   
-  const projectConceptDoc = projectData.value.project_documents.find(
-    doc => doc.type === 'PROJECT_CONCEPT'
-  );
+  if (!projectData.value?.project_documents) {
+    console.log('project_documents mavjud emas');
+    return false;
+  }
   
-  return projectConceptDoc?.status === 'ACCEPTED';
+  const projectDocuments = projectData.value.project_documents;
+  console.log('Project documents for approval check:', projectDocuments);
+  
+  // Agar array bo'lsa
+  if (Array.isArray(projectDocuments)) {
+    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
+    if (projectDoc) {
+      console.log('Project document type:', projectDoc.type);
+      console.log('Project document status:', projectDoc.status);
+      return projectDoc.status === 'ACCEPTED';
+    }
+  }
+  // Agar object bo'lsa
+  else if (projectDocuments && typeof projectDocuments === 'object') {
+    if (projectDocuments.type === 'PROJECT_CONCEPT') {
+      console.log('Project document type:', projectDocuments.type);
+      console.log('Project document status:', projectDocuments.status);
+      return projectDocuments.status === 'ACCEPTED';
+    }
+  }
+  
+  return false;
 });
 
 const hasTechnicalDocuments = computed(() => {
-  if (!projectData.value?.project_documents) return false;
+  console.log('hasTechnicalDocuments check...');
   
-  const technicalDoc = projectData.value.project_documents.find(
-    doc => doc.type === 'PROJECT_TS'
-  );
+  if (!projectData.value?.project_documents) {
+    console.log('project_documents mavjud emas');
+    return false;
+  }
   
-  return technicalDoc && technicalDoc.documents && technicalDoc.documents.length > 0;
+  const projectDoc = projectData.value.project_documents;
+  console.log('Project doc for technical:', projectDoc);
+  
+  if (projectDoc.type === 'PROJECT_TS') {
+    return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+  }
+  
+  return false;
 });
 
 const hasLBXDocuments = computed(() => {
@@ -617,25 +647,44 @@ const canAccessLBX = computed(() => {
 
 // PROJECT_CONCEPT tipidagi hujjatlar mavjudligini tekshirish
 const hasProjectConceptDocuments = computed(() => {
+  console.log('hasProjectConceptDocuments check...');
+  
   if (!projectData.value || !projectData.value.project_documents) {
+    console.log('projectData yoki project_documents mavjud emas');
     return false;
   }
   
-  const projectConceptDoc = projectData.value.project_documents.find(
-    doc => doc.type === 'PROJECT_CONCEPT'
-  );
+  const projectDocuments = projectData.value.project_documents;
+  console.log('Project documents for concept check:', projectDocuments);
   
-  return projectConceptDoc && projectConceptDoc.documents && projectConceptDoc.documents.length > 0;
+  // Agar array bo'lsa
+  if (Array.isArray(projectDocuments)) {
+    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
+    if (projectDoc) {
+      return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+    }
+  }
+  // Agar object bo'lsa
+  else if (projectDocuments && typeof projectDocuments === 'object') {
+    if (projectDocuments.type === 'PROJECT_CONCEPT') {
+      return projectDocuments.documents && Array.isArray(projectDocuments.documents) && projectDocuments.documents.length > 0;
+    }
+  }
+  
+  return false;
 });
 
 const isTechnicalApproved = computed(() => {
   if (!projectData.value?.project_documents) return false;
   
-  const technicalDoc = projectData.value.project_documents.find(
-    doc => doc.type === 'PROJECT_TS'
-  );
+  const projectDoc = projectData.value.project_documents;
   
-  return technicalDoc?.status === 'ACCEPTED';
+  // PROJECT_TS tipidagi document tekshirish
+  if (projectDoc.type === 'PROJECT_TS') {
+    return projectDoc.status === 'ACCEPTED';
+  }
+  
+  return false;
 });
 
 const filteredTechnicalDocuments = computed(() => {
@@ -736,15 +785,12 @@ const handleSubmitTechnicalModal = async () => {
   let loadingToastId = null;
   
   try {
-    // Loading toast ko'rsatish
     loadingToastId = toast.info('Ma\'lumot yuborilmoqda...', {
       autoClose: false,
       closeButton: false
     });
 
     let fileId = null;
-
-    // 1. Agar fayl yuklangan bo'lsa, avval faylni serverga yuklash
     if (technicalFileState.file && technicalModalType.value !== 'approve') {
       fileId = await uploadFileToServer(technicalFileState.file);
       if (!fileId) {
@@ -755,7 +801,6 @@ const handleSubmitTechnicalModal = async () => {
       }
     }
 
-    // 2. Type ni aniqlash
     const typeMap = {
       'revision': 'TO_REVIEW',
       'comment': 'REJECTED',
@@ -763,20 +808,16 @@ const handleSubmitTechnicalModal = async () => {
     };
     const answerType = typeMap[technicalModalType.value];
 
-    // 3. PROJECT_TS tipidagi hujjatni olish
-    const technicalDoc = projectData.value?.project_documents?.find(
-      doc => doc.type === 'PROJECT_TS'
-    );
-
-    if (!technicalDoc) {
+    const projectDoc = projectData.value?.project_documents;
+    
+    if (!projectDoc || projectDoc.type !== 'PROJECT_TS') {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('PROJECT_TS hujjati topilmadi!', { autoClose: 2000 });
       isTechnicalSubmitting.value = false;
       return;
     }
 
-    // 4. Birinchi document ni olish
-    const firstDocument = technicalDoc.documents?.[0];
+    const firstDocument = projectDoc.documents?.[0];
     if (!firstDocument) {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('Texnik hujjat topilmadi!', { autoClose: 2000 });
@@ -784,49 +825,33 @@ const handleSubmitTechnicalModal = async () => {
       return;
     }
 
-    // 5. Javobni yuborish
     const answerData = {
-      project_document_id: technicalDoc.id,
+      project_document_id: projectDoc.id,
       documents_id: firstDocument.id,
       answer: technicalFormData.answare,
       type: answerType
     };
 
-    // Agar fayl ID mavjud bo'lsa, qo'shish
     if (fileId) {
       answerData.file_id = fileId;
     }
 
     await sendAnswer(answerData);
 
-    // Loading toast ni yopish
     if (loadingToastId) toast.remove(loadingToastId);
-    
-    toast.success(`${technicalModalConfig.value.title} muvaffaqiyatli yuborildi!`, {
-      autoClose: 2000
-    });
+    toast.success(`${technicalModalConfig.value.title} muvaffaqiyatli yuborildi!`, { autoClose: 2000 });
 
     closeTechnicalModal();
-    
-    // Ma'lumotlarni yangilash
     await fetchFilesConsep();
 
     if (technicalModalType.value === 'approve') {
-      // Technical document status ni yangilash
-      if (projectData.value?.project_documents) {
-        const technicalDoc = projectData.value.project_documents.find(
-          doc => doc.type === 'PROJECT_TS'
-        );
-        if (technicalDoc) {
-          technicalDoc.status = 'ACCEPTED';
-        }
+      if (projectData.value?.project_documents?.type === 'PROJECT_TS') {
+        projectData.value.project_documents.status = 'ACCEPTED';
       }
     }
 
   } catch (error) {
-    // Loading toast ni yopish
     if (loadingToastId) toast.remove(loadingToastId);
-    
     console.error('Technical javob yuborishda xato:', error);
     toast.error('Xatolik yuz berdi!', { autoClose: 2000 });
   } finally {
@@ -1031,15 +1056,12 @@ const handleSubmitModal = async () => {
   let loadingToastId = null;
   
   try {
-    // Loading toast ko'rsatish
     loadingToastId = toast.info('Ma\'lumot yuborilmoqda...', {
       autoClose: false,
       closeButton: false
     });
 
     let fileId = null;
-
-    // 1. Agar fayl yuklangan bo'lsa, avval faylni serverga yuklash
     if (fileState.file && modalType.value !== 'approve') {
       fileId = await uploadFileToServer(fileState.file);
       if (!fileId) {
@@ -1050,7 +1072,6 @@ const handleSubmitModal = async () => {
       }
     }
 
-    // 2. Type ni aniqlash
     const typeMap = {
       'revision': 'TO_REVIEW',
       'comment': 'REJECTED',
@@ -1058,20 +1079,17 @@ const handleSubmitModal = async () => {
     };
     const answerType = typeMap[modalType.value];
 
-    // 3. PROJECT_CONCEPT tipidagi birinchi hujjatni olish
-    const projectConceptDoc = projectData.value?.project_documents?.find(
-      doc => doc.type === 'PROJECT_CONCEPT'
-    );
-
-    if (!projectConceptDoc) {
+    // Project document olish (bitta object)
+    const projectDoc = projectData.value?.project_documents;
+    
+    if (!projectDoc || projectDoc.type !== 'PROJECT_CONCEPT') {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('PROJECT_CONCEPT hujjati topilmadi!', { autoClose: 2000 });
       isSubmitting.value = false;
       return;
     }
 
-    // 4. Birinchi document ni olish
-    const firstDocument = projectConceptDoc.documents?.[0];
+    const firstDocument = projectDoc.documents?.[0];
     if (!firstDocument) {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('Hujjat topilmadi!', { autoClose: 2000 });
@@ -1079,55 +1097,41 @@ const handleSubmitModal = async () => {
       return;
     }
 
-    // 5. Javobni yuborish
     const answerData = {
-      project_document_id: projectConceptDoc.id,
+      project_document_id: projectDoc.id,
       documents_id: firstDocument.id,
       answer: formData.answare,
       type: answerType
     };
 
-    // Agar fayl ID mavjud bo'lsa, qo'shish
     if (fileId) {
       answerData.file_id = fileId;
     }
 
+    console.log('Yuborilayotgan answer data:', answerData);
     await sendAnswer(answerData);
 
-    // Loading toast ni yopish
     if (loadingToastId) toast.remove(loadingToastId);
-    
-    toast.success(`${modalConfig.value.title} muvaffaqiyatli yuborildi!`, {
-      autoClose: 2000
-    });
+    toast.success(`${modalConfig.value.title} muvaffaqiyatli yuborildi!`, { autoClose: 2000 });
 
     closeModal();
-    
-    // Ma'lumotlarni yangilash
     await fetchFilesConsep();
 
     if (modalType.value === 'approve') {
-      // Project document status ni yangilash
-      if (projectData.value?.project_documents) {
-        const projectConceptDoc = projectData.value.project_documents.find(
-          doc => doc.type === 'PROJECT_CONCEPT'
-        );
-        if (projectConceptDoc) {
-          projectConceptDoc.status = 'ACCEPTED';
-        }
+      if (projectData.value?.project_documents?.type === 'PROJECT_CONCEPT') {
+        projectData.value.project_documents.status = 'ACCEPTED';
       }
     }
 
   } catch (error) {
-    // Loading toast ni yopish
     if (loadingToastId) toast.remove(loadingToastId);
-    
     console.error('Javob yuborishda xato:', error);
     toast.error('Xatolik yuz berdi!', { autoClose: 2000 });
   } finally {
     isSubmitting.value = false;
   }
 };
+
 
 // Accordion section ochish/yopish
 const toggleSection = (section) => {
@@ -1153,18 +1157,17 @@ const downloadFile = async (fileUrl, fileName) => {
   try {
     toast.info('Fayl yuklanmoqda...', { autoClose: 1000 });
     
-    window.open(fileUrl, '_blank');
+    // Base URL ni qo'shish (agar kerak bo'lsa)
+    const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://back.miit.uz${fileUrl}`;
+    
+    window.open(fullUrl, '_blank');
     
     setTimeout(() => {
-      toast.success('Fayl muvaffaqiyatli yuklandi!', {
-        autoClose: 1000
-      });
+      toast.success('Fayl muvaffaqiyatli yuklandi!', { autoClose: 1000 });
     }, 1000);
   } catch (error) {
     console.error("Fayl yuklashda xato:", error);
-    toast.error('Fayl yuklashda xatolik yuz berdi!', {
-      autoClose: 1000
-    });
+    toast.error('Fayl yuklashda xatolik yuz berdi!', { autoClose: 1000 });
   }
 };
 
@@ -1230,12 +1233,28 @@ const processConceptionDocuments = async () => {
     return;
   }
 
-  const projectConceptDoc = projectData.value.project_documents?.find(
-    doc => doc.type === 'PROJECT_CONCEPT'
-  );
+  // YANGI: project_documents array yoki object ekanligini tekshirish
+  const projectDocuments = projectData.value.project_documents;
+  
+  console.log('Project documents type:', typeof projectDocuments);
+  console.log('Project documents value:', projectDocuments);
 
-  console.log('ProjectConceptDoc2025:', projectConceptDoc);
-  // sessionStorage.setItem('selectstatus', projectConceptDoc.status);
+  let projectConceptDoc = null;
+
+  // Agar array bo'lsa
+  if (Array.isArray(projectDocuments)) {
+    projectConceptDoc = projectDocuments.find(
+      doc => doc.type === 'PROJECT_CONCEPT'
+    );
+  } 
+  // Agar object bo'lsa va type PROJECT_CONCEPT bo'lsa
+  else if (projectDocuments && typeof projectDocuments === 'object') {
+    if (projectDocuments.type === 'PROJECT_CONCEPT') {
+      projectConceptDoc = projectDocuments;
+    }
+  }
+
+  console.log('ProjectConceptDoc found:', projectConceptDoc);
 
   if (!projectConceptDoc || !projectConceptDoc.documents) {
     console.log('PROJECT_CONCEPT tipidagi hujjatlar topilmadi');
@@ -1243,6 +1262,7 @@ const processConceptionDocuments = async () => {
     return;
   }
 
+  // YANGI: files list olishni to'g'rilab
   const filesList = await fetchFilesList();
   
   console.log('Fayllar ro\'yxati:', filesList);
@@ -1253,8 +1273,6 @@ const processConceptionDocuments = async () => {
     return;
   }
 
-  const selectedProject = getSelectedProject();
-  
   const processedDocuments = projectConceptDoc.documents.map(doc => {
     const fileInfo = getFileById(doc.id, filesList);
     console.log(`File ID: ${doc.id}, File Info:`, fileInfo);
@@ -1268,7 +1286,6 @@ const processConceptionDocuments = async () => {
   });
 
   conceptionDocuments.value = processedDocuments;
-
   console.log('Conception hujjatlari tayyor:', conceptionDocuments.value);
 };
 
@@ -1326,6 +1343,9 @@ const fetchFilesConsep = async () => {
     }
     
     projectData.value = response.data.data;
+
+    console.log('2025 projectdata', projectData);
+    
     lastLoadedProjectId.value = selectedProject.id;
     
     await processConceptionDocuments();
@@ -1364,21 +1384,33 @@ const fetchFilesConsep = async () => {
 
 // Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const processTechnicalDocuments = async () => {
-  console.log('ProcessTechnicalDocuments ishlayapti');
+  console.log('=== PROCESS TECHNICAL DOCUMENTS NEW VERSION ===');
   
   if (!projectData.value) {
     console.log('ProjectData yo\'q');
+    technicalDocuments.value = [];
     return;
   }
 
-  const technicalDoc = projectData.value.project_documents?.find(
-    doc => doc.type === 'PROJECT_TS'
-  );
+  const projectDoc = projectData.value.project_documents;
+  
+  if (!projectDoc) {
+    console.log('project_documents mavjud emas');
+    technicalDocuments.value = [];
+    return;
+  }
 
-  console.log('TechnicalDoc:', technicalDoc);
+  console.log('Technical project document:', JSON.stringify(projectDoc, null, 2));
 
-  if (!technicalDoc || !technicalDoc.documents) {
-    console.log('PROJECT_TS tipidagi hujjatlar topilmadi');
+  // Faqat PROJECT_TS tipidagi documentlarni qayta ishlash
+  if (projectDoc.type !== 'PROJECT_TS') {
+    console.log('Bu PROJECT_TS emas, type:', projectDoc.type);
+    technicalDocuments.value = [];
+    return;
+  }
+
+  if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
+    console.log('PROJECT_TS documents mavjud emas yoki array emas');
     technicalDocuments.value = [];
     return;
   }
@@ -1386,33 +1418,28 @@ const processTechnicalDocuments = async () => {
   loadingTechnical.value = true;
 
   try {
-    const filesList = await fetchFilesList();
-    
-    console.log('Technical uchun fayllar ro\'yxati:', filesList);
-    
-    if (!filesList) {
-      console.log('Fayllar ro\'yxati olinmadi');
-      technicalDocuments.value = [];
-      return;
-    }
+    console.log('PROJECT_TS documents length:', projectDoc.documents.length);
 
-    const processedDocuments = technicalDoc.documents.map(doc => {
-      const fileInfo = getFileById(doc.file_id, filesList);
-      console.log(`Technical File ID: ${doc.file_id}, File Info:`, fileInfo);
+    const processedDocuments = projectDoc.documents.map((doc, index) => {
+      console.log(`Processing technical document ${index + 1}:`, JSON.stringify(doc, null, 2));
+      
+      const fileInfo = doc.file;
+      console.log(`Technical file info for doc ${doc.id}:`, fileInfo);
+      
+      const fileUrl = fileInfo?.url ? `https://back.miit.uz${fileInfo.url}` : null;
       
       return {
         id: doc.id,
         type: doc.type,
-        file_id: doc.file_id,
-        fileUrl: fileInfo?.url || null,
+        file_id: fileInfo?.id,
+        fileUrl: fileUrl,
         fileName: fileInfo?.name || 'Nomsiz fayl',
-        projectId: doc.project_id || projectData.value.id
+        projectId: projectData.value.id
       };
     });
 
     technicalDocuments.value = processedDocuments;
-
-    console.log('Technical hujjatlari tayyor:', technicalDocuments.value);
+    console.log('Technical documents processed:', technicalDocuments.value);
   } finally {
     loadingTechnical.value = false;
   }

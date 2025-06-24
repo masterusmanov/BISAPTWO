@@ -153,7 +153,7 @@
       </div>
     </div>
     <div class="p-4">
-      <Accordion v-if="showComponent"/>
+      <Accordion v-if="showComponent"/> 
     </div>
   </div>
   </div>

@@ -453,69 +453,97 @@
     </div>
 
     <!-- Ish tarixi Modal -->
-    <div 
-      v-if="isHistoryModalOpen" 
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-50"
-      @click="closeHistoryModal"
-    >
-      <div 
-        class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 overflow-hidden"
-        @click.stop
-      >
-        <!-- Modal Header -->
-        <div class="bg-white p-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-[14px] text-[#794A9A] font-[600] flex items-center">
-              <i class='bx bxs-briefcase-alt-2 mr-2 text-[18px]'></i>
-              {{ getSectionTitle(currentSection) }} - {{ $t('historywork')}}
-            </h2>
-            <button 
-              @click="closeHistoryModal"
-              class="text-gray-500 hover:text-gray-400 transition-colors"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Modal Content -->
-        <div class=" max-h-[70vh] overflow-y-auto">
-          <div class="space-y-2">
-            
-            <!-- Status history -->
-            <div v-if="projectDatatwo === 'TO_REVIEW'" class="flex items-center justify-between">
-              <div class="space-y-2 bg-gray-200 w-full p-4">
-                <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
-                  <i class='bx bx-info-circle text-[18px] mr-1'></i>
-                  {{"Qayta ko'rib chiqish uchun"}}
-                </p>
-                <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
-              </div>
-            </div>
-
-            <div v-if="projectDatatwo === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
-              <p class="text-justify">{{ projectDatatwoansware || 'Izoh mavjud emas' }}</p>
-            </div>
-
-            <div v-else-if="projectDatatwo === 'REJECTED'" class="flex items-center justify-between">
-              <div class="space-y-2 bg-gray-200 w-full p-4">
-                <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
-                  <i class='bx bx-info-circle text-[18px] mr-1'></i>
-                  {{$t('remark')}}
-                </p>
-                <p class="text-[12px] text-gray-500 font-semibold">{{ projectDatatthree.slice(0, 10) }} {{projectDatatthree.slice(12, 16)}}</p>
-              </div>
-            </div>
-
-            <div v-if="projectDatatwo === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
-              <p class="text-justify">{{ projectDatatwoansware || 'Izoh mavjud emas' }}</p>
-            </div>
-          </div>
-        </div>
+<div 
+  v-if="isHistoryModalOpen" 
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-50"
+  @click="closeHistoryModal"
+>
+  <div 
+    class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 overflow-hidden"
+    @click.stop
+  >
+    <!-- Modal Header -->
+    <div class="bg-white p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-[14px] text-[#794A9A] font-[600] flex items-center">
+          <i class='bx bxs-briefcase-alt-2 mr-2 text-[18px]'></i>
+          {{ getSectionTitle(currentSection) }} - Ish tarixi
+        </h2>
+        <button 
+          @click="closeHistoryModal"
+          class="text-gray-500 hover:text-gray-400 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
     </div>
+
+    <!-- Modal Content -->
+    <div class="max-h-[70vh] overflow-y-auto">
+      <div class="space-y-2">
+        
+        <!-- Dynamic content based on current section -->
+        <template v-if="getCurrentSectionData(currentSection).status">
+          <!-- Status history -->
+          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
+            <div class="space-y-2 bg-gray-200 w-full p-4">
+              <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
+                <i class='bx bx-info-circle text-[18px] mr-1'></i>
+                Qayta ko'rib chiqish uchun
+              </p>
+              <p class="text-[12px] text-gray-500 font-semibold">
+                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+              </p>
+            </div>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
+          </div>
+
+          <div v-else-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="flex items-center justify-between">
+            <div class="space-y-2 bg-gray-200 w-full p-4">
+              <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
+                <i class='bx bx-info-circle text-[18px] mr-1'></i>
+                Izoh
+              </p>
+              <p class="text-[12px] text-gray-500 font-semibold">
+                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+              </p>
+            </div>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
+            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
+          </div>
+
+          <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
+            <div class="space-y-2 bg-gray-200 w-full p-4">
+              <p class="text-[14px] font-semibold text-green-600 flex items-center">
+                <i class='bx bx-check-circle text-[18px] mr-1'></i>
+                Tasdiqlangan
+              </p>
+              <p class="text-[12px] text-gray-500 font-semibold">
+                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <!-- Agar hech qanday ma'lumot bo'lmasa -->
+        <div v-else class="p-8 text-center text-gray-500">
+          Bu bo'lim uchun tarix mavjud emas
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </template>
 
@@ -535,14 +563,42 @@ const error = ref(null);
 
 // Computed property holatiga o'tkazamiz
 const projectDatatwo = computed(() => {
-  return projectData.value?.project_documents[0]?.status || '';
+  // Agar projectData hali yuklanmagan bo'lsa, bo'sh string qaytarish
+  if (!projectData.value || !projectData.value.project_documents) {
+    return '';
+  }
+  
+  // Eng oxirgi answer ni olish (array oxiridan)
+  const answers = projectData.value.project_documents?.answers;
+  if (answers && answers.length > 0) {
+    // Oxirgi javobni olish
+    const lastAnswer = answers[answers.length - 1];
+    console.log("Oxirgi javob turi:", lastAnswer.type);
+    return lastAnswer.type;
+  }
+  
+  // Agar answers bo'lmasa, project_documents status ni qaytarish
+  return projectData.value.project_documents?.status || '';
 });
+
 const projectDatatthree = computed(() => {
-  return projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.created_at || '';
+  const answers = projectData.value?.project_documents?.answers;
+  if (answers && answers.length > 0) {
+    // Oxirgi javob vaqtini olish
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.created_at || '';
+  }
+  return projectData.value?.project_documents?.created_at || '';
 });
 
 const projectDatatwoansware = computed(() => {
-  return projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.answer || '';
+  const answers = projectData.value?.project_documents?.answers;
+  if (answers && answers.length > 0) {
+    // Oxirgi javob matnini olish
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.answer || '';
+  }
+  return '';
 });
 
 
@@ -571,7 +627,7 @@ const fetchProjectData = async () => {
       }
     });
     projectData.value = response.data.data;
-    console.log("Project data now:", projectData.value?.project_documents[0]?.documents[0]?.answers[0]?.answer);
+    console.log("Project data now:", projectData.value?.project_documents?.answers[0]?.answer);
   } catch (err) {
     console.error(err);
     error.value = 'Ma\'lumotni olishda xatolik yuz berdi';
@@ -845,11 +901,11 @@ const deleteFile = async (section, item) => {
   }
 };
 
-const createProjectDocument = async (type, projectId) => {
+const createProjectDocument = async (type, projectId, status = "NEW" ) => {
   try {
 
     const projectDoc = {
-      status: 'NEW',
+      status: status,
       type: type,
       project_id: projectId
     }
@@ -884,8 +940,13 @@ const sendConceptionFiles = async () => {
       throw new Error('Ministry ID not found in sessionStorage');
     }
 
+    // Status ni aniqlash - agar REJECTED yoki TO_REVIEW bo'lsa, TO_REVIEW yuborish
+    const documentStatus = (projectDatatwo.value === 'REJECTED' || projectDatatwo.value === 'TO_REVIEW') 
+      ? 'TO_REVIEW' 
+      : 'NEW';
+
     // Create project document
-    const projectDocumentResponse = await createProjectDocument('PROJECT_CONCEPT', ministryId.id);
+    const projectDocumentResponse = await createProjectDocument('PROJECT_CONCEPT', ministryId.id, documentStatus);
     console.log("Project document response:", projectDocumentResponse);
     
     // projectDocumentResponse ni to'g'ri olish
@@ -1124,37 +1185,74 @@ const checkDocumentStatuses = async () => {
 
 // technikal section ============================
 // Texnik vazifa uchun computed properties
+// const technicalProjectStatus = computed(() => {
+//   // Texnik vazifa uchun project document index ni topish
+//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+//   return technicalDoc?.status || '';
+// });
+
+// const technicalProjectCreatedAt = computed(() => {
+//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+//   return technicalDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+// });
+
+// const technicalProjectAnswer = computed(() => {
+//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
+//   return technicalDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+// });
+
+// // LBX uchun computed properties
+// const lbxProjectStatus = computed(() => {
+//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+//   return lbxDoc?.status || '';
+// });
+
+// const lbxProjectCreatedAt = computed(() => {
+//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+//   return lbxDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+// });
+
+// const lbxProjectAnswer = computed(() => {
+//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
+//   return lbxDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+// });
+
+// TEXNIK VAZIFA UCHUN - Hozircha mavjud emas
 const technicalProjectStatus = computed(() => {
-  // Texnik vazifa uchun project document index ni topish
-  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-  return technicalDoc?.status || '';
+  // Hozirgi API response da faqat PROJECT_CONCEPT mavjud
+  // Texnik vazifa bo'limi hali yaratilmagan
+  return '';
 });
 
 const technicalProjectCreatedAt = computed(() => {
-  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-  return technicalDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+  return '';
 });
 
 const technicalProjectAnswer = computed(() => {
-  const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-  return technicalDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+  return '';
 });
 
-// LBX uchun computed properties
+// LBX UCHUN - Hozircha mavjud emas
 const lbxProjectStatus = computed(() => {
-  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-  return lbxDoc?.status || '';
+  return '';
 });
 
 const lbxProjectCreatedAt = computed(() => {
-  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-  return lbxDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
+  return '';
 });
 
 const lbxProjectAnswer = computed(() => {
-  const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-  return lbxDoc?.documents?.[0]?.answers?.[0]?.answer || '';
+  return '';
 });
+
+// Enable/Disable mantigi
+// const isTechnicalEnabled = computed(() => 
+//   projectDatatwo.value === 'ACCEPTED'
+// );
+
+// const isLbxEnabled = computed(() => 
+//   technicalProjectStatus.value === 'ACCEPTED'
+// );
 
 // Modal content uchun section bo'yicha ma'lumot olish
 const getCurrentSectionData = (section) => {
@@ -1183,6 +1281,7 @@ const getCurrentSectionData = (section) => {
     answer: ''
   };
 };
+
 
 // isLbxEnabled ni yangilash
 const isLbxEnabled = computed(() => 
