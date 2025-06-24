@@ -487,7 +487,7 @@
         <!-- Dynamic content based on current section -->
         <template v-if="getCurrentSectionData(currentSection).status">
           <!-- Status history -->
-          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
+          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
               <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
                 <i class='bx bx-info-circle text-[18px] mr-1'></i>
@@ -500,7 +500,7 @@
             </div>
           </div>
 
-          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
 
