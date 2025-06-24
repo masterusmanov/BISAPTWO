@@ -1073,7 +1073,7 @@ const handleSubmitModal = async () => {
     }
 
     const typeMap = {
-      'revision': 'TO_REVIEW',
+      'revision': 'RESOLVED',
       'comment': 'REJECTED',
       'approve': 'ACCEPTED'
     };

@@ -16,7 +16,7 @@
           <h3 class="text-[14px] font-medium text-gray-900">Konsepsiya</h3>
         </div>
         <div class="flex items-center space-x-4">
-          <p v-if="projectDatatwo === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
+          <p v-if="projectDatatwo === 'RESOLVED'" class="text-[#4A51DD] text-[14px] font-[500]">
             <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
           </p>
           <p v-if="projectDatatwo === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
@@ -940,8 +940,8 @@ const sendConceptionFiles = async () => {
       throw new Error('Ministry ID not found in sessionStorage');
     }
 
-    // Status ni aniqlash - agar REJECTED yoki TO_REVIEW bo'lsa, TO_REVIEW yuborish
-    const documentStatus = (projectDatatwo.value === 'REJECTED' || projectDatatwo.value === 'TO_REVIEW') 
+    // Status ni aniqlash - agar REJECTED yoki RESOLVED bo'lsa, TO_REVIEW yuborish
+    const documentStatus = (projectDatatwo.value === 'REJECTED' || projectDatatwo.value === 'RESOLVED') 
       ? 'TO_REVIEW' 
       : 'NEW';
 
