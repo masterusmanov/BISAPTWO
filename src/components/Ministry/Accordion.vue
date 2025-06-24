@@ -655,7 +655,7 @@ const api = axios.create({
 
 // Section items configuration
 const conceptionItems = ref([
-  { key: 'item1', title: 'Konsepsiya loyihasi', fileKey: 'concept_project_file_id' },
+  { key: 'item1', title: 'Xat', fileKey: 'concept_project_file_id' },
   { key: 'item2', title: 'Konsepsiya loyihasi', fileKey: 'letter_file_id' },
   { key: 'item3', title: 'Ilmiy-texnik kengash protokoli (ITK)', fileKey: 'protocol_file_id' },
   { key: 'item4', title: 'Xorijiy delegatlar tahlili natijalari - Kengash qarori', fileKey: 'solution_file_id' }

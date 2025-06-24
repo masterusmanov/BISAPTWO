@@ -57,8 +57,34 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: SignIn,
+      meta: { requiresAuth: false }
     },
   ],
 });
+
+
+router.beforeEach((to, from, next) => {
+  const token = sessionStorage.getItem('token');
+  
+  if (to.path === '/login') {
+    if (token) {
+      next('/dashboard/home');
+    } else {
+      next();
+    }
+  } 
+  else {
+    if (!token) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      });
+    } else {
+      next();
+    }
+  }
+});
+
+
 
 export default router
