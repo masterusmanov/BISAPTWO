@@ -14,6 +14,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
           <h3 class="text-[14px] font-medium text-gray-900">{{ $t('accordions.accordionone') }}</h3>
+          <div v-if="isConceptionToReview" class="flex items-center text-orange-600 text-sm font-medium mr-2">
+              <i class='bx bx-time-five text-[18px] mr-1'></i>
+              <span>Qayta yuborildi</span>
+            </div>
         </div>
         <div class="flex items-center space-x-2">
           
@@ -805,6 +809,30 @@ const isConceptionApproved = computed(() => {
   return false;
 });
 
+const isConceptionToReview = computed(() => {
+  if (!projectData.value?.project_documents) {
+    return false;
+  }
+  
+  const projectDocuments = projectData.value.project_documents;
+  
+  // Agar array bo'lsa
+  if (Array.isArray(projectDocuments)) {
+    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
+    if (projectDoc) {
+      return projectDoc.status === 'TO_REVIEW';
+    }
+  }
+  // Agar object bo'lsa
+  else if (projectDocuments && typeof projectDocuments === 'object') {
+    if (projectDocuments.type === 'PROJECT_CONCEPT') {
+      return projectDocuments.status === 'TO_REVIEW';
+    }
+  }
+  
+  return false;
+});
+
 const hasTechnicalDocuments = computed(() => {
   console.log('hasTechnicalDocuments check...');
   
@@ -818,6 +846,18 @@ const hasTechnicalDocuments = computed(() => {
   
   if (projectDoc.type === 'PROJECT_TS') {
     return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+  }
+  
+  return false;
+});
+
+const isTechnicalToReview = computed(() => {
+  if (!projectData.value?.project_documents) return false;
+  
+  const projectDoc = projectData.value.project_documents;
+  
+  if (projectDoc.type === 'PROJECT_TS') {
+    return projectDoc.status === 'TO_REVIEW';
   }
   
   return false;
