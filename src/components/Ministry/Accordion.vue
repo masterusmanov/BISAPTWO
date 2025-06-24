@@ -503,6 +503,39 @@
           <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
+          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50 border border-gray-200 rounded">
+            <!-- <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <i class='bx bx-file text-[16px] mr-1'></i>
+              Biriktrilgan fayllar
+            </h4> -->
+            <div class="space-y-2">
+              <div 
+                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
+                :key="file.id || index"
+                class="flex items-center justify-between bg-gray-200 rounded p-1"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                    {{ index + 1 }}
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                      {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
+                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
+                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  :disabled="!file.fileUrl"
+                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                >
+                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklasah</span>
+                <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                </button>
+              </div>
+            </div>
+          </div>        
 
           <div v-else-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
@@ -519,6 +552,40 @@
 
           <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+            <!-- <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <i class='bx bx-file text-[16px] mr-1'></i>
+              Biriktrilgan fayllar
+            </h4> -->
+           <div class="space-y-2">
+              <div 
+                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
+                :key="file.id || index"
+                class="flex items-center justify-between bg-gray-200 rounded p-1"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                    {{ index + 1 }}
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                      {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
+                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
+                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  :disabled="!file.fileUrl"
+                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                >
+                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklasah</span>
+                <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
@@ -599,6 +666,24 @@ const projectDatatwoansware = computed(() => {
     return lastAnswer.answer || '';
   }
   return '';
+});
+
+const projectDatatwofiles = computed(() => {
+  const documents = projectData.value?.project_documents?.documents;
+  console.log("documents:", documents);
+  
+  if (!documents || !Array.isArray(documents)) {
+    return [];
+  }
+  
+  // Har bir document uchun file ma'lumotini qaytarish
+  return documents.map(doc => ({
+    id: doc.id,
+    fileName: doc.file?.name || 'Nomsiz fayl',
+    fileUrl: doc.file?.url,
+    fileId: doc.file?.id,
+    createdAt: doc.created_at
+  }));
 });
 
 
@@ -1141,6 +1226,39 @@ const downloadFile = async (section, itemKey) => {
   }
 };
 
+// File download funktsiyasi
+const downloadProjectFile = async (fileUrl, fileName) => {
+  console.log('Download bosdi:', fileUrl, fileName);
+  
+  if (!fileUrl) {
+    toast.error('Fayl URL manzili topilmadi!', { autoClose: 2000 });
+    return;
+  }
+
+  try {
+    toast.info('Fayl yuklanmoqda...', { autoClose: 1000 });
+    
+    // URL ni to'g'ri shakllantirish
+    const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://back.miit.uz${fileUrl}`;
+    
+    // Yangi oynada ochish
+    window.open(fullUrl, '_blank');
+    
+    // Yoki to'g'ridan-to'g'ri yuklash uchun:
+    // const link = document.createElement('a');
+    // link.href = fullUrl;
+    // link.download = fileName;
+    // link.click();
+    
+    setTimeout(() => {
+      toast.success('Fayl muvaffaqiyatli yuklandi!', { autoClose: 1000 });
+    }, 1000);
+  } catch (error) {
+    console.error("Fayl yuklashda xato:", error);
+    toast.error('Fayl yuklashda xatolik yuz berdi!', { autoClose: 2000 });
+  }
+};
+
 // Check document statuses on mount
 const checkDocumentStatuses = async () => {
   try {
@@ -1260,25 +1378,29 @@ const getCurrentSectionData = (section) => {
     return {
       status: projectDatatwo.value,
       createdAt: projectDatatthree.value,
-      answer: projectDatatwoansware.value
+      answer: projectDatatwoansware.value,
+      files: projectDatatwofiles.value 
     };
   } else if (section === 'technical') {
     return {
       status: technicalProjectStatus.value,
       createdAt: technicalProjectCreatedAt.value,
-      answer: technicalProjectAnswer.value
+      answer: technicalProjectAnswer.value,
+      files: [] // Hozircha bo'sh
     };
   } else if (section === 'lbx') {
     return {
       status: lbxProjectStatus.value,
       createdAt: lbxProjectCreatedAt.value,
-      answer: lbxProjectAnswer.value
+      answer: lbxProjectAnswer.value,
+      files: [] // Hozircha bo'sh
     };
   }
   return {
     status: '',
     createdAt: '',
-    answer: ''
+    answer: '',
+    files: []
   };
 };
 
