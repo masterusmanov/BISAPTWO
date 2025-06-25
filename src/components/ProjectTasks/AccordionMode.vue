@@ -242,91 +242,123 @@
 
     <!-- LBX Section -->
    <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !canAccessLBX }">
-      <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
-        <div 
-          @click="canAccessLBX && toggleSection('lbx')" 
-          class="flex items-center space-x-2"
-          :class="{ 'cursor-pointer': canAccessLBX, 'cursor-not-allowed': !canAccessLBX }"
-        >
-          <svg 
-            :class="{ 'rotate-90': openSections.lbx }" 
-            class="w-4 h-4 transform transition-transform duration-200" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <h3 class="font-medium text-gray-900 text-sm">{{ $t('accordions.accordionthree') }}</h3>
-          <span v-if="!isTechnicalApproved" class="text-xs text-gray-500">(Texnik vazifa tasdiqlanmagan)</span>
-          <span v-else-if="!hasLBXDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button 
-            @click="showModal('revision')" 
-            :disabled="!canAccessLBX"
-            :class="{
-              'bg-[#4A51DD] hover:bg-[#46497d]': canAccessLBX,
-              'bg-gray-300 cursor-not-allowed': !canAccessLBX
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-refresh text-[16px]'></i>
-            <span>{{ $t('buttons.forrevison') }}</span>
-          </button>
-          <button 
-            @click="showModal('comment')"
-            :disabled="!canAccessLBX"
-            :class="{
-              'bg-[#FD5656] hover:bg-[#c57575]': canAccessLBX,
-              'bg-gray-300 cursor-not-allowed': !canAccessLBX
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <span class="font-bold">!</span>
-            <span>{{ $t('buttons.comment') }}</span>
-          </button>
-          <button 
-            @click="showModal('approve')"
-            :disabled="!canAccessLBX"
-            :class="{
-              'bg-[#07A920] hover:bg-[#62a962]': canAccessLBX,
-              'bg-gray-300 cursor-not-allowed': !canAccessLBX
-            }"
-            class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-          >
-            <i class='bx bx-check-double text-[16px]'></i>
-            <span>{{ $t('buttons.approve') }}</span>
-          </button>
-        </div>
+  <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
+    <div 
+      @click="canAccessLBX && toggleSection('lbx')" 
+      class="flex items-center space-x-2"
+      :class="{ 'cursor-pointer': canAccessLBX, 'cursor-not-allowed': !canAccessLBX }"
+    >
+      <svg 
+        :class="{ 'rotate-90': openSections.lbx }" 
+        class="w-4 h-4 transform transition-transform duration-200" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+      <h3 class="font-medium text-gray-900 text-sm">{{ $t('accordions.accordionthree') }}</h3>
+      <div v-if="isLBXToReview" class="flex items-center text-orange-600 text-sm font-medium mr-2">
+        <i class='bx bx-time-five text-[18px] mr-1'></i>
+        <span>Qayta yuborildi</span>
+      </div>
+      <span v-if="!isTechnicalApproved" class="text-xs text-gray-500">(Texnik vazifa tasdiqlanmagan)</span>
+      <span v-else-if="!hasLBXDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <!-- Tasdiqlangan holat ko'rsatish -->
+      <div v-if="isLBXApproved" class="flex items-center text-green-600 text-sm font-medium">
+        <i class='bx bx-check-circle text-[18px] mr-1'></i>
+        <span>Tasdiqlangan</span>
       </div>
       
-      <div 
-        v-show="openSections.lbx"
-        class="pb-4 transition-all duration-300 ease-in-out"
-      >
-        <div class="space-y-2 px-4">
-          <!-- LBX Items -->
-          <div v-for="(item, index) in lbxItems" :key="item.key" class="flex items-center justify-between bg-[#F8F8F8] rounded-lg">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-16 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
-                {{ index + 1 }}
-              </div>
-              <div>
-                <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                <p class="font-medium text-sm text-gray-700">{{ $t(`${item.title}`) }}</p>
-              </div>
+      <!-- Tugmalar faqat tasdiqlanmagan holatda ko'rinadi -->
+      <template v-else>
+        <button 
+          @click="showLBXModal('revision')" 
+          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :class="{
+            'bg-[#4A51DD] hover:bg-[#46497d]': canAccessLBX && hasLBXDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+        >
+          <i class='bx bx-refresh text-[16px]'></i>
+          <span>{{ $t('buttons.forrevison') }}</span>
+        </button>
+        <button 
+          @click="showLBXModal('comment')"
+          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :class="{
+            'bg-[#FD5656] hover:bg-[#c57575]': canAccessLBX && hasLBXDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+        >
+          <span class="font-bold">!</span>
+          <span>{{ $t('buttons.comment') }}</span>
+        </button>
+        <button 
+          @click="showLBXModal('approve')"
+          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :class="{
+            'bg-[#07A920] hover:bg-[#62a962]': canAccessLBX && hasLBXDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+        >
+          <i class='bx bx-check-double text-[16px]'></i>
+          <span>{{ $t('buttons.approve') }}</span>
+        </button>
+      </template>
+    </div>
+  </div>
+  
+  <div 
+    v-show="openSections.lbx && canAccessLBX"
+    class="pb-4 transition-all duration-300 ease-in-out"
+  >
+    <div class="space-y-2 px-4">
+      <!-- Loading state -->
+      <div v-if="loadingLBX" class="text-center py-4">
+        <i class='bx bx-loader-alt bx-spin text-2xl text-blue-500'></i>
+        <p class="text-sm text-gray-600 mt-2">Yuklanmoqda...</p>
+      </div>
+      
+      <!-- LBX Items from API -->
+      <div v-else-if="lbxDocuments.length > 0" class="space-y-4">
+        <div v-for="(item, index) in lbxDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
+          <div class="flex items-center space-x-3 mt-4">
+            <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
+              {{ index + 1 }}
             </div>
-            <div class="flex items-center space-x-2 pr-4">
-              <button @click="downloadFile()" class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50">
-                <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
-                <span>{{ $t('downfile') }}</span>
-              </button>
+            <div>
+              <p class="text-sm text-gray-700">{{ item.created_at }}</p>
+              <p class="font-medium text-gray-700 text-sm">
+                {{ item.fileName }}
+              </p>
             </div>
+          </div>
+          <div class="flex items-center space-x-2 pr-4">
+            <button 
+              @click="downloadFile(item.fileUrl, item.fileName)" 
+              class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
+              :disabled="!item.fileUrl"
+            >
+              <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
+              <span>{{ $t('downfile') }}</span>
+            </button>
           </div>
         </div>
       </div>
+      
+      <!-- No data state -->
+      <div v-else-if="!loadingLBX" class="text-center py-4 text-gray-500">
+        <p>Ma'lumot topilmadi</p>
+      </div>
     </div>
+  </div>
+</div>
   </div>
 
   <!-- konsepsiya Modal -->
@@ -518,6 +550,101 @@
     </div>
   </div>
 </div>
+
+<!-- LBX Modal -->
+<div v-if="openLBXModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+  <div class="modal-content bg-gray-200 rounded-lg shadow-xl w-full max-w-[800px] text-black relative">
+    <!-- Modal header -->
+    <div class="bg-white border-b rounded-t-lg pl-4 border-gray-300 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <!-- Icon -->
+        <i :class="lbxModalConfig.icon" class="text-[20px]"></i>
+        <p class="text-[15px] font-[700]" :class="lbxModalConfig.titleColor">
+          {{ lbxModalConfig.title }}
+        </p>
+      </div>
+      <button 
+        @click="closeLBXModal" 
+        class="text-gray-700 text-[42px] hover:text-red-500 border-l border-gray-300 px-4 leading-none"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Modal content -->
+    <div class="bg-white p-4 m-4 rounded-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[12px] font-[500]" :class="lbxModalConfig.titleColor">
+            {{ lbxModalConfig.title }}
+          </p>
+          <p class="text-[12px] text-gray-500">
+            {{ formatDate(new Date()) }}
+          </p>
+        </div>
+      </div>
+
+      <form @submit.prevent="handleSubmitLBXModal">
+        <!-- Textarea -->
+        <div class="my-4 border border-gray-300 rounded-md p-4">
+          <textarea 
+            v-model="lbxFormData.answare"
+            :id="lbxModalType + '_textarea'"
+            cols="30" 
+            rows="5" 
+            class="w-full outline-none text-[14px] resize-none" 
+            :placeholder="lbxModalConfig.placeholder"
+          ></textarea>
+        </div>
+
+        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
+        <div v-if="lbxModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+          <input 
+            type="file" 
+            :id="lbxModalType + '-file'"
+            @change="handleLBXFileUpload"
+            class="hidden"
+            accept=".pdf"
+          />
+          <label 
+            :for="lbxModalType + '-file'"
+            :class="{
+              'bg-blue-500 hover:bg-blue-600 text-white': lbxFileState.uploaded,
+              'bg-blue-400 hover:bg-blue-600 text-white': !lbxFileState.uploaded
+            }"
+            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+            </svg>
+            <span>{{ lbxFileState.uploaded ? lbxFileState.fileName : 'Fayl biriktirish' }}</span>
+          </label>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center justify-center space-x-4 my-4">
+          <!-- Submit button -->
+          <button 
+            type="submit" 
+            :disabled="isLBXSubmitting"
+            :class="[
+              lbxModalConfig.buttonClass, 
+              'py-2 text-white rounded-md font-medium', 
+              lbxModalType === 'approve' ? 'w-full' : 'w-[65%]',
+              isLBXSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            ]"
+          >
+            <span v-if="!isLBXSubmitting">{{ lbxModalConfig.buttonText }}</span>
+            <span v-else class="flex items-center justify-center">
+              <i class='bx bx-loader-alt bx-spin mr-2'></i>
+              Yuborilmoqda...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -603,38 +730,28 @@ const fetchFilesConsepForced = async (bypassCache = true) => {
   }
 };
 
-// 3. Yangi conception processing
+// 9. Konsepsiya hujjatlarini qayta ishlash
 const processConceptionDocumentsNew = async () => {
   console.log('🔄 ProcessConceptionDocuments NEW');
   
-  if (!projectData.value) {
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
     conceptionDocuments.value = [];
     return;
   }
 
-  const projectDocuments = projectData.value.project_documents;
-  console.log('📋 Project documents:', projectDocuments);
+  const projectConceptDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  console.log('📋 PROJECT_CONCEPT:', projectConceptDoc);
 
-  let projectConceptDoc = null;
-
-  if (Array.isArray(projectDocuments)) {
-    projectConceptDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
-  } else if (projectDocuments && typeof projectDocuments === 'object') {
-    if (projectDocuments.type === 'PROJECT_CONCEPT') {
-      projectConceptDoc = projectDocuments;
-    }
-  }
-
-  if (!projectConceptDoc || !projectConceptDoc.documents) {
+  if (!projectConceptDoc.documents) {
     conceptionDocuments.value = [];
     return;
   }
 
-  // MUHIM: doc.file dan to'g'ridan-to'g'ri olish
+  // Hujjatlarni qayta ishlash
   const processedDocuments = projectConceptDoc.documents.map((doc, index) => {
     console.log(`📄 Doc ${index + 1}:`, doc);
     
-    const fileInfo = doc.file; // BU JUDA MUHIM!
+    const fileInfo = doc.file;
     console.log(`📎 File info:`, fileInfo);
     
     let fileUrl = null;
@@ -647,7 +764,8 @@ const processConceptionDocumentsNew = async () => {
       date_time: doc.created_at,
       fileUrl: fileUrl,
       fileName: fileInfo?.name || 'Nomsiz fayl',
-      fileId: fileInfo?.id
+      fileId: fileInfo?.id,
+      type: doc.type
     };
   });
 
@@ -655,21 +773,18 @@ const processConceptionDocumentsNew = async () => {
   console.log('✅ Conception documents:', conceptionDocuments.value);
 };
 
-// 4. Yangi technical processing
+
+// 10. Texnik hujjatlarni qayta ishlash
 const processTechnicalDocumentsNew = async () => {
   console.log('🔧 ProcessTechnicalDocuments NEW');
   
-  if (!projectData.value) {
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
     technicalDocuments.value = [];
     return;
   }
 
-  const projectDoc = projectData.value.project_documents;
-  
-  if (!projectDoc || projectDoc.type !== 'PROJECT_TS') {
-    technicalDocuments.value = [];
-    return;
-  }
+  const projectDoc = projectData.value.project_documents.PROJECT_TS;
+  console.log('🔧 PROJECT_TS:', projectDoc);
 
   if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
     technicalDocuments.value = [];
@@ -682,7 +797,7 @@ const processTechnicalDocumentsNew = async () => {
     const processedDocuments = projectDoc.documents.map((doc, index) => {
       console.log(`🔧 Technical doc ${index + 1}:`, doc);
       
-      const fileInfo = doc.file; // BU HAM MUHIM!
+      const fileInfo = doc.file;
       
       let fileUrl = null;
       if (fileInfo?.url) {
@@ -695,18 +810,69 @@ const processTechnicalDocumentsNew = async () => {
         file_id: fileInfo?.id,
         fileUrl: fileUrl,
         fileName: fileInfo?.name || 'Nomsiz fayl',
-        projectId: projectData.value.id
+        projectId: projectData.value.id,
+        created_at: doc.created_at
       };
     });
 
     technicalDocuments.value = processedDocuments;
+    console.log('✅ Technical documents:', technicalDocuments.value);
   } finally {
     loadingTechnical.value = false;
   }
 };
 
 
+// 11. LBX hujjatlarini qayta ishlash (yangi qo'shildi)
+const lbxDocuments = ref([]);
+const loadingLBX = ref(false);
 
+const processLBXDocumentsNew = async () => {
+  console.log('📊 ProcessLBXDocuments NEW');
+  
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    lbxDocuments.value = [];
+    return;
+  }
+
+  const projectDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  console.log('📊 PROJECT_EVALUATION_DOCUMENT:', projectDoc);
+
+  if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
+    lbxDocuments.value = [];
+    return;
+  }
+
+  loadingLBX.value = true;
+
+  try {
+    const processedDocuments = projectDoc.documents.map((doc, index) => {
+      console.log(`📊 LBX doc ${index + 1}:`, doc);
+      
+      const fileInfo = doc.file;
+      
+      let fileUrl = null;
+      if (fileInfo?.url) {
+        fileUrl = fileInfo.url.startsWith('http') ? fileInfo.url : `https://back.miit.uz${fileInfo.url}`;
+      }
+      
+      return {
+        id: doc.id,
+        type: doc.type,
+        file_id: fileInfo?.id,
+        fileUrl: fileUrl,
+        fileName: fileInfo?.name || 'Nomsiz fayl',
+        projectId: projectData.value.id,
+        created_at: doc.created_at
+      };
+    });
+
+    lbxDocuments.value = processedDocuments;
+    console.log('✅ LBX documents:', lbxDocuments.value);
+  } finally {
+    loadingLBX.value = false;
+  }
+};
 
 // Modal holatlari
 const openmodal = ref(false);
@@ -776,7 +942,7 @@ const filesCache = ref(null);
 const filesCacheTime = ref(null);
 const CACHE_DURATION = 5 * 60 * 1000; // 5 daqiqa
 
-// Computed properties
+// 1. Konsepsiya tasdiqlanganligini tekshirish
 const isConceptionApproved = computed(() => {
   console.log('isConceptionApproved check...');
   
@@ -786,87 +952,77 @@ const isConceptionApproved = computed(() => {
   }
   
   const projectDocuments = projectData.value.project_documents;
-  console.log('Project documents for approval check:', projectDocuments);
   
-  // Agar array bo'lsa
-  if (Array.isArray(projectDocuments)) {
-    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
-    if (projectDoc) {
-      console.log('Project document type:', projectDoc.type);
-      console.log('Project document status:', projectDoc.status);
-      return projectDoc.status === 'ACCEPTED';
-    }
-  }
-  // Agar object bo'lsa
-  else if (projectDocuments && typeof projectDocuments === 'object') {
-    if (projectDocuments.type === 'PROJECT_CONCEPT') {
-      console.log('Project document type:', projectDocuments.type);
-      console.log('Project document status:', projectDocuments.status);
-      return projectDocuments.status === 'ACCEPTED';
-    }
+  // Yangi strukturada PROJECT_CONCEPT ni tekshirish
+  if (projectDocuments.PROJECT_CONCEPT) {
+    const projectDoc = projectDocuments.PROJECT_CONCEPT;
+    console.log('PROJECT_CONCEPT status:', projectDoc.status);
+    return projectDoc.status === 'ACCEPTED';
   }
   
   return false;
 });
 
+// 2. Konsepsiya qayta ko'rib chiqishda ekanligini tekshirish
 const isConceptionToReview = computed(() => {
-  if (!projectData.value?.project_documents) {
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
     return false;
   }
   
-  const projectDocuments = projectData.value.project_documents;
-  
-  // Agar array bo'lsa
-  if (Array.isArray(projectDocuments)) {
-    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
-    if (projectDoc) {
-      return projectDoc.status === 'TO_REVIEW';
-    }
-  }
-  // Agar object bo'lsa
-  else if (projectDocuments && typeof projectDocuments === 'object') {
-    if (projectDocuments.type === 'PROJECT_CONCEPT') {
-      return projectDocuments.status === 'TO_REVIEW';
-    }
-  }
-  
-  return false;
+  const projectDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  return projectDoc.status === 'TO_REVIEW';
 });
 
+// 7. Texnik hujjatlar mavjudligini tekshirish
 const hasTechnicalDocuments = computed(() => {
   console.log('hasTechnicalDocuments check...');
   
-  if (!projectData.value?.project_documents) {
-    console.log('project_documents mavjud emas');
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    console.log('PROJECT_TS mavjud emas');
     return false;
   }
   
-  const projectDoc = projectData.value.project_documents;
-  console.log('Project doc for technical:', projectDoc);
+  const projectDoc = projectData.value.project_documents.PROJECT_TS;
+  console.log('PROJECT_TS documents:', projectDoc.documents);
   
-  if (projectDoc.type === 'PROJECT_TS') {
-    return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
-  }
-  
-  return false;
+  return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
 });
 
+// 4. Texnik vazifa qayta ko'rib chiqishda ekanligini tekshirish
 const isTechnicalToReview = computed(() => {
-  if (!projectData.value?.project_documents) return false;
-  
-  const projectDoc = projectData.value.project_documents;
-  
-  if (projectDoc.type === 'PROJECT_TS') {
-    return projectDoc.status === 'TO_REVIEW';
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return false;
   }
   
-  return false;
+  const projectDoc = projectData.value.project_documents.PROJECT_TS;
+  return projectDoc.status === 'TO_REVIEW';
 });
 
-const hasLBXDocuments = computed(() => {
-  // LBX hujjatlar mavjudligini tekshirish
-  return false; // Hozircha false
+// 5. LBX tasdiqlanganligini tekshirish
+const isLBXApproved = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return false;
+  }
+  
+  const projectDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  return projectDoc.status === 'ACCEPTED';
 });
+
+// 8. LBX hujjatlari mavjudligini tekshirish
+const hasLBXDocuments = computed(() => {
+  console.log('hasLBXDocuments check...');
+  
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    console.log('PROJECT_EVALUATION_DOCUMENT mavjud emas');
+    return false;
+  }
+  
+  const projectDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  console.log('PROJECT_EVALUATION_DOCUMENT documents:', projectDoc.documents);
+  
+  return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+});
+
 
 const canAccessTechnical = computed(() => {
   return isConceptionApproved.value;
@@ -876,46 +1032,29 @@ const canAccessLBX = computed(() => {
   return isTechnicalApproved.value && hasLBXDocuments.value;
 });
 
-// PROJECT_CONCEPT tipidagi hujjatlar mavjudligini tekshirish
+// 6. PROJECT_CONCEPT hujjatlari mavjudligini tekshirish
 const hasProjectConceptDocuments = computed(() => {
   console.log('hasProjectConceptDocuments check...');
   
-  if (!projectData.value || !projectData.value.project_documents) {
-    console.log('projectData yoki project_documents mavjud emas');
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
+    console.log('PROJECT_CONCEPT mavjud emas');
     return false;
   }
   
-  const projectDocuments = projectData.value.project_documents;
-  console.log('Project documents for concept check:', projectDocuments);
+  const projectDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  console.log('PROJECT_CONCEPT documents:', projectDoc.documents);
   
-  // Agar array bo'lsa
-  if (Array.isArray(projectDocuments)) {
-    const projectDoc = projectDocuments.find(doc => doc.type === 'PROJECT_CONCEPT');
-    if (projectDoc) {
-      return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
-    }
-  }
-  // Agar object bo'lsa
-  else if (projectDocuments && typeof projectDocuments === 'object') {
-    if (projectDocuments.type === 'PROJECT_CONCEPT') {
-      return projectDocuments.documents && Array.isArray(projectDocuments.documents) && projectDocuments.documents.length > 0;
-    }
-  }
-  
-  return false;
+  return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
 });
 
+// 3. Texnik vazifa tasdiqlanganligini tekshirish
 const isTechnicalApproved = computed(() => {
-  if (!projectData.value?.project_documents) return false;
-  
-  const projectDoc = projectData.value.project_documents;
-  
-  // PROJECT_TS tipidagi document tekshirish
-  if (projectDoc.type === 'PROJECT_TS') {
-    return projectDoc.status === 'ACCEPTED';
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return false;
   }
   
-  return false;
+  const projectDoc = projectData.value.project_documents.PROJECT_TS;
+  return projectDoc.status === 'ACCEPTED';
 });
 
 const filteredTechnicalDocuments = computed(() => {
@@ -1005,7 +1144,7 @@ const handleTechnicalFileUpload = (event) => {
   }
 };
 
-// Technical form yuborish
+// 13. Technical modal submit funktsiyasida o'zgarish
 const handleSubmitTechnicalModal = async () => {
   if (!technicalFormData.answare || !technicalFormData.answare.trim()) {
     toast.error('Iltimos, javob kiriting!', { autoClose: 1500 });
@@ -1039,9 +1178,10 @@ const handleSubmitTechnicalModal = async () => {
     };
     const answerType = typeMap[technicalModalType.value];
 
-    const projectDoc = projectData.value?.project_documents;
+    // Yangi strukturada PROJECT_TS olish
+    const projectDoc = projectData.value?.project_documents?.PROJECT_TS;
     
-    if (!projectDoc || projectDoc.type !== 'PROJECT_TS') {
+    if (!projectDoc) {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('PROJECT_TS hujjati topilmadi!', { autoClose: 2000 });
       isTechnicalSubmitting.value = false;
@@ -1074,11 +1214,13 @@ const handleSubmitTechnicalModal = async () => {
 
     closeTechnicalModal();
 
+    // Status ni yangilash
     if (technicalModalType.value === 'approve') {
-      if (projectData.value?.project_documents?.type === 'PROJECT_TS') {
-        projectData.value.project_documents.status = 'ACCEPTED';
+      if (projectData.value?.project_documents?.PROJECT_TS) {
+        projectData.value.project_documents.PROJECT_TS.status = 'ACCEPTED';
       }
     }
+    
     console.log('🔄 Technical modal yuborildi, forced refresh...');
     setTimeout(async () => {
       await fetchFilesConsepForced(true);
@@ -1092,6 +1234,71 @@ const handleSubmitTechnicalModal = async () => {
     isTechnicalSubmitting.value = false;
   }
 };
+
+// LBX qayta ko'rib chiqishda ekanligini tekshirish
+const isLBXToReview = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return false;
+  }
+  
+  const projectDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  return projectDoc.status === 'TO_REVIEW';
+});
+
+// LBX modal holatlari
+const openLBXModal = ref(false);
+const lbxModalType = ref('');
+const isLBXSubmitting = ref(false);
+
+// LBX form data
+const lbxFormData = reactive({
+  answare: ''
+});
+
+// LBX modal funktsiyalari
+const showLBXModal = (type) => {
+  if (!canAccessLBX.value) {
+    toast.warning('Avval texnik vazifa tasdiqlanishi kerak!', { autoClose: 2000 });
+    return;
+  }
+  
+  if (!hasLBXDocuments.value) {
+    toast.warning('PROJECT_EVALUATION_DOCUMENT tipidagi hujjatlar topilmadi!', { autoClose: 2000 });
+    return;
+  }
+  
+  lbxModalType.value = type;
+  openLBXModal.value = true;
+  resetLBXForm();
+};
+
+
+const closeLBXModal = () => {
+  openLBXModal.value = false;
+  lbxModalType.value = '';
+  resetLBXForm();
+};
+
+const resetLBXForm = () => {
+  lbxFormData.answare = '';
+  Object.assign(lbxFileState, {
+    uploaded: false,
+    fileName: '',
+    file: null
+  });
+};
+
+// LBX fayl yuklash
+const handleLBXFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    lbxFileState.uploaded = true;
+    lbxFileState.fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+    lbxFileState.file = file;
+  }
+};
+
+
 
 // Manual refresh funktsiyasi
 const manualRefresh = async () => {
@@ -1286,7 +1493,7 @@ const sendAnswer = async (answerData) => {
   }
 };
 
-// YANGILANGAN: Form yuborish funktsiyasi
+// 12. Modal submit funktsiyasida o'zgarish
 const handleSubmitModal = async () => {
   if (!formData.answare || !formData.answare.trim()) {
     toast.error('Iltimos, javob kiriting!', { autoClose: 1500 });
@@ -1320,10 +1527,10 @@ const handleSubmitModal = async () => {
     };
     const answerType = typeMap[modalType.value];
 
-    // Project document olish (bitta object)
-    const projectDoc = projectData.value?.project_documents;
+    // Yangi strukturada PROJECT_CONCEPT olish
+    const projectDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
     
-    if (!projectDoc || projectDoc.type !== 'PROJECT_CONCEPT') {
+    if (!projectDoc) {
       if (loadingToastId) toast.remove(loadingToastId);
       toast.error('PROJECT_CONCEPT hujjati topilmadi!', { autoClose: 2000 });
       isSubmitting.value = false;
@@ -1357,13 +1564,14 @@ const handleSubmitModal = async () => {
 
     closeModal();
 
+    // Status ni yangilash
     if (modalType.value === 'approve') {
-      if (projectData.value?.project_documents?.type === 'PROJECT_CONCEPT') {
-        projectData.value.project_documents.status = 'ACCEPTED';
+      if (projectData.value?.project_documents?.PROJECT_CONCEPT) {
+        projectData.value.project_documents.PROJECT_CONCEPT.status = 'ACCEPTED';
       }
     }
 
-        console.log('🔄 Modal yuborildi, forced refresh...');
+    console.log('🔄 Modal yuborildi, forced refresh...');
     setTimeout(async () => {
       await fetchFilesConsepForced(true);
     }, 1000);
@@ -1504,6 +1712,7 @@ const fetchFilesConsep = async () => {
     console.log('Bu project uchun ma\'lumot allaqachon yuklangan');
     await processConceptionDocuments();
     await processTechnicalDocuments();
+     await processLBXDocuments();
     return projectData.value;
   }
 
@@ -1572,6 +1781,10 @@ const processTechnicalDocuments = async () => {
   await processTechnicalDocumentsNew();
 };
 
+// processLBXDocuments funktsiyasi
+const processLBXDocuments = async () => {
+  await processLBXDocumentsNew();
+};
 const watchSelectedProject = () => {
   if (intervalId) {
     clearInterval(intervalId);
