@@ -125,120 +125,132 @@
     </div>
 
     <!-- Technical Section -->
-    <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !canAccessTechnical }">
-      <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
-        <div 
-          @click="canAccessTechnical && toggleSection('technical')" 
-          class="flex items-center space-x-2"
-          :class="{ 'cursor-pointer': canAccessTechnical, 'cursor-not-allowed': !canAccessTechnical }"
+<div class="bg-white border-b border-gray-200 rounded-[8px]" :class="{ 'opacity-50': !canAccessTechnical }">
+  <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
+    <div 
+      @click="canAccessTechnical && toggleSection('technical')" 
+      class="flex items-center space-x-2"
+      :class="{ 'cursor-pointer': canAccessTechnical, 'cursor-not-allowed': !canAccessTechnical }"
+    >
+      <svg 
+        :class="{ 'rotate-90': openSections.technical }" 
+        class="w-4 h-4 transform transition-transform duration-200" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+      <h3 class="text-[14px] font-medium text-gray-900">{{ $t('accordions.accordiontwo') }}</h3>
+      <div v-if="isTechnicalToReview" class="flex items-center text-orange-600 text-sm font-medium mr-2">
+        <i class='bx bx-time-five text-[18px] mr-1'></i>
+        <span>Qayta yuborildi</span>
+      </div>
+      <span v-if="!isConceptionApproved" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
+      <span v-else-if="!hasTechnicalDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <!-- Tasdiqlangan holat ko'rsatish -->
+      <div v-if="isTechnicalApproved" class="flex items-center text-green-600 text-sm font-medium">
+        <i class='bx bx-check-circle text-[18px] mr-1'></i>
+        <span>Tasdiqlangan</span>
+      </div>
+      
+      <!-- Tugmalar faqat tasdiqlanmagan holatda ko'rinadi -->
+      <template v-else>
+        <button 
+          @click="showTechnicalModal('revision')" 
+          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :class="{
+            'bg-[#4A51DD] hover:bg-[#46497d]': canAccessTechnical && hasTechnicalDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
-          <svg 
-            :class="{ 'rotate-90': openSections.technical }" 
-            class="w-4 h-4 transform transition-transform duration-200" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <h3 class="font-medium text-gray-900 text-sm my-[8px]">{{ $t('accordions.accordiontwo') }}</h3>
-          <span v-if="!isConceptionApproved" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
-          <span v-else-if="!hasTechnicalDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <!-- Tasdiqlangan holat ko'rsatish -->
-          <div v-if="isTechnicalApproved" class="flex items-center text-green-600 text-sm font-medium">
-            <i class='bx bx-check-circle text-[18px] mr-1'></i>
-            <span>Tasdiqlangan</span>
+          <i class='bx bx-refresh text-[16px]'></i>
+          <span>{{ $t('buttons.forrevison') }}</span>
+        </button>
+        <button 
+          @click="showTechnicalModal('comment')"
+          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :class="{
+            'bg-[#FD5656] hover:bg-[#c57575]': canAccessTechnical && hasTechnicalDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+        >
+          <span class="font-bold">!</span>
+          <span>{{ $t('buttons.comment') }}</span>
+        </button>
+        <button 
+          @click="showTechnicalModal('approve')"
+          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :class="{
+            'bg-[#07A920] hover:bg-[#62a962]': canAccessTechnical && hasTechnicalDocuments,
+            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+          }"
+          class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+        >
+          <i class='bx bx-check-double text-[16px]'></i>
+          <span>{{ $t('buttons.approve') }}</span>
+        </button>
+        <button 
+          @click.stop="manualRefresh" 
+          :disabled="loadingTechnical"
+          class="ml-2 p-1 text-white bg-blue-500 flex items-center hover:bg-blue-600 transition-colors rounded"
+          title="Ma'lumotlarni yangilash"
+        >
+          <i :class="{ 'bx-spin': loadingTechnical }" class='bx bx-refresh text-[16px]'></i>
+        </button>
+      </template>
+    </div>
+  </div>
+  
+  <div 
+    v-show="openSections.technical && canAccessTechnical"
+    class="pb-4 transition-all duration-300 ease-in-out"
+  >
+    <div class="space-y-2 px-4">
+      <!-- Loading state -->
+      <div v-if="loadingTechnical" class="text-center py-4">
+        <i class='bx bx-loader-alt bx-spin text-2xl text-blue-500'></i>
+        <p class="text-sm text-gray-600 mt-2">Yuklanmoqda...</p>
+      </div>
+      
+      <!-- Technical Items from API -->
+      <div v-else-if="filteredTechnicalDocuments.length > 0" class="space-y-4">
+        <div v-for="(item, index) in filteredTechnicalDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
+          <div class="flex items-center space-x-3 mt-4">
+            <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
+              {{ index + 1 }}
+            </div>
+            <div>
+              <p class="text-sm text-gray-700">{{ item.created_at }}</p>
+              <p class="font-medium text-gray-700 text-sm">
+                {{ item.fileName }}
+              </p>
+            </div>
           </div>
-          
-          <!-- Tugmalar faqat tasdiqlanmagan holatda ko'rinadi -->
-          <template v-else>
+          <div class="flex items-center space-x-2 pr-4">
             <button 
-              @click="showTechnicalModal('revision')" 
-              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
-              :class="{
-                'bg-[#4A51DD] hover:bg-[#46497d]': canAccessTechnical && hasTechnicalDocuments,
-                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
-              }"
-              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
+              @click="downloadFile(item.fileUrl, item.fileName)" 
+              class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
+              :disabled="!item.fileUrl"
             >
-              <i class='bx bx-refresh text-[16px]'></i>
-              <span>{{ $t('buttons.forrevison') }}</span>
+              <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
+              <span>{{ $t('downfile') }}</span>
             </button>
-            <button 
-              @click="showTechnicalModal('comment')"
-              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
-              :class="{
-                'bg-[#FD5656] hover:bg-[#c57575]': canAccessTechnical && hasTechnicalDocuments,
-                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
-              }"
-              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-            >
-              <span class="font-bold">!</span>
-              <span>{{ $t('buttons.comment') }}</span>
-            </button>
-            <button 
-              @click="showTechnicalModal('approve')"
-              :disabled="!canAccessTechnical || !hasTechnicalDocuments"
-              :class="{
-                'bg-[#07A920] hover:bg-[#62a962]': canAccessTechnical && hasTechnicalDocuments,
-                'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
-              }"
-              class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
-            >
-              <i class='bx bx-check-double text-[16px]'></i>
-              <span>{{ $t('buttons.approve') }}</span>
-            </button>
-          </template>
+          </div>
         </div>
       </div>
       
-      <div 
-        v-show="openSections.technical && canAccessTechnical"
-        class="pb-4 transition-all duration-300 ease-in-out"
-      >
-        <div class="space-y-2 px-4">
-          <!-- Loading state -->
-          <div v-if="loadingTechnical" class="text-center py-4">
-            <i class='bx bx-loader-alt bx-spin text-2xl text-blue-500'></i>
-            <p class="text-sm text-gray-600 mt-2">Yuklanmoqda...</p>
-          </div>
-          
-          <!-- Technical Items from API -->
-          <div v-else-if="filteredTechnicalDocuments.length > 0" class="space-y-4">
-            <div v-for="(item, index) in filteredTechnicalDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
-              <div class="flex items-center space-x-3 mt-4">
-                <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
-                  {{ index + 1 }}
-                </div>
-                <div>
-                  <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                  <p class="font-medium text-gray-700 text-sm">
-                    {{ getTechnicalDocumentTitle(item.type) }}
-                  </p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2 pr-4">
-                <button 
-                  @click="downloadFile(item.fileUrl, item.fileName)" 
-                  class="bg-white px-8 py-2 rounded text-sm font-medium transition-colors flex items-center text-[#4A51DD] hover:bg-gray-50"
-                  :disabled="!item.fileUrl"
-                >
-                  <i class='bx bxs-file-blank mr-[4px] text-[18px]'></i>
-                  <span>{{ $t('downfile') }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- No data state -->
-          <div v-else-if="!loadingTechnical" class="text-center py-4 text-gray-500">
-            <p>Ma'lumot topilmadi</p>
-          </div>
-        </div>
+      <!-- No data state -->
+      <div v-else-if="!loadingTechnical" class="text-center py-4 text-gray-500">
+        <p>Ma'lumot topilmadi</p>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- LBX Section -->
    <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !canAccessLBX }">
