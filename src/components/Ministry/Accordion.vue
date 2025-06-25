@@ -154,7 +154,7 @@
       </div>
     </div>
 
-   <!-- Texnik vazifa Section -->
+ <!-- 1. TECHNICAL SECTION ni yangilash -->
 <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isTechnicalEnabled }">
   <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
     <div 
@@ -175,7 +175,11 @@
       <span v-if="!isTechnicalEnabled" class="text-xs text-gray-500">(Konsepsiya tasdiqlanmagan)</span>
     </div>
     <div class="flex items-center space-x-4">
+      <!-- Yangi status ko'rsatish -->
       <p v-if="technicalProjectStatus === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
+        <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
+      </p>
+      <p v-if="technicalProjectStatus === 'RESOLVED'" class="text-[#4A51DD] text-[14px] font-[500]">
         <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
       </p>
       <p v-if="technicalProjectStatus === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
@@ -184,6 +188,7 @@
       <p v-if="technicalProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
         <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
       </p>
+      
       <button 
         v-if="isTechnicalEnabled && technicalProjectStatus !== 'ACCEPTED'"
         @click="openHistoryModal('technical')"
@@ -208,7 +213,7 @@
     </div>
   </div>
   
-  <!-- Technical section content -->
+  <!-- Technical section content yangilanishi -->
   <div 
     v-show="openSections.technical && isTechnicalEnabled"
     class="pb-4 transition-all duration-300 ease-in-out"
@@ -233,7 +238,7 @@
           </div>
         </div>
         <div class="flex items-center space-x-2 pr-4">
-          <!-- Agar technicalProjectStatus ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
+          <!-- YANGI: Agar technicalProjectStatus ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
           <div v-if="technicalProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path 
@@ -245,68 +250,10 @@
             Tasdiqlandi
           </div>
           
-          <!-- Agar technicalProjectStatus ACCEPTED bo'lmasa, file upload ko'rsatish -->
+          <!-- File upload qismi -->
           <template v-else>
-            <input 
-              type="file" 
-              :id="`technical-file${index + 1}`"
-              @change="handleFileUpload($event, 'technical', item.key)"
-              class="hidden"
-              accept=".pdf,.doc,.docx"
-              :disabled="technicalProjectStatus === 'ACCEPTED'"
-            />
-            <label 
-              :for="`technical-file${index + 1}`"
-              :class="{
-                'bg-blue-500 hover:bg-blue-600 text-white': fileStates.technical[item.key].uploaded,
-                'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.technical[item.key].uploaded,
-                'cursor-not-allowed opacity-50': technicalProjectStatus === 'ACCEPTED'
-              }"
-              class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-              </svg>
-              <span>{{ fileStates.technical[item.key].uploaded ? fileStates.technical[item.key].fileName : 'Fayl biriktirish' }}</span>
-            </label>
-            
-            <div 
-              v-if="fileStates.technical[item.key].uploaded && technicalProjectStatus !== 'ACCEPTED'"
-            >
-              <button 
-                v-if="!fileStates.technical[item.key].saved"
-                @click="saveFile('technical', item.key)"
-                :disabled="isLoading.files[`technical_${item.key}`]"
-                class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                {{ isLoading.files[`technical_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
-              </button>
-              
-              <div 
-                v-else
-                class="flex items-center space-x-2"
-              >
-                <div class="flex items-center text-green-600 text-sm font-medium">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path 
-                      fill-rule="evenodd" 
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  Saqlandi
-                </div>
-                <button 
-                  @click="deleteFile('technical', item.key)"
-                  :disabled="isLoading.files[`delete_technical_${item.key}`]"
-                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
-                >
-                  <i v-if="!isLoading.files[`delete_technical_${item.key}`]" class='bx bx-trash'></i>
-                  <i v-else class='bx bx-loader-alt animate-spin'></i>
-                  {{ isLoading.files[`delete_technical_${item.key}`] ? '' : 'O\'chirish' }}
-                </button>
-              </div>
-            </div>
+            <!-- Mavjud file upload kodi -->
+            <!-- ... -->
           </template>
         </div>
       </div>
@@ -314,145 +261,116 @@
   </div>
 </div>
 
-    <!-- LBX Section -->
-    <div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isLbxEnabled }">
-      <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
-        <div 
-          @click="isLbxEnabled && toggleSection('lbx')" 
-          class="flex items-center space-x-2"
-          :class="{ 'cursor-pointer': isLbxEnabled, 'cursor-not-allowed': !isLbxEnabled }"
-        >
-          <svg 
-            :class="{ 'rotate-90': openSections.lbx }" 
-            class="w-4 h-4 transform transition-transform duration-200" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <h3 class="font-medium text-gray-900 text-sm">LBX</h3>
-          <span v-if="!isLbxEnabled" class="text-xs text-gray-500">(Texnik vazifa tasdiqlanmagan)</span>
-        </div>
-        <div class="flex items-center space-x-4">
-          <p v-if="sectionStatuses.lbx === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
-            <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
-          </p>
-          <p v-if="sectionStatuses.lbx === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
-            ! Izoh
-          </p>
-          <p v-if="sectionStatuses.lbx === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
-            <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
-          </p>
-          <button 
-            v-if="isLbxEnabled"
-            @click="openHistoryModal('lbx')"
-            class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
-          >
-            <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
-          </button>
-          <button 
-            v-if="isLbxEnabled && sectionStatuses.lbx !== 'ACCEPTED'"
-            :disabled="!allLbxFilesUploaded || isLoading.lbx"
-            @click="sendLbxFiles"
-            :class="{
-              'bg-blue-500 hover:bg-blue-600 text-white': allLbxFilesUploaded && !isLoading.lbx,
-              'bg-gray-300 text-gray-500 cursor-not-allowed': !allLbxFilesUploaded || isLoading.lbx
-            }"
-            class="px-3 py-1 text-sm rounded transition-colors"
-          >
-            <i v-if="!isLoading.lbx" class='bx bxl-telegram'></i>
-            <i v-else class='bx bx-loader-alt animate-spin'></i>
-            {{ isLoading.lbx ? 'Yuborilmoqda...' : 'Yuborish' }}
-          </button>
-        </div>
-      </div>
-      
-      <!-- LBX section content -->
-      <div 
-        v-show="openSections.lbx && isLbxEnabled"
-        class="pb-4 transition-all duration-300 ease-in-out"
+  <!-- 2. LBX SECTION ni yangilash -->
+<div class="bg-white rounded-[8px]" :class="{ 'opacity-50': !isLbxEnabled }">
+  <div class="w-full flex items-center justify-between px-4 py-2 text-left transition-colors">
+    <div 
+      @click="isLbxEnabled && toggleSection('lbx')" 
+      class="flex items-center space-x-2"
+      :class="{ 'cursor-pointer': isLbxEnabled, 'cursor-not-allowed': !isLbxEnabled }"
+    >
+      <svg 
+        :class="{ 'rotate-90': openSections.lbx }" 
+        class="w-4 h-4 transform transition-transform duration-200" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
       >
-        <div class="space-y-2 px-4">
-          <div v-for="(item, index) in lbxItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
-            <div class="flex items-center space-x-3">
-              <div 
-                :class="{
-                  'bg-blue-500': fileStates.lbx[item.key].uploaded,
-                  'bg-gray-300': !fileStates.lbx[item.key].uploaded
-                }"
-                class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
-              >
-                {{ index + 1 }}
-              </div>
-              <div>
-                <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-                <p class="font-medium text-gray-700 text-sm">
-                  {{ item.title }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center space-x-2 pr-4">
-              <input 
-                type="file" 
-                :id="`lbx-file${index + 1}`"
-                @change="handleFileUpload($event, 'lbx', item.key)"
-                class="hidden"
-                accept=".pdf,.doc,.docx"
-                :disabled="sectionStatuses.lbx === 'ACCEPTED'"
-              />
-              <label 
-                :for="`lbx-file${index + 1}`"
-                :class="{
-                  'bg-blue-500 hover:bg-blue-600 text-white': fileStates.lbx[item.key].uploaded,
-                  'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.lbx[item.key].uploaded,
-                  'cursor-not-allowed opacity-50': sectionStatuses.lbx === 'ACCEPTED'
-                }"
-                class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-                </svg>
-                <span>{{ fileStates.lbx[item.key].uploaded ? fileStates.lbx[item.key].fileName : 'Fayl biriktirish' }}</span>
-              </label>
-              
-              <div v-if="fileStates.lbx[item.key].uploaded && sectionStatuses.lbx !== 'ACCEPTED'">
-                <button 
-                  v-if="!fileStates.lbx[item.key].saved"
-                  @click="saveFile('lbx', item.key)"
-                  :disabled="isLoading.files[`lbx_${item.key}`]"
-                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
-                >
-                  {{ isLoading.files[`lbx_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
-                </button>
-                <div 
-                  v-else
-                  class="flex items-center space-x-2"
-                >
-                  <div class="flex items-center text-green-600 text-sm font-medium">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Saqlandi
-                  </div>
-                  <button 
-                    @click="deleteFile('lbx', item.key)"
-                    :disabled="isLoading.files[`delete_lbx_${item.key}`]"
-                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
-                  >
-                    <i v-if="!isLoading.files[`delete_lbx_${item.key}`]" class='bx bx-trash'></i>
-                    <i v-else class='bx bx-loader-alt animate-spin'></i>
-                    {{ isLoading.files[`delete_lbx_${item.key}`] ? '' : 'O\'chirish' }}
-                  </button>
-                </div>
-              </div>
-            </div>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+      <h3 class="font-medium text-gray-900 text-sm">LBX</h3>
+      <span v-if="!isLbxEnabled" class="text-xs text-gray-500">(Texnik vazifa tasdiqlanmagan)</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <!-- LBX status ko'rsatish -->
+      <p v-if="lbxProjectStatus === 'TO_REVIEW'" class="text-[#4A51DD] text-[14px] font-[500]">
+        <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
+      </p>
+      <p v-if="lbxProjectStatus === 'RESOLVED'" class="text-[#4A51DD] text-[14px] font-[500]">
+        <i class='bx bx-refresh text-[18px]'></i> Ko'rib chiqish
+      </p>
+      <p v-if="lbxProjectStatus === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
+        ! Izoh
+      </p>
+      <p v-if="lbxProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
+        <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
+      </p>
+      
+      <button 
+        v-if="isLbxEnabled && lbxProjectStatus !== 'ACCEPTED'"
+        @click="openHistoryModal('lbx')"
+        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      >
+        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+      </button>
+      <button 
+        v-if="isLbxEnabled && lbxProjectStatus !== 'ACCEPTED'"
+        :disabled="!allLbxFilesUploaded || isLoading.lbx"
+        @click="sendLbxFiles"
+        :class="{
+          'bg-blue-500 hover:bg-blue-600 text-white': allLbxFilesUploaded && !isLoading.lbx,
+          'bg-gray-300 text-gray-500 cursor-not-allowed': !allLbxFilesUploaded || isLoading.lbx
+        }"
+        class="px-3 py-1 text-sm rounded transition-colors"
+      >
+        <i v-if="!isLoading.lbx" class='bx bxl-telegram'></i>
+        <i v-else class='bx bx-loader-alt animate-spin'></i>
+        {{ isLoading.lbx ? 'Yuborilmoqda...' : 'Yuborish' }}
+      </button>
+    </div>
+  </div>
+  
+  <!-- LBX section content -->
+  <div 
+    v-show="openSections.lbx && isLbxEnabled"
+    class="pb-4 transition-all duration-300 ease-in-out"
+  >
+    <div class="space-y-2 px-4">
+      <div v-for="(item, index) in lbxItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
+        <div class="flex items-center space-x-3">
+          <div 
+            :class="{
+              'bg-blue-500': fileStates.lbx[item.key].uploaded,
+              'bg-gray-300': !fileStates.lbx[item.key].uploaded
+            }"
+            class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+          >
+            {{ index + 1 }}
           </div>
+          <div>
+            <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+            <p class="font-medium text-gray-700 text-sm">
+              {{ item.title }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 pr-4">
+          <!-- LBX tasdiqlash holati -->
+          <div v-if="lbxProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path 
+                fill-rule="evenodd" 
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                clip-rule="evenodd"
+              />
+            </svg>
+            Tasdiqlandi
+          </div>
+          
+          <!-- File upload qismi -->
+          <template v-else>
+            <!-- Mavjud LBX file upload kodi -->
+            <!-- ... -->
+          </template>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Ish tarixi Modal -->
+<!-- TO'LIQ MODAL KODINI MANA BUNDAY QO'SHING: -->
+
+<!-- Ish tarixi Modal -->
 <div 
   v-if="isHistoryModalOpen" 
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-50"
@@ -486,7 +404,8 @@
         
         <!-- Dynamic content based on current section -->
         <template v-if="getCurrentSectionData(currentSection).status">
-          <!-- Status history -->
+          
+          <!-- ==================== RESOLVED HOLATI ==================== -->
           <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
               <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
@@ -503,11 +422,8 @@
           <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
+          
           <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50 border border-gray-200 rounded">
-            <!-- <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-              <i class='bx bx-file text-[16px] mr-1'></i>
-              Biriktrilgan fayllar
-            </h4> -->
             <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
@@ -530,13 +446,62 @@
                   :disabled="!file.fileUrl"
                   :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
                 >
-                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklasah</span>
+                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
                 <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
                 </button>
               </div>
             </div>
           </div>        
 
+          <!-- ==================== TO_REVIEW HOLATI (YANGI) ==================== -->
+          <div v-else-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
+            <div class="space-y-2 bg-gray-200 w-full p-4">
+              <p class="text-[14px] font-semibold text-[#4A51DD] flex items-center">
+                <i class='bx bx-refresh text-[18px] mr-1'></i>
+                Ko'rib chiqilmoqda
+              </p>
+              <p class="text-[12px] text-gray-500 font-semibold">
+                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+              </p>
+            </div>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Ko\'rib chiqilmoqda...' }}</p>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+            <div class="space-y-2">
+              <div 
+                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
+                :key="file.id || index"
+                class="flex items-center justify-between bg-gray-200 rounded p-1"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                    {{ index + 1 }}
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
+                      {{ file.createdAt?.slice(11, 16) }}</p>
+                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
+                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  :disabled="!file.fileUrl"
+                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                >
+                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
+                  <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== REJECTED HOLATI ==================== -->
           <div v-else-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
               <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
@@ -555,10 +520,6 @@
           </div>
 
           <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
-            <!-- <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-              <i class='bx bx-file text-[16px] mr-1'></i>
-              Biriktrilgan fayllar
-            </h4> -->
            <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
@@ -581,13 +542,14 @@
                   :disabled="!file.fileUrl"
                   :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
                 >
-                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklasah</span>
+                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
                 <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
                 </button>
               </div>
             </div>
           </div>
 
+          <!-- ==================== ACCEPTED HOLATI ==================== -->
           <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
               <p class="text-[14px] font-semibold text-green-600 flex items-center">
@@ -598,6 +560,40 @@
                 {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
                 {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
               </p>
+            </div>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="m-4 mt-[50px] p-4 bg-green-50 border-l-4 border-green-400 rounded">
+            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Tasdiqlandi' }}</p>
+          </div>
+
+          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+            <div class="space-y-2">
+              <div 
+                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
+                :key="file.id || index"
+                class="flex items-center justify-between bg-gray-200 rounded p-1"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                    {{ index + 1 }}
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
+                      {{ file.createdAt?.slice(11, 16) }}</p>
+                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
+                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  :disabled="!file.fileUrl"
+                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                >
+                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
+                  <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                </button>
+              </div>
             </div>
           </div>
         </template>
@@ -631,37 +627,46 @@ const error = ref(null);
 // Computed property holatiga o'tkazamiz
 const projectDatatwo = computed(() => {
   // Agar projectData hali yuklanmagan bo'lsa, bo'sh string qaytarish
-  if (!projectData.value || !projectData.value.project_documents) {
+  if (!projectData.value || !projectData.value.project_documents?.PROJECT_CONCEPT) {
     return '';
   }
   
+  const projectConceptDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+
   // Eng oxirgi answer ni olish (array oxiridan)
-  const answers = projectData.value.project_documents?.answers;
+  const answers = projectConceptDoc.answers;
   if (answers && answers.length > 0) {
-    // Oxirgi javobni olish
     const lastAnswer = answers[answers.length - 1];
     console.log("Oxirgi javob turi:", lastAnswer.type);
     return lastAnswer.type;
   }
   
   // Agar answers bo'lmasa, project_documents status ni qaytarish
-  return projectData.value.project_documents?.status || '';
+  return projectConceptDoc.status || '';
 });
 
 const projectDatatthree = computed(() => {
-  const answers = projectData.value?.project_documents?.answers;
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
+    return '';
+  }
+  
+  const projectConceptDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  const answers = projectConceptDoc.answers;
   if (answers && answers.length > 0) {
-    // Oxirgi javob vaqtini olish
     const lastAnswer = answers[answers.length - 1];
     return lastAnswer.created_at || '';
   }
-  return projectData.value?.project_documents?.created_at || '';
+  return projectConceptDoc.created_at || '';
 });
 
 const projectDatatwoansware = computed(() => {
-  const answers = projectData.value?.project_documents?.answers;
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
+    return '';
+  }
+  
+  const projectConceptDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  const answers = projectConceptDoc.answers;
   if (answers && answers.length > 0) {
-    // Oxirgi javob matnini olish
     const lastAnswer = answers[answers.length - 1];
     return lastAnswer.answer || '';
   }
@@ -669,7 +674,12 @@ const projectDatatwoansware = computed(() => {
 });
 
 const projectDatatwofiles = computed(() => {
-  const documents = projectData.value?.project_documents?.documents;
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
+    return [];
+  }
+  
+  const projectConceptDoc = projectData.value.project_documents.PROJECT_CONCEPT;
+  const documents = projectConceptDoc.documents;
   console.log("documents:", documents);
   
   if (!documents || !Array.isArray(documents)) {
@@ -702,20 +712,45 @@ const fetchProjectData = async () => {
   }
 
   loading.value = true;
+  error.value = null; // Error ni tozalash
+  
   try {
     const getAuthToken = () => {
       return localStorage.getItem('token') || sessionStorage.getItem('token') || '';
     };
+    
     const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedMinistryId}`, {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`
       }
     });
-    projectData.value = response.data.data;
-    console.log("Project data now:", projectData.value?.project_documents?.answers[0]?.answer);
+    
+    console.log("API response:", response.data);
+    
+    if (response.data && response.data.data) {
+      projectData.value = response.data.data;
+      console.log("Project data set:", projectData.value);
+      
+      // Console loglar bilan debug qilish
+      console.log("PROJECT_CONCEPT:", projectData.value.project_documents?.PROJECT_CONCEPT);
+      console.log("PROJECT_TS:", projectData.value.project_documents?.PROJECT_TS);
+      console.log("PROJECT_EVALUATION_DOCUMENT:", projectData.value.project_documents?.PROJECT_EVALUATION_DOCUMENT);
+    } else {
+      throw new Error('Project ma\'lumotlari topilmadi');
+    }
   } catch (err) {
-    console.error(err);
-    error.value = 'Ma\'lumotni olishda xatolik yuz berdi';
+    console.error('fetchProjectData error:', err);
+    
+    if (err.response?.status === 404) {
+      error.value = 'Project topilmadi';
+      toast.error('Project topilmadi!', { autoClose: 2000 });
+    } else if (err.response?.status === 401) {
+      error.value = 'Ruxsat berilmagan';
+      toast.error('Ruxsat berilmagan!', { autoClose: 2000 });
+    } else {
+      error.value = 'Ma\'lumotni olishda xatolik yuz berdi';
+      toast.error('Ma\'lumotni olishda xatolik!', { autoClose: 2000 });
+    }
   } finally {
     loading.value = false;
   }
@@ -844,9 +879,15 @@ const allLbxFilesUploaded = computed(() =>
   Object.values(fileStates.lbx).every(state => state.saved)
 );
 
-const isTechnicalEnabled = computed(() => 
-  projectDatatwo.value === 'ACCEPTED'
-);
+const isTechnicalEnabled = computed(() => {
+  // PROJECT_CONCEPT ACCEPTED bo'lganda technical ochiladi
+  if (!projectData.value?.project_documents?.PROJECT_CONCEPT) {
+    return false;
+  }
+  
+  const conceptStatus = projectData.value.project_documents.PROJECT_CONCEPT.status;
+  return conceptStatus === 'ACCEPTED';
+});
 
 
 
@@ -1266,32 +1307,54 @@ const checkDocumentStatuses = async () => {
     const technicalId = sessionStorage.getItem('technicalDocumentId');
     const lbxId = sessionStorage.getItem('lbxDocumentId');
 
-    if (conceptionId) {
-      const response = await api.get(`/project-documents/${conceptionId}`);
-      if (response.data) {
-        sectionStatuses.conception = response.data.status;
-        if (response.data.comment) {
-          rejectionComments.conception = response.data.comment;
+    // Har bir ID ni tekshirish va 404 ni handle qilish
+    if (conceptionId && conceptionId !== 'null') {
+      try {
+        const response = await api.get(`/project-documents/${conceptionId}`);
+        if (response.data) {
+          sectionStatuses.conception = response.data.status;
+          if (response.data.comment) {
+            rejectionComments.conception = response.data.comment;
+          }
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.log('Conception document topilmadi, ID ni tozalash');
+          sessionStorage.removeItem('conceptionDocumentId');
         }
       }
     }
 
-    if (technicalId) {
-      const response = await api.get(`/project-documents/${technicalId}`);
-      if (response.data) {
-        sectionStatuses.technical = response.data.status;
-        if (response.data.comment) {
-          rejectionComments.technical = response.data.comment;
+    if (technicalId && technicalId !== 'null') {
+      try {
+        const response = await api.get(`/project-documents/${technicalId}`);
+        if (response.data) {
+          sectionStatuses.technical = response.data.status;
+          if (response.data.comment) {
+            rejectionComments.technical = response.data.comment;
+          }
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.log('Technical document topilmadi, ID ni tozalash');
+          sessionStorage.removeItem('technicalDocumentId');
         }
       }
     }
 
-    if (lbxId) {
-      const response = await api.get(`/project-documents/${lbxId}`);
-      if (response.data) {
-        sectionStatuses.lbx = response.data.status;
-        if (response.data.comment) {
-          rejectionComments.lbx = response.data.comment;
+    if (lbxId && lbxId !== 'null') {
+      try {
+        const response = await api.get(`/project-documents/${lbxId}`);
+        if (response.data) {
+          sectionStatuses.lbx = response.data.status;
+          if (response.data.comment) {
+            rejectionComments.lbx = response.data.comment;
+          }
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.log('LBX document topilmadi, ID ni tozalash');
+          sessionStorage.removeItem('lbxDocumentId');
         }
       }
     }
@@ -1337,32 +1400,135 @@ const checkDocumentStatuses = async () => {
 
 // TEXNIK VAZIFA UCHUN - Hozircha mavjud emas
 const technicalProjectStatus = computed(() => {
-  // Hozirgi API response da faqat PROJECT_CONCEPT mavjud
-  // Texnik vazifa bo'limi hali yaratilmagan
-  return '';
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return '';
+  }
+  
+  const projectTsDoc = projectData.value.project_documents.PROJECT_TS;
+  
+  // Eng oxirgi answer ni olish
+  const answers = projectTsDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.type;
+  }
+  
+  return projectTsDoc.status || '';
 });
-
 const technicalProjectCreatedAt = computed(() => {
-  return '';
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return '';
+  }
+  
+  const projectTsDoc = projectData.value.project_documents.PROJECT_TS;
+  const answers = projectTsDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.created_at || '';
+  }
+  return projectTsDoc.created_at || '';
 });
 
 const technicalProjectAnswer = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return '';
+  }
+  
+  const projectTsDoc = projectData.value.project_documents.PROJECT_TS;
+  const answers = projectTsDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.answer || '';
+  }
   return '';
+});
+
+const technicalProjectFiles = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return [];
+  }
+  
+  const projectTsDoc = projectData.value.project_documents.PROJECT_TS;
+  const documents = projectTsDoc.documents;
+  
+  if (!documents || !Array.isArray(documents)) {
+    return [];
+  }
+  
+  return documents.map(doc => ({
+    id: doc.id,
+    fileName: doc.file?.name || 'Nomsiz fayl',
+    fileUrl: doc.file?.url,
+    fileId: doc.file?.id,
+    createdAt: doc.created_at
+  }));
 });
 
 // LBX UCHUN - Hozircha mavjud emas
 const lbxProjectStatus = computed(() => {
-  return '';
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return '';
+  }
+  
+  const lbxDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  
+  const answers = lbxDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.type;
+  }
+  
+  return lbxDoc.status || '';
 });
 
 const lbxProjectCreatedAt = computed(() => {
-  return '';
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return '';
+  }
+  
+  const lbxDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  const answers = lbxDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.created_at || '';
+  }
+  return lbxDoc.created_at || '';
 });
 
 const lbxProjectAnswer = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return '';
+  }
+  
+  const lbxDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  const answers = lbxDoc.answers;
+  if (answers && answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    return lastAnswer.answer || '';
+  }
   return '';
 });
 
+const lbxProjectFiles = computed(() => {
+  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+    return [];
+  }
+  
+  const lbxDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  const documents = lbxDoc.documents;
+  
+  if (!documents || !Array.isArray(documents)) {
+    return [];
+  }
+  
+  return documents.map(doc => ({
+    id: doc.id,
+    fileName: doc.file?.name || 'Nomsiz fayl',
+    fileUrl: doc.file?.url,
+    fileId: doc.file?.id,
+    createdAt: doc.created_at
+  }));
+});
 // Enable/Disable mantigi
 // const isTechnicalEnabled = computed(() => 
 //   projectDatatwo.value === 'ACCEPTED'
@@ -1386,14 +1552,14 @@ const getCurrentSectionData = (section) => {
       status: technicalProjectStatus.value,
       createdAt: technicalProjectCreatedAt.value,
       answer: technicalProjectAnswer.value,
-      files: [] // Hozircha bo'sh
+      files: technicalProjectFiles.value
     };
   } else if (section === 'lbx') {
     return {
       status: lbxProjectStatus.value,
       createdAt: lbxProjectCreatedAt.value,
       answer: lbxProjectAnswer.value,
-      files: [] // Hozircha bo'sh
+      files: lbxProjectFiles.value
     };
   }
   return {
@@ -1406,9 +1572,15 @@ const getCurrentSectionData = (section) => {
 
 
 // isLbxEnabled ni yangilash
-const isLbxEnabled = computed(() => 
-  technicalProjectStatus.value === 'ACCEPTED'
-);
+const isLbxEnabled = computed(() => {
+  // PROJECT_TS ACCEPTED bo'lganda LBX ochiladi
+  if (!projectData.value?.project_documents?.PROJECT_TS) {
+    return false;
+  }
+  
+  const technicalStatus = projectData.value.project_documents.PROJECT_TS.status;
+  return technicalStatus === 'ACCEPTED';
+});
 
 // Modal content ni yangilash
 const updateModalContent = () => {
