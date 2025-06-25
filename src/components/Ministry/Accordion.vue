@@ -214,51 +214,109 @@
   </div>
   
   <!-- Technical section content yangilanishi -->
-  <div 
-    v-show="openSections.technical && isTechnicalEnabled"
-    class="pb-4 transition-all duration-300 ease-in-out"
-  >
-    <div class="space-y-2 px-4">
-      <div v-for="(item, index) in technicalItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
-        <div class="flex items-center space-x-3">
-          <div 
+ <!-- Technical section content yangilanishi -->
+<div 
+  v-show="openSections.technical && isTechnicalEnabled"
+  class="pb-4 transition-all duration-300 ease-in-out"
+>
+  <div class="space-y-2 px-4">
+    <div v-for="(item, index) in technicalItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
+      <div class="flex items-center space-x-3">
+        <div 
+          :class="{
+            'bg-blue-500': fileStates.technical[item.key].uploaded,
+            'bg-gray-300': !fileStates.technical[item.key].uploaded
+          }"
+          class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+        >
+          {{ index + 1 }}
+        </div>
+        <div>
+          <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+          <p class="font-medium text-gray-700 text-sm">
+            {{ item.title }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 pr-4">
+        <!-- YANGI: Agar technicalProjectStatus ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
+        <div v-if="technicalProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path 
+              fill-rule="evenodd" 
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+              clip-rule="evenodd"
+            />
+          </svg>
+          Tasdiqlandi
+        </div>
+        
+        <!-- File upload qismi -->
+        <template v-else>
+          <input 
+            type="file" 
+            :id="`technical-file${index + 1}`"
+            @change="handleFileUpload($event, 'technical', item.key)"
+            class="hidden"
+            accept=".pdf"
+            :disabled="technicalProjectStatus === 'ACCEPTED'"
+          />
+          <label 
+            :for="`technical-file${index + 1}`"
             :class="{
-              'bg-blue-500': fileStates.technical[item.key].uploaded,
-              'bg-gray-300': !fileStates.technical[item.key].uploaded
+              'bg-blue-500 hover:bg-blue-600 text-white': fileStates.technical[item.key].uploaded,
+              'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.technical[item.key].uploaded,
+              'cursor-not-allowed opacity-50': technicalProjectStatus === 'ACCEPTED'
             }"
-            class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
           >
-            {{ index + 1 }}
-          </div>
-          <div>
-            <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-            <p class="font-medium text-gray-700 text-sm">
-              {{ item.title }}
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2 pr-4">
-          <!-- YANGI: Agar technicalProjectStatus ACCEPTED bo'lsa, "Tasdiqlandi" ko'rsatish -->
-          <div v-if="technicalProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
-            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path 
-                fill-rule="evenodd" 
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                clip-rule="evenodd"
-              />
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
             </svg>
-            Tasdiqlandi
-          </div>
+            <span>{{ fileStates.technical[item.key].uploaded ? fileStates.technical[item.key].fileName : 'Fayl biriktirish' }}</span>
+          </label>
           
-          <!-- File upload qismi -->
-          <template v-else>
-            <!-- Mavjud file upload kodi -->
-            <!-- ... -->
-          </template>
-        </div>
+          <div 
+            v-if="fileStates.technical[item.key].uploaded && technicalProjectStatus !== 'ACCEPTED'"
+          >
+            <button 
+              v-if="!fileStates.technical[item.key].saved"
+              @click="saveFile('technical', item.key)"
+              :disabled="isLoading.files[`technical_${item.key}`]"
+              class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {{ isLoading.files[`technical_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
+            </button>
+      
+            <div 
+              v-else
+              class="flex items-center space-x-2"
+            >
+              <div class="flex items-center text-green-600 text-sm font-medium">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Saqlandi
+              </div>
+              <button 
+                @click="deleteFile('technical', item.key)"
+                :disabled="isLoading.files[`delete_technical_${item.key}`]"
+                class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                <i v-if="!isLoading.files[`delete_technical_${item.key}`]" class='bx bx-x'></i>
+                <i v-else class='bx bx-loader-alt animate-spin'></i>
+              </button>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
+</div>
 </div>
 
   <!-- 2. LBX SECTION ni yangilash -->
@@ -321,51 +379,109 @@
   </div>
   
   <!-- LBX section content -->
-  <div 
-    v-show="openSections.lbx && isLbxEnabled"
-    class="pb-4 transition-all duration-300 ease-in-out"
-  >
-    <div class="space-y-2 px-4">
-      <div v-for="(item, index) in lbxItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
-        <div class="flex items-center space-x-3">
-          <div 
+  <!-- LBX section content -->
+<div 
+  v-show="openSections.lbx && isLbxEnabled"
+  class="pb-4 transition-all duration-300 ease-in-out"
+>
+  <div class="space-y-2 px-4">
+    <div v-for="(item, index) in lbxItems" :key="item.key" class="flex items-center justify-between rounded-lg" :class="index === 0 ? 'bg-[#F8F8F8]' : 'bg-gray-100'">
+      <div class="flex items-center space-x-3">
+        <div 
+          :class="{
+            'bg-blue-500': fileStates.lbx[item.key].uploaded,
+            'bg-gray-300': !fileStates.lbx[item.key].uploaded
+          }"
+          class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+        >
+          {{ index + 1 }}
+        </div>
+        <div>
+          <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
+          <p class="font-medium text-gray-700 text-sm">
+            {{ item.title }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 pr-4">
+        <!-- LBX tasdiqlash holati -->
+        <div v-if="lbxProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path 
+              fill-rule="evenodd" 
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+              clip-rule="evenodd"
+            />
+          </svg>
+          Tasdiqlandi
+        </div>
+        
+        <!-- File upload qismi -->
+        <template v-else>
+          <input 
+            type="file" 
+            :id="`lbx-file${index + 1}`"
+            @change="handleFileUpload($event, 'lbx', item.key)"
+            class="hidden"
+            accept=".pdf"
+            :disabled="lbxProjectStatus === 'ACCEPTED'"
+          />
+          <label 
+            :for="`lbx-file${index + 1}`"
             :class="{
-              'bg-blue-500': fileStates.lbx[item.key].uploaded,
-              'bg-gray-300': !fileStates.lbx[item.key].uploaded
+              'bg-blue-500 hover:bg-blue-600 text-white': fileStates.lbx[item.key].uploaded,
+              'bg-gray-200 hover:bg-gray-300 text-gray-600': !fileStates.lbx[item.key].uploaded,
+              'cursor-not-allowed opacity-50': lbxProjectStatus === 'ACCEPTED'
             }"
-            class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
+            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
           >
-            {{ index + 1 }}
-          </div>
-          <div>
-            <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>
-            <p class="font-medium text-gray-700 text-sm">
-              {{ item.title }}
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2 pr-4">
-          <!-- LBX tasdiqlash holati -->
-          <div v-if="lbxProjectStatus === 'ACCEPTED'" class="flex items-center text-green-600 text-sm font-medium px-2">
-            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path 
-                fill-rule="evenodd" 
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                clip-rule="evenodd"
-              />
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
             </svg>
-            Tasdiqlandi
-          </div>
+            <span>{{ fileStates.lbx[item.key].uploaded ? fileStates.lbx[item.key].fileName : 'Fayl biriktirish' }}</span>
+          </label>
           
-          <!-- File upload qismi -->
-          <template v-else>
-            <!-- Mavjud LBX file upload kodi -->
-            <!-- ... -->
-          </template>
-        </div>
+          <div 
+            v-if="fileStates.lbx[item.key].uploaded && lbxProjectStatus !== 'ACCEPTED'"
+          >
+            <button 
+              v-if="!fileStates.lbx[item.key].saved"
+              @click="saveFile('lbx', item.key)"
+              :disabled="isLoading.files[`lbx_${item.key}`]"
+              class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {{ isLoading.files[`lbx_${item.key}`] ? 'Saqlanmoqda...' : 'Saqlash' }}
+            </button>
+      
+            <div 
+              v-else
+              class="flex items-center space-x-2"
+            >
+              <div class="flex items-center text-green-600 text-sm font-medium">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Saqlandi
+              </div>
+              <button 
+                @click="deleteFile('lbx', item.key)"
+                :disabled="isLoading.files[`delete_lbx_${item.key}`]"
+                class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                <i v-if="!isLoading.files[`delete_lbx_${item.key}`]" class='bx bx-x'></i>
+                <i v-else class='bx bx-loader-alt animate-spin'></i>
+              </button>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <!-- TO'LIQ MODAL KODINI MANA BUNDAY QO'SHING: -->
