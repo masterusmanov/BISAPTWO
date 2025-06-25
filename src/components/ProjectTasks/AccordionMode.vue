@@ -515,7 +515,7 @@
         </div>
 
         <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-        <div v-if="technicalModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+        <!-- <div v-if="technicalModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
           <input 
             type="file" 
             :id="technicalModalType + '-file'"
@@ -536,7 +536,7 @@
             </svg>
             <span>{{ technicalFileState.uploaded ? technicalFileState.fileName : 'Fayl biriktirish' }}</span>
           </label>
-        </div>
+        </div> -->
 
         <!-- Action buttons -->
         <div class="flex items-center justify-center space-x-4 my-4">
@@ -610,7 +610,7 @@
         </div>
 
         <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-        <div v-if="lbxModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+        <!-- <div v-if="lbxModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
           <input 
             type="file" 
             :id="lbxModalType + '-file'"
@@ -631,7 +631,7 @@
             </svg>
             <span>{{ lbxFileState.uploaded ? lbxFileState.fileName : 'Fayl biriktirish' }}</span>
           </label>
-        </div>
+        </div> -->
 
         <!-- Action buttons -->
         <div class="flex items-center justify-center space-x-4 my-4">

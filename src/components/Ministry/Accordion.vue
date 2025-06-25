@@ -22,15 +22,15 @@
           <p v-if="projectDatatwo === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
             ! Izoh
           </p>
-          <p v-if="projectDatatwo === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
-            <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
-          </p>
-          <button v-if="projectDatatwo !== 'ACCEPTED'"
-            @click="openHistoryModal('conception')"
-            class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+          <button 
+          @click="openHistoryModal('conception')"
+          class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
           >
-            <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
-          </button>
+          <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+        </button>
+        <p v-if="projectDatatwo === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
+          <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
+        </p>
           <button 
             v-if="projectDatatwo !== 'ACCEPTED'"
             :disabled="!allConceptionFilesUploaded || isLoading.conception || sectionStatuses.conception === 'ACCEPTED'"
@@ -182,17 +182,17 @@
       <p v-if="technicalProjectStatus === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
         ! Izoh
       </p>
-      <p v-if="technicalProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
-        <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
-      </p>
       
       <button 
-        v-if="isTechnicalEnabled && technicalProjectStatus !== 'ACCEPTED'"
-        @click="openHistoryModal('technical')"
-        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      v-if="isTechnicalEnabled"
+      @click="openHistoryModal('technical')"
+      class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
       >
-        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
-      </button>
+      <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+    </button>
+    <p v-if="technicalProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
+      <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
+    </p>
       <button 
         v-if="isTechnicalEnabled && technicalProjectStatus !== 'ACCEPTED'"
         :disabled="!allTechnicalFilesUploaded || isLoading.technical"
@@ -343,18 +343,18 @@
       <p v-if="lbxProjectStatus === 'REJECTED'" class="text-[#FD5656] text-[14px] font-[500]">
         ! Izoh
       </p>
-      <p v-if="lbxProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
-        <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
-      </p>
       
       <!-- Ish tarixi tugmasi -->
       <button 
-        v-if="isLbxEnabled && lbxProjectStatus !== 'ACCEPTED'"
-        @click="openHistoryModal('lbx')"
-        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      v-if="isLbxEnabled"
+      @click="openHistoryModal('lbx')"
+      class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
       >
-        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
-      </button>
+      <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+    </button>
+    <p v-if="lbxProjectStatus === 'ACCEPTED'" class="text-green-600 text-[14px] font-[500]">
+      <i class='bx bx-check-circle text-[18px]'></i> Tasdiqlangan
+    </p>
       
       <!-- Yuborish tugmasi -->
       <button 
