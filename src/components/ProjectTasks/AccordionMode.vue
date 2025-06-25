@@ -326,8 +326,8 @@
       </div>
       
       <!-- LBX Items from API -->
-      <div v-else-if="lbxDocuments.length > 0" class="space-y-4">
-        <div v-for="(item, index) in lbxDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
+      <div v-else-if="filteredLbxDocuments.length > 0" class="space-y-4">
+        <div v-for="(item, index) in filteredLbxDocuments" :key="item.id" class="flex items-center justify-between h-20 border border-gray-300 bg-gray-100 rounded-lg space-y-4">
           <div class="flex items-center space-x-3 mt-4">
             <div class="w-8 h-20 bg-blue-500 text-white rounded-l-lg flex items-center justify-center font-bold text-sm">
               {{ index + 1 }}
@@ -662,6 +662,7 @@ const clearAllCache = () => {
   lastLoadedProjectId.value = null;
   conceptionDocuments.value = [];
   technicalDocuments.value = [];
+  lbxDocuments.value = [];
   console.log('✅ Cache tozalandi');
 };
 
@@ -717,6 +718,7 @@ const fetchFilesConsepForced = async (bypassCache = true) => {
     
     await processConceptionDocumentsNew();
     await processTechnicalDocumentsNew();
+    await processLBXDocumentsNew();
     
     toast.success('Ma\'lumotlar yangilandi!', { autoClose: 1500 });
     return response.data;
@@ -827,10 +829,19 @@ const processTechnicalDocumentsNew = async () => {
 const lbxDocuments = ref([]);
 const loadingLBX = ref(false);
 
+// 6. LBX hujjatlarini qayta ishlashni yaxshilash
 const processLBXDocumentsNew = async () => {
   console.log('📊 ProcessLBXDocuments NEW');
+  console.log('projectData.value:', projectData.value);
   
-  if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+  if (!projectData.value?.project_documents) {
+    console.log('project_documents mavjud emas');
+    lbxDocuments.value = [];
+    return;
+  }
+  
+  if (!projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT) {
+    console.log('PROJECT_EVALUATION_DOCUMENT mavjud emas');
     lbxDocuments.value = [];
     return;
   }
@@ -839,6 +850,7 @@ const processLBXDocumentsNew = async () => {
   console.log('📊 PROJECT_EVALUATION_DOCUMENT:', projectDoc);
 
   if (!projectDoc.documents || !Array.isArray(projectDoc.documents)) {
+    console.log('LBX documents array mavjud emas yoki array emas');
     lbxDocuments.value = [];
     return;
   }
@@ -850,6 +862,7 @@ const processLBXDocumentsNew = async () => {
       console.log(`📊 LBX doc ${index + 1}:`, doc);
       
       const fileInfo = doc.file;
+      console.log(`📎 LBX file info:`, fileInfo);
       
       let fileUrl = null;
       if (fileInfo?.url) {
@@ -868,7 +881,10 @@ const processLBXDocumentsNew = async () => {
     });
 
     lbxDocuments.value = processedDocuments;
-    console.log('✅ LBX documents:', lbxDocuments.value);
+    console.log('✅ LBX documents processed:', lbxDocuments.value);
+  } catch (error) {
+    console.error('Error processing LBX documents:', error);
+    lbxDocuments.value = [];
   } finally {
     loadingLBX.value = false;
   }
@@ -889,6 +905,12 @@ const loadingTechnical = ref(false);
 
 // Technical file upload holati
 const technicalFileState = reactive({
+  uploaded: false,
+  fileName: '',
+  file: null
+});
+
+const lbxFileState = reactive({
   uploaded: false,
   fileName: '',
   file: null
@@ -1008,9 +1030,10 @@ const isLBXApproved = computed(() => {
   return projectDoc.status === 'ACCEPTED';
 });
 
-// 8. LBX hujjatlari mavjudligini tekshirish
+/// 5. Debug uchun console.log qo'shish
 const hasLBXDocuments = computed(() => {
   console.log('hasLBXDocuments check...');
+  console.log('projectData.value:', projectData.value);
   
   if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
     console.log('PROJECT_EVALUATION_DOCUMENT mavjud emas');
@@ -1018,18 +1041,21 @@ const hasLBXDocuments = computed(() => {
   }
   
   const projectDoc = projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT;
+  console.log('PROJECT_EVALUATION_DOCUMENT:', projectDoc);
   console.log('PROJECT_EVALUATION_DOCUMENT documents:', projectDoc.documents);
   
-  return projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+  const hasDocuments = projectDoc.documents && Array.isArray(projectDoc.documents) && projectDoc.documents.length > 0;
+  console.log('Has LBX documents:', hasDocuments);
+  
+  return hasDocuments;
 });
-
 
 const canAccessTechnical = computed(() => {
   return isConceptionApproved.value;
 });
 
 const canAccessLBX = computed(() => {
-  return isTechnicalApproved.value && hasLBXDocuments.value;
+  return isTechnicalApproved.value;
 });
 
 // 6. PROJECT_CONCEPT hujjatlari mavjudligini tekshirish
@@ -1101,6 +1127,126 @@ const technicalModalConfig = computed(() => {
   return configs[technicalModalType.value] || configs.revision;
 });
 
+const lbxModalConfig = computed(() => {
+  const configs = {
+    revision: {
+      title: "Ko'rib chiqish uchun yuborish (LBX)",
+      titleColor: 'text-[#4A51DD]',
+      icon: 'bx bx-refresh text-[#4A51DD]',
+      placeholder: "LBX hujjati bo'yicha ko'rib chiqish uchun izoh yozing...",
+      buttonText: "Ko'rib chiqish uchun yuborish",
+      buttonClass: 'bg-[#4A51DD] hover:bg-[#3A41CD]'
+    },
+    comment: {
+      title: "Izoh yuborish (LBX)",
+      titleColor: 'text-[#FF4444]',
+      icon: 'bx bx-message-square-error text-[#FF4444]',
+      placeholder: "LBX hujjati bo'yicha izohingizni yozing...",
+      buttonText: "Izoh yuborish",
+      buttonClass: 'bg-[#FF4444] hover:bg-[#EE3333]'
+    },
+    approve: {
+      title: "Tasdiqlash (LBX)",
+      titleColor: 'text-[#07A920]',
+      icon: 'bx bx-check-circle text-[#07A920]',
+      placeholder: "LBX hujjati tasdiqlash izohi (ixtiyoriy)...",
+      buttonText: "Tasdiqlash",
+      buttonClass: 'bg-[#07A920] hover:bg-[#069A1E]'
+    }
+  };
+  return configs[lbxModalType.value] || configs.revision;
+});
+
+// 4. LBX submit funktsiyasini to'g'rilash
+const handleSubmitLBXModal = async () => {
+  if (!lbxFormData.answare || !lbxFormData.answare.trim()) {
+    toast.error('Iltimos, javob kiriting!', { autoClose: 1500 });
+    return;
+  }
+
+  isLBXSubmitting.value = true;
+  let loadingToastId = null;
+  
+  try {
+    loadingToastId = toast.info('Ma\'lumot yuborilmoqda...', {
+      autoClose: false,
+      closeButton: false
+    });
+
+    let fileId = null;
+    if (lbxFileState.file && lbxModalType.value !== 'approve') {
+      fileId = await uploadFileToServer(lbxFileState.file);
+      if (!fileId) {
+        if (loadingToastId) toast.remove(loadingToastId);
+        toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
+        isLBXSubmitting.value = false;
+        return;
+      }
+    }
+
+    const typeMap = {
+      'revision': 'RESOLVED',
+      'comment': 'REJECTED',
+      'approve': 'ACCEPTED'
+    };
+    const answerType = typeMap[lbxModalType.value];
+
+    // PROJECT_EVALUATION_DOCUMENT olish
+    const projectDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
+    
+    if (!projectDoc) {
+      if (loadingToastId) toast.remove(loadingToastId);
+      toast.error('PROJECT_EVALUATION_DOCUMENT hujjati topilmadi!', { autoClose: 2000 });
+      isLBXSubmitting.value = false;
+      return;
+    }
+
+    const firstDocument = projectDoc.documents?.[0];
+    if (!firstDocument) {
+      if (loadingToastId) toast.remove(loadingToastId);
+      toast.error('LBX hujjat topilmadi!', { autoClose: 2000 });
+      isLBXSubmitting.value = false;
+      return;
+    }
+
+    const answerData = {
+      project_document_id: projectDoc.id,
+      documents_id: firstDocument.id,
+      answer: lbxFormData.answare,
+      type: answerType
+    };
+
+    if (fileId) {
+      answerData.file_id = fileId;
+    }
+
+    await sendAnswer(answerData);
+
+    if (loadingToastId) toast.remove(loadingToastId);
+    toast.success(`${lbxModalConfig.value.title} muvaffaqiyatli yuborildi!`, { autoClose: 2000 });
+
+    closeLBXModal();
+
+    // Status ni yangilash
+    if (lbxModalType.value === 'approve') {
+      if (projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
+        projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT.status = 'ACCEPTED';
+      }
+    }
+    
+    console.log('🔄 LBX modal yuborildi, forced refresh...');
+    setTimeout(async () => {
+      await fetchFilesConsepForced(true);
+    }, 1000);
+
+  } catch (error) {
+    if (loadingToastId) toast.remove(loadingToastId);
+    console.error('LBX javob yuborishda xato:', error);
+    toast.error('Xatolik yuz berdi!', { autoClose: 2000 });
+  } finally {
+    isLBXSubmitting.value = false;
+  }
+};
 
 // Technical modal funktsiyalari
 const showTechnicalModal = (type) => {
@@ -1235,6 +1381,19 @@ const handleSubmitTechnicalModal = async () => {
   }
 };
 
+const filteredLbxDocuments = computed(() => {
+  if (!lbxDocuments.value || lbxDocuments.value.length === 0) {
+    return [];
+  }
+  
+  const selectedProject = getSelectedProject();
+  if (!selectedProject || !selectedProject.id) {
+    return [];
+  }
+  
+  return lbxDocuments.value;
+});
+
 // LBX qayta ko'rib chiqishda ekanligini tekshirish
 const isLBXToReview = computed(() => {
   if (!projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
@@ -1255,13 +1414,14 @@ const lbxFormData = reactive({
   answare: ''
 });
 
-// LBX modal funktsiyalari
+// 2. LBX modal funktsiyasini to'g'rilash
 const showLBXModal = (type) => {
   if (!canAccessLBX.value) {
     toast.warning('Avval texnik vazifa tasdiqlanishi kerak!', { autoClose: 2000 });
     return;
   }
   
+  // hasLBXDocuments tekshiruvini olib tashlash yoki ixtiyoriy qilish
   if (!hasLBXDocuments.value) {
     toast.warning('PROJECT_EVALUATION_DOCUMENT tipidagi hujjatlar topilmadi!', { autoClose: 2000 });
     return;
@@ -1271,7 +1431,6 @@ const showLBXModal = (type) => {
   openLBXModal.value = true;
   resetLBXForm();
 };
-
 
 const closeLBXModal = () => {
   openLBXModal.value = false;
@@ -1712,7 +1871,7 @@ const fetchFilesConsep = async () => {
     console.log('Bu project uchun ma\'lumot allaqachon yuklangan');
     await processConceptionDocuments();
     await processTechnicalDocuments();
-     await processLBXDocuments();
+    await processLBXDocuments(); // <=== BU QO'SHILDI
     return projectData.value;
   }
 
@@ -1737,13 +1896,11 @@ const fetchFilesConsep = async () => {
     }
     
     projectData.value = response.data.data;
-
-    console.log('2025 projectdata', projectData);
-    
     lastLoadedProjectId.value = selectedProject.id;
     
     await processConceptionDocuments();
     await processTechnicalDocuments();
+    await processLBXDocuments(); // <=== BU HAM QO'SHILDI
     
     if (!hasProjectConceptDocuments.value) {
       toast.info('Hujjatlar mavjud emas', { autoClose: 2000 });
@@ -1775,6 +1932,7 @@ const fetchFilesConsep = async () => {
     loading.value = false;
   }
 };
+
 
 // Loyiha ma'lumotlarini kuzatish (optimallashtirilgan)
 const processTechnicalDocuments = async () => {

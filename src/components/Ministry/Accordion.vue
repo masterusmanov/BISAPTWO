@@ -817,56 +817,35 @@ const projectDatatwofiles = computed(() => {
 // Ma'lumotni olish funksiyasi
 const fetchProjectData = async () => {
   const selectedMinistry = JSON.parse(sessionStorage.getItem('selectMinistry'));
-  console.log("Tanlangan vazirlik ma'lumotlari:", selectedMinistry);
-
-  const selectedMinistryId = selectedMinistry?.id;
-  console.log("Tanlangan vazirlik idsi:", selectedMinistryId);
-
-  if (!selectedMinistryId) {
+  if (!selectedMinistry?.id) {
     error.value = 'Vazirlik ID topilmadi';
     return;
   }
 
   loading.value = true;
-  error.value = null; // Error ni tozalash
+  error.value = null;
   
   try {
-    const getAuthToken = () => {
-      return localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-    };
-    
-    const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedMinistryId}`, {
+    const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedMinistry.id}`, {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`
       }
     });
     
-    console.log("API response:", response.data);
-    
-    if (response.data && response.data.data) {
+    if (response.data?.data) {
       projectData.value = response.data.data;
-      console.log("Project data set:", projectData.value);
       
-      // Console loglar bilan debug qilish
-      console.log("PROJECT_CONCEPT:", projectData.value.project_documents?.PROJECT_CONCEPT);
-      console.log("PROJECT_TS:", projectData.value.project_documents?.PROJECT_TS);
-      console.log("PROJECT_EVALUATION_DOCUMENT:", projectData.value.project_documents?.PROJECT_EVALUATION_DOCUMENT);
-    } else {
-      throw new Error('Project ma\'lumotlari topilmadi');
+      // PROJECT_TS ni tekshirish
+      if (projectData.value.project_documents?.PROJECT_TS) {
+        const tsDoc = projectData.value.project_documents.PROJECT_TS;
+        if (tsDoc.documents && tsDoc.documents.length > 0) {
+          sectionStatuses.technical = tsDoc.status;
+        }
+      }
     }
   } catch (err) {
     console.error('fetchProjectData error:', err);
-    
-    if (err.response?.status === 404) {
-      error.value = 'Project topilmadi';
-      toast.error('Project topilmadi!', { autoClose: 2000 });
-    } else if (err.response?.status === 401) {
-      error.value = 'Ruxsat berilmagan';
-      toast.error('Ruxsat berilmagan!', { autoClose: 2000 });
-    } else {
-      error.value = 'Ma\'lumotni olishda xatolik yuz berdi';
-      toast.error('Ma\'lumotni olishda xatolik!', { autoClose: 2000 });
-    }
+    // Xatolarni qayta ishlash
   } finally {
     loading.value = false;
   }
@@ -898,12 +877,11 @@ const conceptionItems = ref([
 ]);
 
 const technicalItems = ref([
-  { key: 'item1', title: 'Texnik vazifa', fileKey: 'technical_task_file_id' },
-  { key: 'item2', title: 'Texnik hujjatlar', fileKey: 'technical_docs_file_id' },
-  { key: 'item3', title: 'Sxemalar va chizmalar', fileKey: 'schemas_file_id' },
-  { key: 'item4', title: 'Qo\'shimcha texnik materiallar', fileKey: 'additional_tech_file_id' }
+  { key: 'item1', title: 'Texnik vazifa', fileKey: 'technical_task_file_id', type: 'TECHNICAL_TASK' },
+  { key: 'item2', title: 'Texnik hujjatlar', fileKey: 'technical_docs_file_id', type: 'TECHNICAL_DOCS' },
+  { key: 'item3', title: 'Sxemalar va chizmalar', fileKey: 'schemas_file_id', type: 'SCHEMAS' },
+  { key: 'item4', title: 'Qo\'shimcha texnik materiallar', fileKey: 'additional_tech_file_id', type: 'ADDITIONAL_TECH' }
 ]);
-
 const lbxItems = ref([
   { key: 'item1', title: 'LBX hujjat', fileKey: 'lbx_document_file_id' },
   { key: 'item2', title: 'LBX spesifikatsiya', fileKey: 'lbx_specification_file_id' },
@@ -974,12 +952,32 @@ const isHistoryModalOpen = ref(false);
 const currentSection = ref('');
 
 // File IDs storage for API
+// File IDs storage for API
+// const fileIds = reactive({
+//   conception: {
+//     concept_project_file_id: null,
+//     letter_file_id: null,
+//     protocol_file_id: null,
+//     solution_file_id: null
+//   },
+//   technical: {
+//     technical_task_file_id: null,
+//     technical_docs_file_id: null,
+//     schemas_file_id: null,
+//     additional_tech_file_id: null
+//   },
+//   lbx: {
+//     lbx_document_file_id: null,
+//     lbx_specification_file_id: null,
+//     lbx_test_protocol_file_id: null,
+//     lbx_report_file_id: null
+//   }
+// });
 const fileIds = reactive({
   conception: {},
   technical: {},
   lbx: {}
 });
-
 
 
 // Computed properties
@@ -1032,14 +1030,13 @@ const handleFileUpload = (event, section, item) => {
       saved: false,
       fileId: null
     };
-  }
+  }createProjectDocument 
 };
 
 const saveFile = async (section, item) => {
   const fileData = fileStates[section][item];
   if (!fileData.file) return;
 
-  // Create unique key for loading state
   const loadingKey = `${section}_${item}`;
   isLoading.files[loadingKey] = true;
 
@@ -1053,25 +1050,18 @@ const saveFile = async (section, item) => {
         'Content-Type': 'multipart/form-data'
       }
     });
-    console.log(response.data.data);
     
-    if (response.data && response.data.data.id) {
-      // Update file state
+    if (response.data?.data?.id) {
       fileStates[section][item].saved = true;
       fileStates[section][item].fileId = response.data.data.id;
       
-      // Find the correct fileKey from items configuration
-      let fileKey = '';
       const sectionItems = section === 'conception' ? conceptionItems.value : 
                          section === 'technical' ? technicalItems.value : 
                          lbxItems.value;
       
       const itemConfig = sectionItems.find(i => i.key === item);
       if (itemConfig) {
-        fileKey = itemConfig.fileKey;
-        fileIds[section][fileKey] = response.data.data.id;
-        console.log(fileData.fileName, 'saved with ID:', response.data.data.id);
-        console.log(fileData.fileName, 'saved with ID fileIDS:', fileIds[section][fileKey]);
+        fileIds[section][itemConfig.fileKey] = response.data.data.id;
       }
       
       toast.success(`Fayl "${fileData.fileName}" muvaffaqiyatli saqlandi!`, {
@@ -1087,7 +1077,6 @@ const saveFile = async (section, item) => {
     isLoading.files[loadingKey] = false;
   }
 };
-
 // Yangi deleteFile funksiyasi
 const deleteFile = async (section, item) => {
   const fileData = fileStates[section][item];
@@ -1143,14 +1132,13 @@ const deleteFile = async (section, item) => {
   }
 };
 
-const createProjectDocument = async (type, projectId, status = "NEW" ) => {
+const createProjectDocument = async (type, projectId, status = "NEW") => {
   try {
-
     const projectDoc = {
       status: status,
       type: type,
       project_id: projectId
-    }
+    };
 
     const response = await api.post('/project-documents/create', projectDoc, {
       headers: {
@@ -1158,11 +1146,9 @@ const createProjectDocument = async (type, projectId, status = "NEW" ) => {
         'Content-Type': 'application/json'
       }
     });
-    console.log('Project document created response:', response.data);
     
-    // Response dan to'g'ri project document ID ni qaytarish
-    if (response.data && response.data.data && response.data.data.id) {
-      return response.data.data.id; // Project document ID
+    if (response.data?.data?.id) {
+      return response.data.data.id;
     } else {
       throw new Error('Project document ID not found in response');
     }
@@ -1236,44 +1222,55 @@ const sendConceptionFiles = async () => {
 
 const sendTechnicalFiles = async () => {
   isLoading.technical = true;
-
   try {
     const ministryId = JSON.parse(sessionStorage.getItem('selectMinistry'));
-    console.log('Ministry ID:', ministryId.id);
-
-    if (!ministryId.id) {
+    if (!ministryId?.id) {
       throw new Error('Ministry ID not found in sessionStorage');
     }
 
-    // Create project document for technical
-    const projectDocumentId = await createProjectDocument('PROJECT_TS', ministryId.id);
+    // Agar oldin yuborilgan bo'lsa, statusni TO_REVIEW qilamiz
+    const documentStatus = technicalProjectStatus.value === 'REJECTED' || 
+                         technicalProjectStatus.value === 'RESOLVED' ? 'TO_REVIEW' : 'NEW';
+
+    // Project document yaratish yoki yangilash
+    let projectDocumentId;
+    if (projectData.value?.project_documents?.PROJECT_TS?.id) {
+      projectDocumentId = projectData.value.project_documents.PROJECT_TS.id;
+    } else {
+      projectDocumentId = await createProjectDocument('PROJECT_TS', ministryId.id, documentStatus);
+    }
+
     sessionStorage.setItem('technicalDocumentId', projectDocumentId);
     documentIds.technical = projectDocumentId;
 
-    // Prepare document data
+    // Hujjat ma'lumotlarini tayyorlash
     const documentData = {
       project_document_id: projectDocumentId,
-      technical_task_file_id: fileIds.technical.technical_task_file_id,
-      technical_docs_file_id: fileIds.technical.technical_docs_file_id,
-      schemas_file_id: fileIds.technical.schemas_file_id,
-      additional_tech_file_id: fileIds.technical.additional_tech_file_id
+      letter_file_id: fileIds.technical.technical_task_file_id,
+      solution_file_id: fileIds.technical.technical_docs_file_id,
+      concept_project_file_id: fileIds.technical.schemas_file_id,
+      protocol_file_id: fileIds.technical.additional_tech_file_id
     };
 
-    // Send document data
-    const response = await api.post('/documents/create', documentData, {
+    console.log("Sending technical documents:", documentData);
+    
+    // Hujjatlarni yuborish
+    const response = await api.post('https://back.miit.uz/api/bisap/test/documents/create', documentData, {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
       }
     });
 
-    console.log("Technical Documents create response:", response.data);
+    console.log("Technical documents response:", response.data);
 
     if (response.data) {
       sectionStatuses.technical = 'TO_REVIEW';
       toast.success('Texnik vazifa hujjatlari muvaffaqiyatli yuborildi!', {
         autoClose: 3000
       });
+      // Ma'lumotlarni yangilash
+      await fetchProjectData();
     }
   } catch (error) {
     console.error('Send technical files error:', error);
@@ -1287,35 +1284,54 @@ const sendTechnicalFiles = async () => {
 
 const sendLbxFiles = async () => {
   isLoading.lbx = true;
-
   try {
-    const ministryId = sessionStorage.getItem('selectMinistry');
-    if (!ministryId) {
+    // Get ministry ID from sessionStorage
+    const ministryId = JSON.parse(sessionStorage.getItem('selectMinistry'));
+    console.log('Ministry ID:', ministryId.id);
+    if (!ministryId.id) {
       throw new Error('Ministry ID not found in sessionStorage');
     }
 
-    // Create project document for LBX
-    const projectDocumentId = await createProjectDocument('PROJECT_EVALUATION_DOCUMENT', ministryId);
-    documentIds.lbx = projectDocumentId;
-    sessionStorage.setItem('lbxDocumentId', projectDocumentId);
+    // Status ni aniqlash - agar REJECTED yoki RESOLVED bo'lsa, TO_REVIEW yuborish
+    const documentStatus = (lbxProjectStatus.value === 'REJECTED' || lbxProjectStatus.value === 'RESOLVED') 
+      ? 'TO_REVIEW' 
+      : 'NEW';
 
-    // Prepare document data
+    // Create project document
+    const projectDocumentId = await createProjectDocument('PROJECT_EVALUATION_DOCUMENT', ministryId.id, documentStatus);
+    console.log("Project document response:", projectDocumentId);
+    
+    sessionStorage.setItem('lbxDocumentId', projectDocumentId);
+    documentIds.lbx = projectDocumentId;
+
+    // Prepare document data - to'g'ri project_document_id ishlatish
     const documentData = {
       project_document_id: projectDocumentId,
-      lbx_document_file_id: fileIds.lbx.item1,
-      lbx_specification_file_id: fileIds.lbx.item2,
-      lbx_test_protocol_file_id: fileIds.lbx.item3,
-      lbx_report_file_id: fileIds.lbx.item4
+      letter_file_id: fileIds.lbx.lbx_document_file_id,
+      solution_file_id: fileIds.lbx.lbx_specification_file_id,
+      concept_project_file_id: fileIds.lbx.lbx_test_protocol_file_id,
+      protocol_file_id: fileIds.lbx.lbx_report_file_id
     };
 
+    console.log("LBX Document data being sent:", documentData);
+    
     // Send document data
-    const response = await api.post('/documents/create', documentData);
+    const response = await api.post('/documents/create', documentData, {
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log("LBX Documents create response:", response.data);
 
     if (response.data) {
       sectionStatuses.lbx = 'TO_REVIEW';
       toast.success('LBX hujjatlari muvaffaqiyatli yuborildi!', {
         autoClose: 3000
       });
+      // Ma'lumotlarni yangilash
+      await fetchProjectData();
     }
   } catch (error) {
     console.error('Send LBX files error:', error);
@@ -1576,6 +1592,7 @@ const technicalProjectFiles = computed(() => {
     fileName: doc.file?.name || 'Nomsiz fayl',
     fileUrl: doc.file?.url,
     fileId: doc.file?.id,
+    type: doc.type,  // Yangi qo'shilgan qism
     createdAt: doc.created_at
   }));
 });
