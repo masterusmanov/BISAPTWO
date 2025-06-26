@@ -534,7 +534,7 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
           
-          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50 border border-gray-200 rounded">
+          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50">
             <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
@@ -548,17 +548,17 @@
                   <div>
                     <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
                       {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
-                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
                   </div>
                 </div>
                 <button 
                   @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
                   :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
                 >
                 <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white p-2 rounded-full text-green-500'></i>
                 </button>
               </div>
             </div>
@@ -582,12 +582,12 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Ko\'rib chiqilmoqda...' }}</p>
           </div>
 
-          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
             <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
                 :key="file.id || index"
-                class="flex items-center justify-between bg-gray-200 rounded p-1"
+                class="flex items-center justify-between bg-gray-100 rounded p-1"
               >
                 <div class="flex items-center space-x-3">
                   <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
@@ -596,17 +596,17 @@
                   <div>
                     <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
                       {{ file.createdAt?.slice(11, 16) }}</p>
-                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
                   </div>
                 </div>
                 <button 
                   @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
                   :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
                 >
                   <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                  <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                  <i class='bx bx-download text-[15px] bg-white hover:bg-gblue-500 hover:text-white p-2 rounded-full text-green-500'></i>
                 </button>
               </div>
             </div>
@@ -630,12 +630,12 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
 
-          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
            <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
                 :key="file.id || index"
-                class="flex items-center justify-between bg-gray-200 rounded p-1"
+                class="flex items-center justify-between bg-gray-100 rounded p-1"
               >
                 <div class="flex items-center space-x-3">
                   <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
@@ -644,17 +644,17 @@
                   <div>
                     <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
                       {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
-                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
                   </div>
                 </div>
                 <button 
                   @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
                   :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
                 >
                 <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white p-2 rounded-full text-green-500'></i>
                 </button>
               </div>
             </div>
@@ -678,12 +678,12 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Tasdiqlandi' }}</p>
           </div>
 
-          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 border border-gray-200 rounded">
+          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
             <div class="space-y-2">
               <div 
                 v-for="(file, index) in getCurrentSectionData(currentSection).files" 
                 :key="file.id || index"
-                class="flex items-center justify-between bg-gray-200 rounded p-1"
+                class="flex items-center justify-between bg-gray-100 rounded p-1"
               >
                 <div class="flex items-center space-x-3">
                   <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
@@ -692,25 +692,114 @@
                   <div>
                     <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
                       {{ file.createdAt?.slice(11, 16) }}</p>
-                      <p class="text-md font-semibold text-gray-700">{{ file.fileName }}</p>
+                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
                   </div>
                 </div>
                 <button 
                   @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
                   :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-300 cursor-not-allowed': !file.fileUrl }"
+                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
                 >
-                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                  <i class='bx bx-download text-[14px] bg-white hover:bg-gray-100 p-2 rounded text-green-500'></i>
+                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Fayl yuklash</span>
+                  <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white rounded-full p-2 text-green-500'></i>
                 </button>
               </div>
             </div>
           </div>
         </template>
 
+        <!-- HISTORY SECTION SEPARATOR -->
+    <div v-if="getHistoryData(currentSection).length > 0" class="border-t-2 border-gray-300 my-6">
+      <p class="font-semibold px-[20px] text-gray-600  mt-2 mb-4">📋 Tarix</p>
+    </div>
+
+    <!-- HISTORY ITEMS -->
+    <template v-for="(historyItem, historyIndex) in getHistoryData(currentSection)" :key="historyItem.id">
+      
+      <!-- History item header -->
+      <div class="flex items-center justify-between">
+        <div class="space-y-2 bg-gray-100 w-full p-4 border-l-4" 
+             :class="{
+               'border-blue-400': historyItem.status === 'RESOLVED',
+               'border-red-400': historyItem.status === 'REJECTED',
+               'border-green-400': historyItem.status === 'ACCEPTED',
+               'border-purple-400': historyItem.status === 'TO_REVIEW'
+             }">
+          <p class="text-[14px] font-semibold flex items-center"
+             :class="{
+               'text-[#6DA1F8]': historyItem.status === 'RESOLVED',
+               'text-[#F60000]': historyItem.status === 'REJECTED', 
+               'text-green-600': historyItem.status === 'ACCEPTED',
+               'text-[#4A51DD]': historyItem.status === 'TO_REVIEW'
+             }">
+            <i class='bx text-[18px] mr-1'
+               :class="{
+                 'bx-info-circle': historyItem.status === 'RESOLVED',
+                 'bx-info-circle': historyItem.status === 'REJECTED',
+                 'bx-check-circle': historyItem.status === 'ACCEPTED',
+                 'bx-refresh': historyItem.status === 'TO_REVIEW'
+               }"></i>
+            {{ getStatusText(historyItem.status) }}
+          </p>
+          <p class="text-[12px] text-gray-500 font-semibold">
+            {{ historyItem.created_at.slice(0, 10) }} 
+            {{ historyItem.created_at.slice(11, 16) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- History item answer -->
+      <div v-if="historyItem.answers && historyItem.answers.length > 0" 
+           class="m-4 p-4 border-l-4 rounded"
+           :class="{
+             'bg-blue-50 border-blue-400': historyItem.status === 'RESOLVED',
+             'bg-red-50 border-red-400': historyItem.status === 'REJECTED',
+             'bg-green-50 border-green-400': historyItem.status === 'ACCEPTED',
+             'bg-purple-50 border-purple-400': historyItem.status === 'TO_REVIEW'
+           }">
+        <p class="text-justify">{{ historyItem.answers[historyItem.answers.length - 1]?.answer || 'Izoh mavjud emas' }}</p>
+      </div>
+
+      <!-- History item files -->
+      <div v-if="historyItem.documents && historyItem.documents.length > 0" 
+           class="m-4 p-4 bg-gray-50 rounded">
+        <div class="space-y-2">
+          <div 
+            v-for="(file, fileIndex) in historyItem.documents" 
+            :key="file.id || fileIndex"
+            class="flex items-center justify-between bg-gray-200 rounded p-1"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                {{ fileIndex + 1 }}
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">{{ file.created_at.slice(0, 10) }} 
+                  {{ file.created_at.slice(11, 16) }}</p>
+                <p class="text-sm font-semibold text-gray-700">{{ file.file?.name || 'Nomsiz fayl' }}</p>
+              </div>
+            </div>
+            <button 
+              @click="downloadProjectFile(file.file?.url, file.file?.name)"
+              class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
+            >
+              <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
+              <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 p-2 rounded-full text-green-500'></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Separator between history items -->
+      <div v-if="historyIndex < getHistoryData(currentSection).length - 1" 
+           class="border-t border-gray-200 my-4">
+          </div>
+           
+    </template>
+
         <!-- Agar hech qanday ma'lumot bo'lmasa -->
-        <div v-else class="p-8 text-center text-gray-500">
+        <div v-if="getHistoryData(currentSection).length === 0" class="p-8 text-center text-gray-500">
           Bu bo'lim uchun tarix mavjud emas
         </div>
         
@@ -1746,6 +1835,46 @@ const isLbxEnabled = computed(() => {
   const technicalStatus = projectData.value.project_documents.PROJECT_TS.status;
   return technicalStatus === 'ACCEPTED';
 });
+
+// History ma'lumotlarini olish funksiyasi
+const getHistoryData = (section) => {
+  if (!projectData.value?.history) {
+    return [];
+  }
+  
+  let historyKey = '';
+  switch(section) {
+    case 'conception':
+      historyKey = 'PROJECT_CONCEPT';
+      break;
+    case 'technical':
+      historyKey = 'PROJECT_TS';
+      break;
+    case 'lbx':
+      historyKey = 'PROJECT_EVALUATION_DOCUMENT';
+      break;
+    default:
+      return [];
+  }
+  
+  const historyArray = projectData.value.history[historyKey] || [];
+  
+  // History ma'lumotlarini reverse chronological tartibda qaytarish (eng yangisi birinchi)
+  return historyArray.sort((a, b) => {
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+};
+
+const getStatusText = (status) => {
+  const statusTexts = {
+    'RESOLVED': 'Qayta ko\'rib chiqish uchun',
+    'REJECTED': 'Izoh',
+    'ACCEPTED': 'Tasdiqlangan',
+    'TO_REVIEW': 'Ko\'rib chiqilmoqda',
+    'NEW': 'Yangi'
+  };
+  return statusTexts[status] || status;
+};
 
 // Modal content ni yangilash
 const updateModalContent = () => {

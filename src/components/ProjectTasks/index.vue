@@ -103,8 +103,8 @@
     
     <!-- Debug info (remove in production) -->
     <div v-if="!selectedProject" class="ml-4 w-[100%] bg-red-50 p-4 rounded-lg border border-red-200">
-      <p class="text-red-600">No project selected. Click on a project to select it.</p>
-      <p class="text-xs text-gray-500 mt-2">Debug: selectedProject = {{ selectedProject }}</p>
+      <p class="text-red-600">Hech qanday loyiha tanlanmagan. Loyihani tanlash uchun ustiga bosing.</p>
+      <p class="text-xs text-gray-500 mt-2">Nosozlikni tuzatish: tanlanganLoyiha = {{ selectedProject }}</p>
     </div>
   </div>
 </template>
