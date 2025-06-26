@@ -419,30 +419,74 @@
             ></textarea>
           </div>
 
-          <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-          <!-- <div v-if="modalType !== 'approve'" class="flex items-center space-x-2 pr-4">
-            <input 
-              type="file" 
-              :id="modalType + '-file'"
-              @change="handleFileUploadModal"
-              class="hidden"
-              accept=".pdf"
-            />
-            <label 
-              :for="modalType + '-file'"
-              :class="{
-                'bg-blue-500 hover:bg-blue-600 text-white': fileState.uploaded,
-                'bg-blue-400 hover:bg-blue-600 text-white': !fileState.uploaded
-              }"
-              class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-              </svg>
-              <span>{{ fileState.uploaded ? fileState.fileName : 'Fayl biriktirish' }}</span>
-            </label>
-          </div> -->
+          <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) v-if="modalType !== 'approve'"-->
+         <div class="space-y-3">
+            <!-- File upload button -->
+            <div class="flex items-center space-x-2">
+              <input 
+                type="file" 
+                :id="modalType + '-file'"
+                @change="handleFileUploadModal"
+                class="hidden"
+                accept=".pdf,.doc,.docx"
+                multiple
+              />
+              <label 
+                :for="modalType + '-file'"
+                class="flex items-center space-x-1 text-[12px] px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors cursor-pointer"
+              >
+                <i class='bx bx-plus text-[12px]'></i>
+                <span>Fayl qo'shish ({{ fileState.files.length }}/{{ fileState.maxFiles }})</span>
+              </label>
+            </div>
 
+            <!-- Yuklangan fayllar ro'yxati -->
+            <div v-if="fileState.files.length > 0" class="space-y-3">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-40 overflow-y-auto">
+    <div 
+      v-for="(fileItem, index) in fileState.files" 
+      :key="fileItem.id"
+      class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 hover:bg-gray-100 transition-colors"
+    >
+      <!-- O'chirish tugmasi -->
+      <button 
+        @click="removeFile(index)"
+        class="absolute top-1 right-1 text-red-500 hover:text-red-700 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-50 transition-colors"
+        type="button"
+        title="Faylni o'chirish"
+      >
+        ×
+      </button>
+      
+      <!-- Fayl ma'lumotlari -->
+      <div class="flex flex-col space-y-1">
+        <!-- Fayl ikoni va yuklash holati -->
+        <div class="flex items-center space-x-2">
+          <i class='bx bxs-file text-blue-500 text-lg'></i>
+          <div v-if="fileItem.uploading" class="flex items-center">
+            <i class='bx bx-loader-alt bx-spin text-blue-500 text-sm'></i>
+            <span class="text-xs text-blue-600 ml-1">Yuklanmoqda...</span>
+          </div>
+          <div v-else-if="fileItem.uploaded" class="flex items-center">
+            <i class='bx bx-check-circle text-green-500 text-sm'></i>
+            <span class="text-xs text-green-600 ml-1">Yuklandi</span>
+          </div>
+        </div>
+        
+        <!-- Fayl nomi -->
+        <div class="pr-6">
+          <p class="text-[12px] font-medium text-gray-800 truncate" :title="fileItem.name">
+            {{ fileItem.name }}
+          </p>
+          <p class="text-xs text-gray-500">
+            {{ formatFileSize(fileItem.size) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          </div>
           <!-- Action buttons -->
           <div class="flex items-center justify-center space-x-4 my-4">
             <!-- Submit button -->
@@ -514,29 +558,69 @@
           ></textarea>
         </div>
 
-        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-        <!-- <div v-if="technicalModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
+        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) v-if="technicalModalType !== 'approve'" -->
+       <div class="space-y-3">
+          <!-- File upload button -->
+        <div class="flex items-center space-x-2">
           <input 
             type="file" 
             :id="technicalModalType + '-file'"
             @change="handleTechnicalFileUpload"
             class="hidden"
-            accept=".pdf"
+            accept=".pdf,.doc,.docx"
+            multiple
           />
           <label 
             :for="technicalModalType + '-file'"
-            :class="{
-              'bg-blue-500 hover:bg-blue-600 text-white': technicalFileState.uploaded,
-              'bg-blue-400 hover:bg-blue-600 text-white': !technicalFileState.uploaded
-            }"
-            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
+            class="flex items-center space-x-1 text-sm px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors cursor-pointer"
           >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-            </svg>
-            <span>{{ technicalFileState.uploaded ? technicalFileState.fileName : 'Fayl biriktirish' }}</span>
+            <i class='bx bx-plus text-[16px]'></i>
+            <span>Fayl qo'shish ({{ technicalFileState.files.length }}/{{ technicalFileState.maxFiles }})</span>
           </label>
-        </div> -->
+        </div>
+
+        <!-- ========================= -->
+         <div v-if="technicalFileState.files.length > 0" class="space-y-2">
+  <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+    <div 
+      v-for="(fileItem, index) in technicalFileState.files" 
+      :key="fileItem.id"
+      class="inline-flex items-center bg-white border border-gray-200 rounded-full px-3 py-1 text-sm hover:bg-gray-50 transition-colors max-w-xs"
+    >
+      <!-- Fayl ikoni -->
+      <i class='bx bxs-file text-blue-500 text-sm mr-2'></i>
+      
+      <!-- Yuklash holati -->
+      <div v-if="fileItem.uploading" class="flex items-center mr-2">
+        <i class='bx bx-loader-alt bx-spin text-blue-500 text-xs'></i>
+      </div>
+      <div v-else-if="fileItem.uploaded" class="flex items-center mr-2">
+        <i class='bx bx-check-circle text-green-500 text-xs'></i>
+      </div>
+      
+      <!-- Fayl nomi va hajmi -->
+      <div class="flex-1 min-w-0 mr-2">
+        <span class="text-gray-800 truncate block" :title="fileItem.name">
+          {{ fileItem.name }}
+        </span>
+        <span class="text-xs text-gray-500">
+          ({{ formatFileSize(fileItem.size) }})
+        </span>
+      </div>
+      
+      <!-- O'chirish tugmasi -->
+      <button 
+        @click="removeTechnicalFile(index)"
+        class="text-red-500 hover:text-red-700 ml-1 hover:bg-red-50 rounded-full w-4 h-4 flex items-center justify-center text-xs transition-colors"
+        type="button"
+        title="Faylni o'chirish"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+</div>
+</div>
 
         <!-- Action buttons -->
         <div class="flex items-center justify-center space-x-4 my-4">
@@ -609,30 +693,70 @@
           ></textarea>
         </div>
 
-        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun) -->
-        <!-- <div v-if="lbxModalType !== 'approve'" class="flex items-center space-x-2 pr-4">
-          <input 
-            type="file" 
-            :id="lbxModalType + '-file'"
-            @change="handleLBXFileUpload"
-            class="hidden"
-            accept=".pdf"
-          />
-          <label 
-            :for="lbxModalType + '-file'"
-            :class="{
-              'bg-blue-500 hover:bg-blue-600 text-white': lbxFileState.uploaded,
-              'bg-blue-400 hover:bg-blue-600 text-white': !lbxFileState.uploaded
-            }"
-            class="flex items-center space-x-1 text-sm px-2 py-1 rounded transition-colors cursor-pointer"
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 12a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 7a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-            </svg>
-            <span>{{ lbxFileState.uploaded ? lbxFileState.fileName : 'Fayl biriktirish' }}</span>
-          </label>
-        </div> -->
+        <!-- File upload section (faqat ko'rib chiqish va izoh berish uchun)   v-if="lbxModalType !== 'approve'" -->
+     <div class="space-y-3">
+  <!-- File upload button -->
+  <div class="flex items-center space-x-2">
+    <input 
+      type="file" 
+      :id="lbxModalType + '-file'"
+      @change="handleLBXFileUpload"
+      class="hidden"
+      accept=".pdf,.doc,.docx"
+      multiple
+    />
+    <label 
+      :for="lbxModalType + '-file'"
+      class="flex items-center space-x-1 text-sm px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors cursor-pointer"
+    >
+      <i class='bx bx-plus text-[16px]'></i>
+      <span>Fayl qo'shish ({{ lbxFileState.files.length }}/{{ lbxFileState.maxFiles }})</span>
+    </label>
+  </div>
+<!-- ============= -->
 
+<div v-if="lbxFileState.files.length > 0" class="space-y-2">
+  <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+    <div 
+      v-for="(fileItem, index) in lbxFileState.files" 
+      :key="fileItem.id"
+      class="inline-flex items-center bg-white border border-gray-200 rounded-full px-3 py-1 text-sm hover:bg-gray-50 transition-colors max-w-xs"
+    >
+      <!-- Fayl ikoni -->
+      <i class='bx bxs-file text-blue-500 text-sm mr-2'></i>
+      
+      <!-- Yuklash holati -->
+      <div v-if="fileItem.uploading" class="flex items-center mr-2">
+        <i class='bx bx-loader-alt bx-spin text-blue-500 text-xs'></i>
+      </div>
+      <div v-else-if="fileItem.uploaded" class="flex items-center mr-2">
+        <i class='bx bx-check-circle text-green-500 text-xs'></i>
+      </div>
+      
+      <!-- Fayl nomi va hajmi -->
+      <div class="flex-1 min-w-0 mr-2">
+        <span class="text-gray-800 truncate block" :title="fileItem.name">
+          {{ fileItem.name }}
+        </span>
+        <span class="text-xs text-gray-500">
+          ({{ formatFileSize(fileItem.size) }})
+        </span>
+      </div>
+      
+      <!-- O'chirish tugmasi -->
+      <button 
+        @click="removeLBXFile(index)"
+        class="text-red-500 hover:text-red-700 ml-1 hover:bg-red-50 rounded-full w-4 h-4 flex items-center justify-center text-xs transition-colors"
+        type="button"
+        title="Faylni o'chirish"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+  
         <!-- Action buttons -->
         <div class="flex items-center justify-center space-x-4 my-4">
           <!-- Submit button -->
@@ -917,15 +1041,13 @@ const loadingTechnical = ref(false);
 
 // Technical file upload holati
 const technicalFileState = reactive({
-  uploaded: false,
-  fileName: '',
-  file: null
+  files: [],
+  maxFiles: 20
 });
 
 const lbxFileState = reactive({
-  uploaded: false,
-  fileName: '',
-  file: null
+  files: [],
+  maxFiles: 20
 });
 
 // Form data
@@ -940,9 +1062,8 @@ const technicalFormData = reactive({
 
 // File upload holati
 const fileState = reactive({
-  uploaded: false,
-  fileName: '',
-  file: null
+  files: [], // Array of files
+  maxFiles: 20 // Maksimal fayl soni
 });
 
 // Accordion holatlari
@@ -1185,15 +1306,18 @@ const handleSubmitLBXModal = async () => {
       closeButton: false
     });
 
-    let fileId = null;
-    if (lbxFileState.file && lbxModalType.value !== 'approve') {
-      fileId = await uploadFileToServer(lbxFileState.file);
-      if (!fileId) {
+    let fileIds = [];
+    if (lbxFileState.files.length > 0) {
+      console.log('📤 LBX fayllar yuklanmoqda:', lbxFileState.files.length);
+      fileIds = await uploadMultipleFilesToServer(lbxFileState.files);
+      
+      if (fileIds.length === 0 && lbxFileState.files.length > 0) {
         if (loadingToastId) toast.remove(loadingToastId);
-        toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
+        toast.error('Fayllarni yuklashda xatolik!', { autoClose: 2000 });
         isLBXSubmitting.value = false;
         return;
       }
+      console.log('✅ LBX yuklangan fayl IDlari:', fileIds);
     }
 
     const typeMap = {
@@ -1203,7 +1327,6 @@ const handleSubmitLBXModal = async () => {
     };
     const answerType = typeMap[lbxModalType.value];
 
-    // PROJECT_EVALUATION_DOCUMENT olish
     const projectDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
     
     if (!projectDoc) {
@@ -1213,25 +1336,18 @@ const handleSubmitLBXModal = async () => {
       return;
     }
 
-    const firstDocument = projectDoc.documents?.[0];
-    if (!firstDocument) {
-      if (loadingToastId) toast.remove(loadingToastId);
-      toast.error('LBX hujjat topilmadi!', { autoClose: 2000 });
-      isLBXSubmitting.value = false;
-      return;
-    }
-
     const answerData = {
       project_document_id: projectDoc.id,
-      documents_id: firstDocument.id,
       answer: lbxFormData.answare,
       type: answerType
     };
 
-    if (fileId) {
-      answerData.file_id = fileId;
+    if (fileIds.length > 0) {
+      answerData.file_ids = fileIds;
+      console.log('📎 LBX answer data ga file_ids qo\'shildi:', answerData.file_ids);
     }
 
+    console.log('📨 LBX yuborilayotgan answer data:', answerData);
     await sendAnswer(answerData);
 
     if (loadingToastId) toast.remove(loadingToastId);
@@ -1239,7 +1355,6 @@ const handleSubmitLBXModal = async () => {
 
     closeLBXModal();
 
-    // Status ni yangilash
     if (lbxModalType.value === 'approve') {
       if (projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT) {
         projectData.value.project_documents.PROJECT_EVALUATION_DOCUMENT.status = 'ACCEPTED';
@@ -1285,21 +1400,30 @@ const closeTechnicalModal = () => {
 
 const resetTechnicalForm = () => {
   technicalFormData.answare = '';
-  Object.assign(technicalFileState, {
-    uploaded: false,
-    fileName: '',
-    file: null
-  });
+  technicalFileState.files = [];
 };
 
 // Technical fayl yuklash
 const handleTechnicalFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    technicalFileState.uploaded = true;
-    technicalFileState.fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-    technicalFileState.file = file;
+  const selectedFiles = Array.from(event.target.files);
+  
+  if (technicalFileState.files.length + selectedFiles.length > technicalFileState.maxFiles) {
+    toast.error(`Maksimal ${technicalFileState.maxFiles} ta fayl yuklash mumkin!`, { autoClose: 2000 });
+    return;
   }
+  
+  selectedFiles.forEach(file => {
+    technicalFileState.files.push({
+      id: Date.now() + Math.random(),
+      file: file,
+      name: file.name,
+      size: file.size,
+      uploading: false,
+      uploaded: false
+    });
+  });
+  
+  event.target.value = '';
 };
 
 // 13. Technical modal submit funktsiyasida o'zgarish
@@ -1318,15 +1442,18 @@ const handleSubmitTechnicalModal = async () => {
       closeButton: false
     });
 
-    let fileId = null;
-    if (technicalFileState.file && technicalModalType.value !== 'approve') {
-      fileId = await uploadFileToServer(technicalFileState.file);
-      if (!fileId) {
+    let fileIds = [];
+    if (technicalFileState.files.length > 0) {
+      console.log('📤 Technical fayllar yuklanmoqda:', technicalFileState.files.length);
+      fileIds = await uploadMultipleFilesToServer(technicalFileState.files);
+      
+      if (fileIds.length === 0 && technicalFileState.files.length > 0) {
         if (loadingToastId) toast.remove(loadingToastId);
-        toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
+        toast.error('Fayllarni yuklashda xatolik!', { autoClose: 2000 });
         isTechnicalSubmitting.value = false;
         return;
       }
+      console.log('✅ Technical yuklangan fayl IDlari:', fileIds);
     }
 
     const typeMap = {
@@ -1336,7 +1463,6 @@ const handleSubmitTechnicalModal = async () => {
     };
     const answerType = typeMap[technicalModalType.value];
 
-    // Yangi strukturada PROJECT_TS olish
     const projectDoc = projectData.value?.project_documents?.PROJECT_TS;
     
     if (!projectDoc) {
@@ -1346,25 +1472,18 @@ const handleSubmitTechnicalModal = async () => {
       return;
     }
 
-    const firstDocument = projectDoc.documents?.[0];
-    if (!firstDocument) {
-      if (loadingToastId) toast.remove(loadingToastId);
-      toast.error('Texnik hujjat topilmadi!', { autoClose: 2000 });
-      isTechnicalSubmitting.value = false;
-      return;
-    }
-
     const answerData = {
       project_document_id: projectDoc.id,
-      documents_id: firstDocument.id,
       answer: technicalFormData.answare,
       type: answerType
     };
 
-    if (fileId) {
-      answerData.file_id = fileId;
+    if (fileIds.length > 0) {
+      answerData.file_ids = fileIds;
+      console.log('📎 Technical answer data ga file_ids qo\'shildi:', answerData.file_ids);
     }
 
+    console.log('📨 Technical yuborilayotgan answer data:', answerData);
     await sendAnswer(answerData);
 
     if (loadingToastId) toast.remove(loadingToastId);
@@ -1372,7 +1491,6 @@ const handleSubmitTechnicalModal = async () => {
 
     closeTechnicalModal();
 
-    // Status ni yangilash
     if (technicalModalType.value === 'approve') {
       if (projectData.value?.project_documents?.PROJECT_TS) {
         projectData.value.project_documents.PROJECT_TS.status = 'ACCEPTED';
@@ -1452,21 +1570,30 @@ const closeLBXModal = () => {
 
 const resetLBXForm = () => {
   lbxFormData.answare = '';
-  Object.assign(lbxFileState, {
-    uploaded: false,
-    fileName: '',
-    file: null
-  });
+  lbxFileState.files = [];
 };
 
 // LBX fayl yuklash
 const handleLBXFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    lbxFileState.uploaded = true;
-    lbxFileState.fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-    lbxFileState.file = file;
+  const selectedFiles = Array.from(event.target.files);
+  
+  if (lbxFileState.files.length + selectedFiles.length > lbxFileState.maxFiles) {
+    toast.error(`Maksimal ${lbxFileState.maxFiles} ta fayl yuklash mumkin!`, { autoClose: 2000 });
+    return;
   }
+  
+  selectedFiles.forEach(file => {
+    lbxFileState.files.push({
+      id: Date.now() + Math.random(),
+      file: file,
+      name: file.name,
+      size: file.size,
+      uploading: false,
+      uploaded: false
+    });
+  });
+  
+  event.target.value = '';
 };
 
 
@@ -1589,24 +1716,36 @@ const closeModal = () => {
   modalType.value = '';
   resetForm();
 };
-
+  
 const resetForm = () => {
   formData.answare = '';
-  Object.assign(fileState, {
-    uploaded: false,
-    fileName: '',
-    file: null
-  });
+  fileState.files = [];
 };
 
 // Fayl yuklash - modal uchun
 const handleFileUploadModal = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    fileState.uploaded = true;
-    fileState.fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
-    fileState.file = file;
+  const selectedFiles = Array.from(event.target.files);
+  
+  // Maksimal fayl soni tekshiruvi
+  if (fileState.files.length + selectedFiles.length > fileState.maxFiles) {
+    toast.error(`Maksimal ${fileState.maxFiles} ta fayl yuklash mumkin!`, { autoClose: 2000 });
+    return;
   }
+  
+  // Yangi fayllarni qo'shish
+  selectedFiles.forEach(file => {
+    fileState.files.push({
+      id: Date.now() + Math.random(), // Unique ID
+      file: file,
+      name: file.name,
+      size: file.size,
+      uploading: false,
+      uploaded: false
+    });
+  });
+  
+  // Input ni tozalash
+  event.target.value = '';
 };
 
 // YANGI: Faylni serverga yuklash funktsiyasi
@@ -1642,7 +1781,9 @@ const uploadFileToServer = async (file) => {
 
 // YANGI: Javobni yuborish funktsiyasi
 const sendAnswer = async (answerData) => {
-  console.log('Javob yuborish ma\'lumotlari:', answerData);
+  console.log('🚀 Javob yuborish boshlanmoqda...');
+  console.log('📋 Answer data:', JSON.stringify(answerData, null, 2));
+  
   const token = sessionStorage.getItem('token');
   if (!token) {
     throw new Error('Token topilmadi');
@@ -1656,12 +1797,63 @@ const sendAnswer = async (answerData) => {
       }
     });
 
-    console.log('Javob yuborish natijasi:', response.data);
+    console.log('✅ Javob yuborish muvaffaqiyatli:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Javob yuborishda xato:', error);
+    console.error('❌ Javob yuborishda xato:', error);
+    if (error.response) {
+      console.error('Server xatosi:', error.response.data);
+    }
     throw error;
   }
+};
+
+// Faylni o'chirish
+const removeFile = (index) => {
+  fileState.files.splice(index, 1);
+};
+
+const removeTechnicalFile = (index) => {
+  technicalFileState.files.splice(index, 1);
+};
+
+const removeLBXFile = (index) => {
+  lbxFileState.files.splice(index, 1);
+};
+
+// Fayl hajmini formatlash
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+// Ko'p fayllarni yuklash funktsiyasi
+const uploadMultipleFilesToServer = async (files) => {
+  const fileIds = [];
+  
+  for (const fileItem of files) {
+    try {
+      fileItem.uploading = true;
+      const fileId = await uploadFileToServer(fileItem.file);
+      if (fileId) {
+        fileIds.push(fileId);
+        fileItem.uploaded = true;
+        console.log(`✅ Fayl yuklandi: ${fileItem.name}, ID: ${fileId}`);
+      }
+    } catch (error) {
+      console.error(`Fayl yuklashda xato: ${fileItem.name}`, error);
+      fileItem.uploading = false;
+      throw new Error(`${fileItem.name} faylini yuklashda xato`);
+    } finally {
+      fileItem.uploading = false;
+    }
+  }
+  
+  console.log('📋 Barcha yuklangan fayl IDlari:', fileIds);
+  return fileIds;
 };
 
 // 12. Modal submit funktsiyasida o'zgarish
@@ -1680,15 +1872,19 @@ const handleSubmitModal = async () => {
       closeButton: false
     });
 
-    let fileId = null;
-    if (fileState.file && modalType.value !== 'approve') {
-      fileId = await uploadFileToServer(fileState.file);
-      if (!fileId) {
+    // Ko'p fayllarni yuklash
+    let fileIds = [];
+    if (fileState.files.length > 0) {
+      console.log('📤 Fayllar yuklanmoqda:', fileState.files.length);
+      fileIds = await uploadMultipleFilesToServer(fileState.files);
+      
+      if (fileIds.length === 0 && fileState.files.length > 0) {
         if (loadingToastId) toast.remove(loadingToastId);
-        toast.error('Faylni yuklashda xatolik!', { autoClose: 2000 });
+        toast.error('Fayllarni yuklashda xatolik!', { autoClose: 2000 });
         isSubmitting.value = false;
         return;
       }
+      console.log('✅ Yuklangan fayl IDlari:', fileIds);
     }
 
     const typeMap = {
@@ -1698,7 +1894,6 @@ const handleSubmitModal = async () => {
     };
     const answerType = typeMap[modalType.value];
 
-    // Yangi strukturada PROJECT_CONCEPT olish
     const projectDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
     
     if (!projectDoc) {
@@ -1708,26 +1903,20 @@ const handleSubmitModal = async () => {
       return;
     }
 
-    const firstDocument = projectDoc.documents?.[0];
-    if (!firstDocument) {
-      if (loadingToastId) toast.remove(loadingToastId);
-      toast.error('Hujjat topilmadi!', { autoClose: 2000 });
-      isSubmitting.value = false;
-      return;
-    }
-
+    // Answer data tuzish
     const answerData = {
       project_document_id: projectDoc.id,
-      documents_id: firstDocument.id,
       answer: formData.answare,
       type: answerType
     };
 
-    if (fileId) {
-      answerData.file_id = fileId;
+    // Fayllar mavjud bo'lsa, file_ids qo'shish
+    if (fileIds.length > 0) {
+      answerData.file_ids = fileIds;
+      console.log('📎 Answer data ga file_ids qo\'shildi:', answerData.file_ids);
     }
 
-    console.log('Yuborilayotgan answer data:', answerData);
+    console.log('📨 Yuborilayotgan answer data:', answerData);
     await sendAnswer(answerData);
 
     if (loadingToastId) toast.remove(loadingToastId);

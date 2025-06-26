@@ -534,6 +534,41 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
           
+          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+              class="m-4 p-4 bg-blue-100 rounded-lg border border-blue-200">
+            <p class="text-sm font-semibold text-blue-800 mb-3 flex items-center">
+              <i class='bx bx-paperclip text-lg mr-2'></i>
+              Javob bilan biriktirilgan fayllar:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div 
+                v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+                :key="answerFile.id || idx"
+                class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+                @click="downloadProjectFile(answerFile.url, answerFile.name)"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class='bx bxs-file-pdf text-blue-600 text-xl'></i>
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      {{ answerFile.name || `Fayl ${idx + 1}` }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ answerFile.created_at?.slice(0, 10) || '' }}
+                    </p>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <i class='bx bx-download text-blue-600 text-lg'></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> 
+          
           <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50">
             <div class="space-y-2">
               <div 
@@ -562,7 +597,9 @@
                 </button>
               </div>
             </div>
-          </div>        
+          </div> 
+          
+                
 
           <!-- ==================== TO_REVIEW HOLATI (YANGI) ==================== -->
           <div v-else-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
@@ -630,6 +667,42 @@
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
           </div>
 
+          <!-- REJECTED holati uchun (answer files ko'rsatish) -->
+          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+              class="m-4 p-4 bg-red-100 rounded-lg border border-red-200">
+            <p class="text-[12px] font-semibold text-red-800 mb-3 flex items-center">
+              <i class='bx bx-paperclip text-lg mr-2'></i>
+              Javob bilan biriktirilgan fayllar:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div 
+                v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+                :key="answerFile.id || idx"
+                class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+                @click="downloadProjectFile(answerFile.url, answerFile.name)"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <i class='bx bxs-file-pdf text-red-600 text-xl'></i>
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      {{ answerFile.name || `Fayl ${idx + 1}` }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ answerFile.created_at?.slice(0, 10) || '' }}
+                    </p>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <i class='bx bx-download text-red-600 text-lg'></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
            <div class="space-y-2">
               <div 
@@ -660,6 +733,8 @@
             </div>
           </div>
 
+          
+
           <!-- ==================== ACCEPTED HOLATI ==================== -->
           <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
             <div class="space-y-2 bg-gray-200 w-full p-4">
@@ -676,6 +751,40 @@
 
           <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="m-4 mt-[50px] p-4 bg-green-50 border-l-4 border-green-400 rounded">
             <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Tasdiqlandi' }}</p>
+          </div>
+          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+          class="m-4 p-4 bg-green-100 rounded-lg border border-green-200">
+        <p class="text-sm font-semibold text-green-800 mb-3 flex items-center">
+          <i class='bx bx-paperclip text-lg mr-2'></i>
+          Javob bilan biriktirilgan fayllar:
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div 
+            v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+            :key="answerFile.id || idx"
+            class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+            @click="downloadProjectFile(answerFile.url, answerFile.name)"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <i class='bx bxs-file-pdf text-green-600 text-xl'></i>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">
+                  {{ answerFile.name || `Fayl ${idx + 1}` }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ answerFile.created_at?.slice(0, 10) || '' }}
+                </p>
+              </div>
+              <div class="flex-shrink-0">
+                <i class='bx bx-download text-green-600 text-lg'></i>
+              </div>
+            </div>
+          </div>
+        </div>
           </div>
 
           <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
@@ -707,6 +816,9 @@
               </div>
             </div>
           </div>
+
+          <!-- ACCEPTED holati uchun (answer files ko'rsatish) -->
+      
         </template>
 
         <!-- HISTORY SECTION SEPARATOR -->
@@ -760,6 +872,71 @@
            }">
         <p class="text-justify">{{ historyItem.answers[historyItem.answers.length - 1]?.answer || 'Izoh mavjud emas' }}</p>
       </div>
+
+      <div v-if="historyItem.answers && historyItem.answers.length > 0 && historyItem.answers[historyItem.answers.length - 1]?.files?.length > 0" 
+     class="m-4 p-4 rounded-lg border"
+     :class="{
+       'bg-blue-100 border-blue-200': historyItem.status === 'RESOLVED',
+       'bg-red-100 border-red-200': historyItem.status === 'REJECTED',
+       'bg-green-100 border-green-200': historyItem.status === 'ACCEPTED',
+       'bg-purple-100 border-purple-200': historyItem.status === 'TO_REVIEW'
+     }">
+  <p class="text-sm font-semibold mb-3 flex items-center"
+     :class="{
+       'text-blue-800': historyItem.status === 'RESOLVED',
+       'text-red-800': historyItem.status === 'REJECTED',
+       'text-green-800': historyItem.status === 'ACCEPTED',
+       'text-purple-800': historyItem.status === 'TO_REVIEW'
+     }">
+    <i class='bx bx-paperclip text-lg mr-2'></i>
+    Javob bilan biriktirilgan fayllar:
+  </p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div 
+      v-for="(answerFile, idx) in historyItem.answers[historyItem.answers.length - 1].files" 
+      :key="answerFile.id || idx"
+      class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+      @click="downloadProjectFile(answerFile.url, answerFile.name)"
+    >
+      <div class="flex items-center space-x-3">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center"
+               :class="{
+                 'bg-blue-100': historyItem.status === 'RESOLVED',
+                 'bg-red-100': historyItem.status === 'REJECTED',
+                 'bg-green-100': historyItem.status === 'ACCEPTED',
+                 'bg-purple-100': historyItem.status === 'TO_REVIEW'
+               }">
+            <i class='bx bxs-file-pdf text-xl'
+               :class="{
+                 'text-blue-600': historyItem.status === 'RESOLVED',
+                 'text-red-600': historyItem.status === 'REJECTED',
+                 'text-green-600': historyItem.status === 'ACCEPTED',
+                 'text-purple-600': historyItem.status === 'TO_REVIEW'
+               }"></i>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">
+            {{ answerFile.name || `Fayl ${idx + 1}` }}
+          </p>
+          <p class="text-xs text-gray-500">
+            {{ answerFile.created_at?.slice(0, 10) || '' }}
+          </p>
+        </div>
+        <div class="flex-shrink-0">
+          <i class='bx bx-download text-lg'
+             :class="{
+               'text-blue-600': historyItem.status === 'RESOLVED',
+               'text-red-600': historyItem.status === 'REJECTED',
+               'text-green-600': historyItem.status === 'ACCEPTED',
+               'text-purple-600': historyItem.status === 'TO_REVIEW'
+             }"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
       <!-- History item files -->
       <div v-if="historyItem.documents && historyItem.documents.length > 0" 
@@ -1064,28 +1241,6 @@ const rejectionComments = reactive({
 const isHistoryModalOpen = ref(false);
 const currentSection = ref('');
 
-// File IDs storage for API
-// File IDs storage for API
-// const fileIds = reactive({
-//   conception: {
-//     concept_project_file_id: null,
-//     letter_file_id: null,
-//     protocol_file_id: null,
-//     solution_file_id: null
-//   },
-//   technical: {
-//     technical_task_file_id: null,
-//     technical_docs_file_id: null,
-//     schemas_file_id: null,
-//     additional_tech_file_id: null
-//   },
-//   lbx: {
-//     lbx_document_file_id: null,
-//     lbx_specification_file_id: null,
-//     lbx_test_protocol_file_id: null,
-//     lbx_report_file_id: null
-//   }
-// });
 const fileIds = reactive({
   conception: {},
   technical: {},
@@ -1535,12 +1690,6 @@ const downloadProjectFile = async (fileUrl, fileName) => {
     // Yangi oynada ochish
     window.open(fullUrl, '_blank');
     
-    // Yoki to'g'ridan-to'g'ri yuklash uchun:
-    // const link = document.createElement('a');
-    // link.href = fullUrl;
-    // link.download = fileName;
-    // link.click();
-    
     setTimeout(() => {
       toast.success('Fayl muvaffaqiyatli yuklandi!', { autoClose: 1000 });
     }, 1000);
@@ -1612,41 +1761,6 @@ const checkDocumentStatuses = async () => {
     console.error('Error checking document statuses:', error);
   }
 };
-
-
-// technikal section ============================
-// Texnik vazifa uchun computed properties
-// const technicalProjectStatus = computed(() => {
-//   // Texnik vazifa uchun project document index ni topish
-//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-//   return technicalDoc?.status || '';
-// });
-
-// const technicalProjectCreatedAt = computed(() => {
-//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-//   return technicalDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
-// });
-
-// const technicalProjectAnswer = computed(() => {
-//   const technicalDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_TS');
-//   return technicalDoc?.documents?.[0]?.answers?.[0]?.answer || '';
-// });
-
-// // LBX uchun computed properties
-// const lbxProjectStatus = computed(() => {
-//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-//   return lbxDoc?.status || '';
-// });
-
-// const lbxProjectCreatedAt = computed(() => {
-//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-//   return lbxDoc?.documents?.[0]?.answers?.[0]?.created_at || '';
-// });
-
-// const lbxProjectAnswer = computed(() => {
-//   const lbxDoc = projectData.value?.project_documents?.find(doc => doc.type === 'PROJECT_EVALUATION_DOCUMENT');
-//   return lbxDoc?.documents?.[0]?.answers?.[0]?.answer || '';
-// });
 
 // TEXNIK VAZIFA UCHUN - Hozircha mavjud emas
 const technicalProjectStatus = computed(() => {
@@ -1795,32 +1909,45 @@ const lbxProjectFiles = computed(() => {
 // Modal content uchun section bo'yicha ma'lumot olish
 const getCurrentSectionData = (section) => {
   if (section === 'conception') {
+    const conceptDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
+    const lastAnswer = conceptDoc?.answers?.[conceptDoc.answers.length - 1];
+    
     return {
-      status: projectDatatwo.value,
-      createdAt: projectDatatthree.value,
-      answer: projectDatatwoansware.value,
-      files: projectDatatwofiles.value 
+      status: lastAnswer?.type || conceptDoc?.status || '',
+      createdAt: lastAnswer?.created_at || conceptDoc?.created_at || '',
+      answer: lastAnswer?.answer || '',
+      files: projectDatatwofiles.value,
+      answerFiles: lastAnswer?.files || [] // Yangi qo'shildi
     };
   } else if (section === 'technical') {
+    const tsDoc = projectData.value?.project_documents?.PROJECT_TS;
+    const lastAnswer = tsDoc?.answers?.[tsDoc.answers.length - 1];
+    
     return {
-      status: technicalProjectStatus.value,
-      createdAt: technicalProjectCreatedAt.value,
-      answer: technicalProjectAnswer.value,
-      files: technicalProjectFiles.value
+      status: lastAnswer?.type || tsDoc?.status || '',
+      createdAt: lastAnswer?.created_at || tsDoc?.created_at || '',
+      answer: lastAnswer?.answer || '',
+      files: technicalProjectFiles.value,
+      answerFiles: lastAnswer?.files || [] // Yangi qo'shildi
     };
   } else if (section === 'lbx') {
+    const lbxDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
+    const lastAnswer = lbxDoc?.answers?.[lbxDoc.answers.length - 1];
+    
     return {
-      status: lbxProjectStatus.value,
-      createdAt: lbxProjectCreatedAt.value,
-      answer: lbxProjectAnswer.value,
-      files: lbxProjectFiles.value
+      status: lastAnswer?.type || lbxDoc?.status || '',
+      createdAt: lastAnswer?.created_at || lbxDoc?.created_at || '',
+      answer: lastAnswer?.answer || '',
+      files: lbxProjectFiles.value,
+      answerFiles: lastAnswer?.files || [] // Yangi qo'shildi
     };
   }
   return {
     status: '',
     createdAt: '',
     answer: '',
-    files: []
+    files: [],
+    answerFiles: []
   };
 };
 
