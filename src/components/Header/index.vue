@@ -49,7 +49,7 @@
                             <!-- Menyu elementlari -->
                             <div class="py-1">
                                 <!-- Profil tugmasi qo'shildi -->
-                                <a 
+                                <!-- <a 
                                     href="#" 
                                     @click.prevent="goToProfile"
                                     class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
@@ -57,7 +57,7 @@
                                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                                     </svg>
                                     {{ $t('profile') }}
-                                </a>
+                                </a> -->
                                 
                                 <!-- Ajratuvchi chiziq -->
                                 <div class="border-t border-gray-100 my-1"></div>
