@@ -1,3 +1,4 @@
+<!-- Accordion.vue -->
 <template>
   <div class="space-y-4">
     <!-- Konsepsiya Section -->

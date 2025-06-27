@@ -1,3 +1,4 @@
+<!-- AccordionMode.vue -->
 <template>
   <div class="space-y-4">
     <!-- Koncepсiya Section -->
@@ -868,6 +869,41 @@ const fetchFilesConsepForced = async (bypassCache = true) => {
   }
 };
 
+const sortDocumentsByPredefinedOrder = (documents, section) => {
+  if (!documents || !Array.isArray(documents)) return [];
+  
+  // Accordion.vue'dagi tartibni belgilash
+  const orderMap = {
+    conception: ['letter_file_id', 'concept_project_file_id', 'protocol_file_id', 'solution_file_id'],
+    technical: ['letter_file_id', 'solution_file_id', 'concept_project_file_id', 'protocol_file_id'],
+    lbx: ['letter_file_id', 'solution_file_id', 'concept_project_file_id', 'protocol_file_id']
+  };
+  
+  // Type ni key ga o'zgartirish
+  const typeToKey = {
+    'LETTER': 'letter_file_id',
+    'CONCEPT_PROJECT': 'concept_project_file_id',
+    'PROTOCOL': 'protocol_file_id',
+    'SOLUTION': 'solution_file_id'
+  };
+  
+  const order = orderMap[section] || [];
+  
+  return documents.sort((a, b) => {
+    const aKey = typeToKey[a.type] || a.type;
+    const bKey = typeToKey[b.type] || b.type;
+    
+    const aIndex = order.indexOf(aKey);
+    const bIndex = order.indexOf(bKey);
+    
+    // Agar topilmasa, oxiriga qo'yish
+    const aOrder = aIndex !== -1 ? aIndex : 999;
+    const bOrder = bIndex !== -1 ? bIndex : 999;
+    
+    return aOrder - bOrder;
+  });
+};
+
 // 9. Konsepsiya hujjatlarini qayta ishlash
 const processConceptionDocumentsNew = async () => {
   console.log('🔄 ProcessConceptionDocuments NEW');
@@ -907,8 +943,8 @@ const processConceptionDocumentsNew = async () => {
     };
   });
 
-  conceptionDocuments.value = processedDocuments;
-  console.log('✅ Conception documents:', conceptionDocuments.value);
+  conceptionDocuments.value = sortDocumentsByPredefinedOrder(processedDocuments, 'conception');
+  console.log('✅ Sorted conception documents:', conceptionDocuments.value);
 };
 
 
@@ -953,7 +989,7 @@ const processTechnicalDocumentsNew = async () => {
       };
     });
 
-    technicalDocuments.value = processedDocuments;
+    technicalDocuments.value = sortDocumentsByPredefinedOrder(processedDocuments, 'technical');
     console.log('✅ Technical documents:', technicalDocuments.value);
   } finally {
     loadingTechnical.value = false;
@@ -1016,7 +1052,7 @@ const processLBXDocumentsNew = async () => {
       };
     });
 
-    lbxDocuments.value = processedDocuments;
+    lbxDocuments.value = sortDocumentsByPredefinedOrder(processedDocuments, 'lbx');
     console.log('✅ LBX documents processed:', lbxDocuments.value);
   } catch (error) {
     console.error('Error processing LBX documents:', error);
