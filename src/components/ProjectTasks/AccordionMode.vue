@@ -22,9 +22,8 @@
         </div>
         <div class="flex items-center space-x-2">
 
-          <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+          <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi v-if="isConceptionApproved"-->
           <button 
-            v-if="isConceptionApproved"
             @click="openHistoryModal('conception')"
             class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
           >
@@ -161,9 +160,8 @@
     </div>
     <div class="flex items-center space-x-2">
 
-      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi v-if="isTechnicalApproved"-->
       <button 
-        v-if="isTechnicalApproved"
         @click="openHistoryModal('technical')"
         class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
       >
@@ -299,9 +297,8 @@
     </div>
     <div class="flex items-center space-x-2">
 
-      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi v-if="isLBXApproved"-->
       <button 
-        v-if="isLBXApproved"
         @click="openHistoryModal('lbx')"
         class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
       >
@@ -957,6 +954,7 @@ const clearAllCache = () => {
 
 const isHistoryModalOpen = ref(false);
 const currentHistorySection = ref('');
+
 
 // 2. Forced refresh funktsiyasi
 const fetchFilesConsepForced = async (bypassCache = true) => {
