@@ -17,21 +17,21 @@
              :class="{'bg-white border border-blue-500 shadow-sm': selectedProject && selectedProject.id === el.id}">
             <div class="relative w-[50px] h-[50px] flex-shrink-0">
                 <img :src="gerb" alt="Gerb" class="w-full h-full object-contain">
-                <div class="absolute bottom-1 -right-1 w-[8px] h-[8px] rounded-full"
-                :class="{
-                    'bg-red-500': el.status === 'REJECTED',
-                    'bg-blue-500': el.status === 'RESOLVED',
-                    'bg-green-500': el.status === 'ACCEPTED'
-                }">
-                </div>
-            </div>
-            <div class="flex-1 min-w-0">
+              </div>
+              <div class="flex-1 min-w-0">
                 <p class="text-[12px] font-bold truncate">{{ getLocalizedName(minorganListwo[0]) }}</p>
                 <p class="font-bold text-[10px] truncate">
-                    {{$t('ministry.project')}}: 
-                    <span class="font-normal">{{$t(`${el.name}`)}}</span>
+                  {{$t('ministry.project')}}: 
+                  <span class="font-normal">{{$t(`${el.name}`)}}</span>
                 </p>
-            </div>
+              </div>
+              <div class=" w-[10px] h-[10px] rounded-full"
+              :class="{
+                  'bg-red-500': el.status === 'REJECTED',
+                  'bg-blue-500': el.status === 'RESOLVED',
+                  'bg-green-500': el.status === 'ACCEPTED'
+              }">
+              </div>
         </div>
     </div>
   </div>
