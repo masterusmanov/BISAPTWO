@@ -21,6 +21,15 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
+
+          <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+          <button 
+            v-if="isConceptionApproved"
+            @click="openHistoryModal('conception')"
+            class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+          >
+            <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+          </button>
           
           <!-- Tasdiqlangan holat ko'rsatish -->
           <div v-if="isConceptionApproved" class="flex items-center text-green-600 text-sm font-medium">
@@ -151,6 +160,16 @@
       <span v-else-if="!hasTechnicalDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
     </div>
     <div class="flex items-center space-x-2">
+
+      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+      <button 
+        v-if="isTechnicalApproved"
+        @click="openHistoryModal('technical')"
+        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      >
+        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+      </button>
+
       <!-- Tasdiqlangan holat ko'rsatish -->
       <div v-if="isTechnicalApproved" class="flex items-center text-green-600 text-sm font-medium">
         <i class='bx bx-check-circle text-[18px] mr-1'></i>
@@ -279,6 +298,16 @@
       <span v-else-if="!hasLBXDocuments" class="text-xs text-gray-500">(Ma'lumot yo'q)</span>
     </div>
     <div class="flex items-center space-x-2">
+
+      <!-- Ish tarixi tugmasi - faqat tasdiqlanganda ko'rinadi -->
+      <button 
+        v-if="isLBXApproved"
+        @click="openHistoryModal('lbx')"
+        class="px-3 py-1 text-sm rounded transition-colors bg-[#F8F8F8] text-[#794A9A] font-bold hover:bg-gray-300"
+      >
+        <i class='bx bxs-briefcase-alt-2'></i> Ish tarixi
+      </button>
+
       <!-- Tasdiqlangan holat ko'rsatish -->
       <div v-if="isLBXApproved" class="flex items-center text-green-600 text-sm font-medium">
         <i class='bx bx-check-circle text-[18px] mr-1'></i>
@@ -782,6 +811,129 @@
     </div>
   </div>
 </div>
+
+<!-- Ish tarixi Modal -->
+<div 
+  v-if="isHistoryModalOpen" 
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-50"
+  @click="closeHistoryModal"
+>
+  <div 
+    class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 overflow-hidden"
+    @click.stop
+  >
+    <!-- Modal Header -->
+    <div class="bg-white p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-[14px] text-[#794A9A] font-[600] flex items-center">
+          <i class='bx bxs-briefcase-alt-2 mr-2 text-[18px]'></i>
+          {{ getSectionTitle(currentHistorySection) }} - Ish tarixi
+        </h2>
+        <button 
+          @click="closeHistoryModal"
+          class="text-gray-500 hover:text-gray-400 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="max-h-[70vh] overflow-y-auto">
+      <div class="space-y-2" v-if="getHistoryData(currentHistorySection).length > 0">
+        <template v-for="(historyItem, historyIndex) in getHistoryData(currentHistorySection)" :key="historyItem.id">
+          
+          <!-- History item header -->
+          <div class="flex items-center justify-between">
+            <div class="space-y-2 bg-gray-100 w-full p-4 border-l-4" 
+                 :class="{
+                   'border-blue-400': historyItem.status === 'RESOLVED',
+                   'border-red-400': historyItem.status === 'REJECTED',
+                   'border-green-400': historyItem.status === 'ACCEPTED',
+                   'border-purple-400': historyItem.status === 'TO_REVIEW'
+                 }">
+              <p class="text-[14px] font-semibold flex items-center"
+                 :class="{
+                   'text-[#6DA1F8]': historyItem.status === 'RESOLVED',
+                   'text-[#F60000]': historyItem.status === 'REJECTED', 
+                   'text-green-600': historyItem.status === 'ACCEPTED',
+                   'text-[#4A51DD]': historyItem.status === 'TO_REVIEW'
+                 }">
+                <i class='bx text-[18px] mr-1'
+                   :class="{
+                     'bx-info-circle': historyItem.status === 'RESOLVED',
+                     'bx-info-circle': historyItem.status === 'REJECTED',
+                     'bx-check-circle': historyItem.status === 'ACCEPTED',
+                     'bx-refresh': historyItem.status === 'TO_REVIEW'
+                   }"></i>
+                {{ getStatusText(historyItem.status) }}
+              </p>
+              <p class="text-[12px] text-gray-500 font-semibold">
+                {{ historyItem.created_at.slice(0, 10) }} 
+                {{ historyItem.created_at.slice(11, 16) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- History item answer -->
+          <div v-if="historyItem.answers && historyItem.answers.length > 0" 
+               class="m-4 p-4 border-l-4 rounded"
+               :class="{
+                 'bg-blue-50 border-blue-400': historyItem.status === 'RESOLVED',
+                 'bg-red-50 border-red-400': historyItem.status === 'REJECTED',
+                 'bg-green-50 border-green-400': historyItem.status === 'ACCEPTED',
+                 'bg-purple-50 border-purple-400': historyItem.status === 'TO_REVIEW'
+               }">
+            <p class="text-justify">{{ historyItem.answers[historyItem.answers.length - 1]?.answer || 'Izoh mavjud emas' }}</p>
+          </div>
+
+          <!-- History item files -->
+          <div v-if="historyItem.documents && historyItem.documents.length > 0" 
+               class="m-4 p-4 bg-gray-50 rounded">
+            <div class="space-y-2">
+              <div 
+                v-for="(file, fileIndex) in historyItem.documents" 
+                :key="file.id || fileIndex"
+                class="flex items-center justify-between bg-gray-200 rounded p-1"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
+                    {{ fileIndex + 1 }}
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500">{{ file.created_at.slice(0, 10) }} 
+                      {{ file.created_at.slice(11, 16) }}</p>
+                    <p class="text-sm font-semibold text-gray-700">{{ file.file?.name || 'Nomsiz fayl' }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="downloadProjectFile(file.file?.url, file.file?.name)"
+                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
+                >
+                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
+                  <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 p-2 rounded-full text-green-500'></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Separator -->
+          <div v-if="historyIndex < getHistoryData(currentHistorySection).length - 1" 
+               class="border-t border-gray-200 my-4">
+          </div>
+        </template>
+      </div>
+      
+      <!-- Bo'sh holat -->
+      <div v-else class="p-8 text-center text-gray-500">
+        Bu bo'lim uchun tarix mavjud emas
+      </div>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script setup>
@@ -802,6 +954,9 @@ const clearAllCache = () => {
   lbxDocuments.value = [];
   console.log('✅ Cache tozalandi');
 };
+
+const isHistoryModalOpen = ref(false);
+const currentHistorySection = ref('');
 
 // 2. Forced refresh funktsiyasi
 const fetchFilesConsepForced = async (bypassCache = true) => {
@@ -2199,6 +2354,89 @@ const watchSelectedProject = () => {
     }
   }, 3000);
 };
+
+
+// Ish tarixi modal funksiyalari
+const openHistoryModal = (section) => {
+  currentHistorySection.value = section;
+  isHistoryModalOpen.value = true;
+};
+
+const closeHistoryModal = () => {
+  isHistoryModalOpen.value = false;
+  currentHistorySection.value = '';
+};
+
+// Helper funksiyalar
+const getSectionTitle = (section) => {
+  const titles = {
+    conception: 'Konsepsiya',
+    technical: 'Texnik vazifa',
+    lbx: 'LBX'
+  };
+  return titles[section] || section;
+};
+
+// History ma'lumotlarini olish
+const getHistoryData = (section) => {
+  if (!projectData.value?.history) {
+    return [];
+  }
+  
+  let historyKey = '';
+  switch(section) {
+    case 'conception':
+      historyKey = 'PROJECT_CONCEPT';
+      break;
+    case 'technical':
+      historyKey = 'PROJECT_TS';
+      break;
+    case 'lbx':
+      historyKey = 'PROJECT_EVALUATION_DOCUMENT';
+      break;
+    default:
+      return [];
+  }
+  
+  const historyArray = projectData.value.history[historyKey] || [];
+  return historyArray.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+};
+
+// Status matnini olish
+const getStatusText = (status) => {
+  const statusTexts = {
+    'RESOLVED': 'Qayta ko\'rib chiqish uchun',
+    'REJECTED': 'Izoh',
+    'ACCEPTED': 'Tasdiqlangan',
+    'TO_REVIEW': 'Ko\'rib chiqilmoqda',
+    'NEW': 'Yangi'
+  };
+  return statusTexts[status] || status;
+};
+
+// Fayl yuklash funksiyasi (agar mavjud bo'lmasa)
+const downloadProjectFile = async (fileUrl, fileName) => {
+  console.log('Download bosdi:', fileUrl, fileName);
+  
+  if (!fileUrl) {
+    toast.error('Fayl URL manzili topilmadi!', { autoClose: 2000 });
+    return;
+  }
+
+  try {
+    toast.info('Fayl yuklanmoqda...', { autoClose: 1000 });
+    const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://back.miit.uz${fileUrl}`;
+    window.open(fullUrl, '_blank');
+    
+    setTimeout(() => {
+      toast.success('Fayl muvaffaqiyatli yuklandi!', { autoClose: 1000 });
+    }, 1000);
+  } catch (error) {
+    console.error("Fayl yuklashda xato:", error);
+    toast.error('Fayl yuklashda xatolik yuz berdi!', { autoClose: 2000 });
+  }
+};
+
 
 // Interval ni tozalash
 const clearProjectWatcher = () => {
