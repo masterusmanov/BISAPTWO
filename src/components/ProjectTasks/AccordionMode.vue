@@ -40,10 +40,10 @@
           <template v-else>
             <button 
               @click="showModal('revision')" 
-              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :disabled="isConceptionRevisionDisabled"
               :class="{
-                'bg-[#4A51DD] hover:bg-[#46497d]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
-                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+                'bg-[#4A51DD] hover:bg-[#46497d]': !isConceptionRevisionDisabled,
+                'bg-gray-300 cursor-not-allowed': isConceptionRevisionDisabled
               }"
               class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
@@ -52,10 +52,10 @@
             </button>
             <button 
               @click="showModal('comment')"
-              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :disabled="isConceptionCommentDisabled"
               :class="{
-                'bg-[#FD5656] hover:bg-[#c57575]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
-                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+                'bg-[#FD5656] hover:bg-[#c57575]': !isConceptionCommentDisabled,
+                'bg-gray-300 cursor-not-allowed': isConceptionCommentDisabled
               }"
               class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
@@ -64,10 +64,10 @@
             </button>
             <button 
               @click="showModal('approve')"
-              :disabled="!hasProjectConceptDocuments || filteredConceptionDocuments.length === 0"
+              :disabled="isConceptionApproveDisabled"
               :class="{
-                'bg-[#07A920] hover:bg-[#62a962]': hasProjectConceptDocuments && filteredConceptionDocuments.length > 0,
-                'bg-gray-300 cursor-not-allowed': !hasProjectConceptDocuments || filteredConceptionDocuments.length === 0
+                'bg-[#07A920] hover:bg-[#62a962]': !isConceptionApproveDisabled,
+                'bg-gray-300 cursor-not-allowed': isConceptionApproveDisabled
               }"
               class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
             >
@@ -75,10 +75,10 @@
               <span>{{ $t('buttons.approve') }}</span>
             </button>
             <button 
-            @click.stop="manualRefresh" 
-            :disabled="loading"
-            class="ml-2 p-1 text-white bg-blue-500 flex items-center hover:bg-blue-600 transition-colors rounded"
-            title="Ma'lumotlarni yangilash"
+              @click.stop="manualRefresh" 
+              :disabled="loading"
+              class="ml-2 p-1 text-white bg-blue-500 flex items-center hover:bg-blue-600 transition-colors rounded"
+              title="Ma'lumotlarni yangilash"
             >
               <i :class="{ 'bx-spin': loading }" class='bx bx-refresh text-[16px]'></i>
             </button>
@@ -178,10 +178,10 @@
       <template v-else>
         <button 
           @click="showTechnicalModal('revision')" 
-          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :disabled="isTechnicalRevisionDisabled"
           :class="{
-            'bg-[#4A51DD] hover:bg-[#46497d]': canAccessTechnical && hasTechnicalDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+            'bg-[#4A51DD] hover:bg-[#46497d]': !isTechnicalRevisionDisabled,
+            'bg-gray-300 cursor-not-allowed': isTechnicalRevisionDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -190,10 +190,10 @@
         </button>
         <button 
           @click="showTechnicalModal('comment')"
-          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :disabled="isTechnicalCommentDisabled"
           :class="{
-            'bg-[#FD5656] hover:bg-[#c57575]': canAccessTechnical && hasTechnicalDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+            'bg-[#FD5656] hover:bg-[#c57575]': !isTechnicalCommentDisabled,
+            'bg-gray-300 cursor-not-allowed': isTechnicalCommentDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -202,10 +202,10 @@
         </button>
         <button 
           @click="showTechnicalModal('approve')"
-          :disabled="!canAccessTechnical || !hasTechnicalDocuments"
+          :disabled="isTechnicalApproveDisabled"
           :class="{
-            'bg-[#07A920] hover:bg-[#62a962]': canAccessTechnical && hasTechnicalDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessTechnical || !hasTechnicalDocuments
+            'bg-[#07A920] hover:bg-[#62a962]': !isTechnicalApproveDisabled,
+            'bg-gray-300 cursor-not-allowed': isTechnicalApproveDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -315,10 +315,10 @@
       <template v-else>
         <button 
           @click="showLBXModal('revision')" 
-          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :disabled="isLBXRevisionDisabled"
           :class="{
-            'bg-[#4A51DD] hover:bg-[#46497d]': canAccessLBX && hasLBXDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+            'bg-[#4A51DD] hover:bg-[#46497d]': !isLBXRevisionDisabled,
+            'bg-gray-300 cursor-not-allowed': isLBXRevisionDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -327,10 +327,10 @@
         </button>
         <button 
           @click="showLBXModal('comment')"
-          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :disabled="isLBXCommentDisabled"
           :class="{
-            'bg-[#FD5656] hover:bg-[#c57575]': canAccessLBX && hasLBXDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+            'bg-[#FD5656] hover:bg-[#c57575]': !isLBXCommentDisabled,
+            'bg-gray-300 cursor-not-allowed': isLBXCommentDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -339,10 +339,10 @@
         </button>
         <button 
           @click="showLBXModal('approve')"
-          :disabled="!canAccessLBX || !hasLBXDocuments"
+          :disabled="isLBXApproveDisabled"
           :class="{
-            'bg-[#07A920] hover:bg-[#62a962]': canAccessLBX && hasLBXDocuments,
-            'bg-gray-300 cursor-not-allowed': !canAccessLBX || !hasLBXDocuments
+            'bg-[#07A920] hover:bg-[#62a962]': !isLBXApproveDisabled,
+            'bg-gray-300 cursor-not-allowed': isLBXApproveDisabled
           }"
           class="text-white px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1"
         >
@@ -1479,6 +1479,117 @@ const lbxModalConfig = computed(() => {
   return configs[lbxModalType.value] || configs.revision;
 });
 
+
+// Konsepsiya button disable logic
+const isConceptionRevisionDisabled = computed(() => {
+  if (!hasProjectConceptDocuments.value || filteredConceptionDocuments.value.length === 0) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
+  if (!projectDoc) return false;
+  
+  // REJECTED bo'lsa, revision va approve disabled
+  if (projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
+
+const isConceptionCommentDisabled = computed(() => {
+  if (!hasProjectConceptDocuments.value || filteredConceptionDocuments.value.length === 0) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
+  if (!projectDoc) return false;
+  
+  // RESOLVED bo'lsa, comment va approve disabled
+  if (projectDoc.status === 'RESOLVED') return true;
+  
+  return false;
+});
+
+const isConceptionApproveDisabled = computed(() => {
+  if (!hasProjectConceptDocuments.value || filteredConceptionDocuments.value.length === 0) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_CONCEPT;
+  if (!projectDoc) return false;
+  
+  // RESOLVED yoki REJECTED bo'lsa, approve disabled
+  if (projectDoc.status === 'RESOLVED' || projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
+
+// Technical uchun
+const isTechnicalRevisionDisabled = computed(() => {
+  if (!canAccessTechnical.value || !hasTechnicalDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_TS;
+  if (!projectDoc) return false;
+  
+  // REJECTED bo'lsa, revision va approve disabled
+  if (projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
+
+const isTechnicalCommentDisabled = computed(() => {
+  if (!canAccessTechnical.value || !hasTechnicalDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_TS;
+  if (!projectDoc) return false;
+  
+  // RESOLVED bo'lsa, comment va approve disabled
+  if (projectDoc.status === 'RESOLVED') return true;
+  
+  return false;
+});
+
+const isTechnicalApproveDisabled = computed(() => {
+  if (!canAccessTechnical.value || !hasTechnicalDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_TS;
+  if (!projectDoc) return false;
+  
+  // RESOLVED yoki REJECTED bo'lsa, approve disabled
+  if (projectDoc.status === 'RESOLVED' || projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
+
+// LBX uchun
+const isLBXRevisionDisabled = computed(() => {
+  if (!canAccessLBX.value || !hasLBXDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
+  if (!projectDoc) return false;
+  
+  // REJECTED bo'lsa, revision va approve disabled
+  if (projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
+
+const isLBXCommentDisabled = computed(() => {
+  if (!canAccessLBX.value || !hasLBXDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
+  if (!projectDoc) return false;
+  
+  // RESOLVED bo'lsa, comment va approve disabled
+  if (projectDoc.status === 'RESOLVED') return true;
+  
+  return false;
+});
+
+const isLBXApproveDisabled = computed(() => {
+  if (!canAccessLBX.value || !hasLBXDocuments.value) return true;
+  
+  const projectDoc = projectData.value?.project_documents?.PROJECT_EVALUATION_DOCUMENT;
+  if (!projectDoc) return false;
+  
+  // RESOLVED yoki REJECTED bo'lsa, approve disabled
+  if (projectDoc.status === 'RESOLVED' || projectDoc.status === 'REJECTED') return true;
+  
+  return false;
+});
 // 4. LBX submit funktsiyasini to'g'rilash
 const handleSubmitLBXModal = async () => {
   if (!lbxFormData.answare || !lbxFormData.answare.trim()) {
