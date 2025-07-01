@@ -28,8 +28,8 @@
               <div class=" w-[10px] h-[10px] rounded-full"
               :class="{
                   'bg-red-500': el.status === 'REJECTED',
-                  'bg-blue-500': el.status === 'RESOLVED',
-                  'bg-green-500': el.status === 'ACCEPTED'
+                  'bg-yellow-500': el.status === 'RESOLVED',
+                  'bg-gray-400': el.status === 'ACCEPTED'
               }">
               </div>
         </div>
