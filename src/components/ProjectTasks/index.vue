@@ -70,6 +70,8 @@
                   </p>
                 </div>
                 <div v-if="project.status === 'NEW'" class="w-[10px] h-[10px] rounded-full bg-green-600 float-right"></div>
+                <div v-else-if="project.status === 'RESOLVED'" class="w-[10px] h-[10px] rounded-full bg-blue-500 float-right"></div>
+                <div v-else-if="project.status === 'REJECTED'" class="w-[10px] h-[10px] rounded-full bg-red-500 float-right"></div>
               </div>
             </div>
           </div>
