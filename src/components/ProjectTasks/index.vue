@@ -55,8 +55,8 @@
                 @click="saveToLocalStorage(project, organization.name)"
                 class="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0"
                 :class="{
-                  'bg-blue-50 border-l-4 border-l-blue-500': selectedProject && selectedProject.id === project.id,
-                  'bg-blue-200': project.status === 'NEW'
+                  'bg-white border-l-4 border-l-blue-500': selectedProject && selectedProject.id === project.id,
+                  'bg-white': project.status === 'NEW'
                 }"
               >
                 <div class="flex-shrink-0">
