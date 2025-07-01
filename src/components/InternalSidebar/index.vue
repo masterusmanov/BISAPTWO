@@ -29,8 +29,8 @@
               :class="{
                   'bg-red-500': el.status === 'REJECTED',
                   'bg-yellow-500': el.status === 'RESOLVED',
-                  'bg-gray-400': el.status === 'ACCEPTED'
-              }">
+                  'bg-blue-500': el.status === 'ACCEPTED' && el.is_approved !== true,
+                  'bg-gray-400': el.is_approved === true}">
               </div>
         </div>
     </div>
