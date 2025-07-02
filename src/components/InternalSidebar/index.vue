@@ -29,6 +29,7 @@
               <div class=" w-[10px] h-[10px] rounded-full"
               :class="{
                   'bg-red-500': el.status === 'REJECTED',
+                  'bg-purple-500': el.status === 'TO_REVIEW',
                   'bg-yellow-500': el.status === 'RESOLVED',
                   'bg-blue-500': el.status === 'ACCEPTED' && el.is_approved !== true,
                   'bg-gray-400': el.is_approved === true}">
