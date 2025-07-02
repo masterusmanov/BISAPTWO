@@ -537,10 +537,10 @@
         <div 
           v-for="(file, index) in getCurrentSectionData(currentSection).files" 
           :key="file.id || index"
-          class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-100 hover:border-blue-200 transition-all"
+          class="flex items-center justify-between bg-gray-200 rounded-lg  border border-gray-100 hover:border-blue-200 transition-all"
         >
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-blue-500 text-white border border-blue-500 rounded-lg flex items-center justify-center font-bold text-sm">
+            <div class="w-7 h-10 bg-blue-500 text-white border border-blue-500 rounded-lg flex items-center justify-center font-bold text-sm">
               {{ index + 1 }}
             </div>
             <div>
@@ -553,12 +553,12 @@
           </div>
           <button 
             @click="downloadProjectFile(file.fileUrl, file.fileName)"
-            class="px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700"
+            class="px-4 py-2 rounded-lg text-[12px] transition-colors flex items-center space-x-2 "
             :disabled="!file.fileUrl"
             :class="{ 'bg-gray-200 cursor-not-allowed text-gray-500': !file.fileUrl }"
           >
-            <span>Yuklab olish</span>
-            <i class='bx bx-download text-lg'></i>
+            <span class="bg-white p-2 rounded-sm">Faylni yuklash</span>
+            <i class='bx bx-download text-sm rounded-full p-2 text-green-500 bg-white'></i>
           </button>
         </div>
       </div>
