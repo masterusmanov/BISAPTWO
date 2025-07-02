@@ -107,6 +107,7 @@ const loginUser = ()=> {
 
       sessionStorage.setItem('token', res?.data?.data?.token);
       sessionStorage.setItem('userRole', res?.data?.data?.role);
+      sessionStorage.setItem('userId', res?.data?.data?.user_id);
       sessionStorage.setItem("moderator", JSON.stringify(res?.data?.data));
     
       if (res?.data?.data?.role === 'ADMIN') {

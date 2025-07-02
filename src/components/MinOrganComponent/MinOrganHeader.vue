@@ -20,75 +20,95 @@
         
          <div>
             <form @submit.prevent="login">
-                <!-- Minorgan Select Field -->
-                <div class="mb-4 px-8 pt-8">
-                    <label class="block mb-2 text-sm font-bold text-gray-700" for="minorgan_select">
-                      {{ $t('minorgan') }}
-                    </label>
-                    <div class="relative">
-                      <!-- Custom Select Dropdown -->
-                      <div class="relative">
-                        <button
-                          type="button"
-                          @click="toggleDropdown"
-                          class="w-full px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-left bg-white flex items-center justify-between"
-                          :class="{ 'border-blue-500 ring-2 ring-blue-500': isDropdownOpen }"
-                        >
-                          <span :class="{ 'text-gray-500': !selectedMinorgan }">
-                            {{ selectedMinorgan ? getLocalizedName(selectedMinorgan) : $t('minorgan') }}
-                          </span>
-                          <svg 
-                            class="w-5 h-5 text-gray-400 transition-transform duration-200"
-                            :class="{ 'rotate-180': isDropdownOpen }"
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                          </svg>
-                        </button>
+                <!-- Minorgan Select Field - Searchable versiyasi -->
+<div class="mb-4 px-8 pt-8">
+  <label class="block mb-2 text-sm font-bold text-gray-700" for="minorgan_select">
+    {{ $t('minorgan') }}
+  </label>
+  <div class="relative">
+    <!-- Searchable Input with Dropdown -->
+    <div class="relative">
+      <!-- Input field with search -->
+      <input
+        ref="searchInput"
+        v-model="searchQuery"
+        @focus="openDropdown"
+        @blur="handleBlur"
+        @input="handleInput"
+        type="text"
+        class="w-full px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+        :class="{ 'border-blue-500 ring-2 ring-blue-500': isDropdownOpen }"
+        :placeholder="selectedMinorgan ? getLocalizedName(selectedMinorgan) : $t('minorgan')"
+      />
+      
+      <!-- Dropdown arrow -->
+      <div 
+        @click="toggleDropdown"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+      >
+        <svg 
+          class="w-5 h-5 text-gray-400 transition-transform duration-200"
+          :class="{ 'rotate-180': isDropdownOpen }"
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
 
-                        <!-- Dropdown Menu -->
-                        <div 
-                          v-if="isDropdownOpen" 
-                          class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
-                        >
-                          <!-- Loading -->
-                          <div v-if="loading" class="px-4 py-3 text-sm text-gray-500 flex items-center">
-                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            {{$t('loading')}}
-                          </div>
+      <!-- Clear button -->
+      <div 
+        v-if="selectedMinorgan || searchQuery"
+        @click="clearSelection"
+        class="absolute inset-y-0 right-8 flex items-center pr-3 cursor-pointer hover:text-red-500"
+      >
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
 
-                          <!-- Error Message -->
-                          <div v-else-if="error" class="px-4 py-3 text-sm text-red-600 bg-red-50">
-                            {{ error }}
-                          </div>
+      <!-- Dropdown Menu -->
+      <div 
+        v-if="isDropdownOpen" 
+        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+      >
+        <!-- Loading -->
+        <div v-if="loading" class="px-4 py-3 text-sm text-gray-500 flex items-center">
+          <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{$t('loading')}}
+        </div>
 
-                          <!-- Options -->
-                          <div v-else-if="minorganList.length > 0" class="py-1">
-                            <button
-                              v-for="item in minorganList"
-                              :key="item.id"
-                              type="button"
-                              @click="selectMinorgan(item)"
-                              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:bg-blue-50"
-                              :class="{ 'bg-blue-100 text-blue-700': selectedMinorgan && selectedMinorgan.id === item.id }"
-                            >
-                              {{ getLocalizedName(item) }}
-                            </button>
-                          </div>
+        <!-- Error Message -->
+        <div v-else-if="error" class="px-4 py-3 text-sm text-red-600 bg-red-50">
+          {{ error }}
+        </div>
 
-                          <!-- No Data -->
-                          <div v-else class="px-4 py-3 text-sm text-gray-500">
-                            {{$t('no_data_found')}}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                </div>
+        <!-- Options -->
+        <div v-else-if="filteredMinorganList.length > 0" class="py-1">
+          <button
+            v-for="item in filteredMinorganList"
+            :key="item.id"
+            type="button"
+            @mousedown="selectMinorgan(item)"
+            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:bg-blue-50"
+            :class="{ 'bg-blue-100 text-blue-700': selectedMinorgan && selectedMinorgan.id === item.id }"
+          >
+            {{ getLocalizedName(item) }}
+          </button>
+        </div>
+
+        <!-- No Data -->
+        <div v-else class="px-4 py-3 text-sm text-gray-500">
+          {{$t('no_data_found')}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
                 <!-- Email va Password Fields -->
                 <div class="flex items-center justify-between px-8 pb-8 space-x-[16px]">
@@ -175,6 +195,39 @@ const openmodal = ref(false)
 const isDropdownOpen = ref(false)
 const loading = ref(false)
 const error = ref('')
+const searchQuery = ref('')
+const searchInput = ref(null)
+
+
+const generateTestData = () => {
+  return [
+    { id: 1, uz: "Iqtisodiyot va moliya vazirligi", oz: "Iqtisodiyot va moliya vazirligi", ru: "Министерство экономики и финансов", eng: "Ministry of Economy and Finance" },
+    { id: 2, uz: "Transport vazirligi", oz: "Transport vazirligi", ru: "Министерство транспорта", eng: "Ministry of Transport" },
+    { id: 3, uz: "Oliy ta'lim, fan va innovatsiyalar vazirligi", oz: "Oliy ta'lim, fan va innovatsiyalar vazirligi", ru: "Министерство высшего образования, науки и инноваций", eng: "Ministry of Higher Education, Science and Innovation" },
+    { id: 4, uz: "Maktabgacha va maktab ta'limi vazirligi", oz: "Maktabgacha va maktab ta'limi vazirligi", ru: "Министерство дошкольного и школьного образования", eng: "Ministry of Preschool and School Education" },
+    { id: 5, uz: "Sog'liqni saqlash vazirligi", oz: "Sog'liqni saqlash vazirligi", ru: "Министерство здравоохранения", eng: "Ministry of Health" },
+    { id: 6, uz: "Raqamli texnologiyalar vazirligi", oz: "Raqamli texnologiyalar vazirligi", ru: "Министерство цифровых технологий", eng: "Ministry of Digital Technologies" },
+    { id: 7, uz: "Qurilish va uy-joy kommunal xo'jaligi vazirligi", oz: "Qurilish va uy-joy kommunal xo'jaligi vazirligi", ru: "Министерство строительства и жилищно-коммунального хозяйства", eng: "Ministry of Construction and Housing and Communal Services" },
+    { id: 8, uz: "Qishloq xo'jaligi vazirligi", oz: "Qishloq xo'jaligi vazirligi", ru: "Министерство сельского хозяйства", eng: "Ministry of Agriculture" },
+    { id: 9, uz: "Suv xo'jaligi vazirligi", oz: "Suv xo'jaligi vazirligi", ru: "Министерство водного хозяйства", eng: "Ministry of Water Resources" },
+    { id: 10, uz: "Energetika vazirligi", oz: "Energetika vazirligi", ru: "Министерство энергетики", eng: "Ministry of Energy" },
+    { id: 11, uz: "Ekologiya, atrof-muhitni muhofaza qilish va iqlim o'zgarishi vazirligi", oz: "Ekologiya, atrof-muhitni muhofaza qilish va iqlim o'zgarishi vazirligi", ru: "Министерство экологии, охраны окружающей среды и изменения климата", eng: "Ministry of Ecology, Environmental Protection and Climate Change" },
+    { id: 12, uz: "Tog'-kon sanoati va geologiya vazirligi", oz: "Tog'-kon sanoati va geologiya vazirligi", ru: "Министерство горнодобывающей промышленности и геологии", eng: "Ministry of Mining Industry and Geology" },
+    { id: 13, uz: "O'rmon xo'jaligi agentligi", oz: "O'rmon xo'jaligi agentligi", ru: "Агентство лесного хозяйства", eng: "Forestry Agency" },
+    { id: 14, uz: "Veterinariya va chorvachilikni rivojlantirish davlat qo'mitasi", oz: "Veterinariya va chorvachilikni rivojlantirish davlat qo'mitasi", ru: "Государственный комитет по развитию ветеринарии и животноводства", eng: "State Committee for Veterinary Development and Livestock" },
+    { id: 15, uz: "Farmatsevtika tarmog'ini rivojlantirish agentligi", oz: "Farmatsevtika tarmog'ini rivojlantirish agentligi", ru: "Агентство развития фармацевтической отрасли", eng: "Pharmaceutical Industry Development Agency" },
+    { id: 16, uz: "Gidrometeorologiya xizmati agentligi", oz: "Gidrometeorologiya xizmati agentligi", ru: "Агентство гидрометеорологической службы", eng: "Hydrometeorological Service Agency" },
+    { id: 17, uz: "Hududgazta'minot AJ", oz: "Hududgazta'minot AJ", ru: "АО Худудгазтаминот", eng: "Hududgaztaminot JSC" },
+    { id: 18, uz: "Issiqlik elektr stansiyalari AJ", oz: "Issiqlik elektr stansiyalari AJ", ru: "АО Тепловые электростанции", eng: "Thermal Power Plants JSC" },
+    { id: 19, uz: "O'zbekiston milliy elektr tarmoqlari AJ", oz: "O'zbekiston milliy elektr tarmoqlari AJ", ru: "АО Национальные электрические сети Узбекистана", eng: "National Electric Networks of Uzbekistan JSC" },
+    { id: 20, uz: "O'zbekgidroenergo AJ", oz: "O'zbekgidroenergo AJ", ru: "АО Узбекгидроэнерго", eng: "Uzbekhydroenergo JSC" },
+    { id: 21, uz: "Hududiy elektr tarmoqlari AJ", oz: "Hududiy elektr tarmoqlari AJ", ru: "АО Региональные электрические сети", eng: "Regional Electric Networks JSC" },
+    { id: 22, uz: "O'zbekiston temir yo'llari AJ", oz: "O'zbekiston temir yo'llari AJ", ru: "АО Узбекские железные дороги", eng: "Uzbekistan Railways JSC" },
+    { id: 23, uz: "O'zsuvta'minot AJ", oz: "O'zsuvta'minot AJ", ru: "АО Узсувтаминот", eng: "Uzsuvtaminot JSC" },
+    { id: 24, uz: "Avtomobil yo'llari qo'mitasi", oz: "Avtomobil yo'llari qo'mitasi", ru: "Комитет автомобильных дорог", eng: "Road Committee" }
+  ]
+}
+
 
 // Form data
 const selectedMinorgan = ref(null)
@@ -232,6 +285,47 @@ const getLocalizedName = (item) => {
   return `${$t('organization')} ${item.id}`
 }
 
+// Qidiruv uchun computed property
+const filteredMinorganList = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return minorganList.value
+  }
+  
+  const query = searchQuery.value.toLowerCase().trim()
+  return minorganList.value.filter(item => {
+    const localizedName = getLocalizedName(item).toLowerCase()
+    return localizedName.includes(query)
+  })
+})
+
+// Yangi metodlar
+const openDropdown = () => {
+  isDropdownOpen.value = true
+  if (minorganList.value.length === 0) {
+    fetchMinorganData()
+  }
+}
+
+const handleBlur = () => {
+  // Timeout qo'yamiz shunda foydalanuvchi option ni bosganda blur ishlamaydi
+  setTimeout(() => {
+    isDropdownOpen.value = false
+  }, 150)
+}
+
+const handleInput = () => {
+  if (!isDropdownOpen.value) {
+    isDropdownOpen.value = true
+  }
+}
+
+const clearSelection = () => {
+  selectedMinorgan.value = null
+  searchQuery.value = ''
+  searchInput.value?.focus()
+}
+
+
 // Modal functions
 const showModal = () => {
   openmodal.value = true
@@ -246,6 +340,7 @@ const closeModal = () => {
 
 const resetForm = () => {
   selectedMinorgan.value = null
+  searchQuery.value = ''
   email.value = ''
   password.value = ''
   error.value = ''
@@ -261,6 +356,7 @@ const toggleDropdown = () => {
 
 const selectMinorgan = (item) => {
   selectedMinorgan.value = item
+  searchQuery.value = getLocalizedName(item)
   isDropdownOpen.value = false
 }
 
@@ -268,6 +364,10 @@ const selectMinorgan = (item) => {
 const fetchMinorganData = async () => {
   loading.value = true
   error.value = ''
+  
+  // Avval test ma'lumotlarini yuklash
+  const testData = generateTestData()
+  minorganList.value = testData
   
   try {
     const response = await axios.get('https://shartnoma.miit.uz/api/api_directory', {
@@ -290,7 +390,8 @@ const fetchMinorganData = async () => {
       } else if (data.items && Array.isArray(data.items)) {
         data = data.items
       } else {
-        throw new Error('API dan noto\'g\'ri format qaytarildi')
+        console.warn('API dan noto\'g\'ri format qaytarildi, faqat test ma\'lumotlari ishlatiladi')
+        return
       }
     }
 
@@ -300,30 +401,38 @@ const fetchMinorganData = async () => {
       return id >= 29 && id <= 64
     })
 
-    // Ma'lumotlarni formatlash - barcha mumkin bo'lgan til variantlari
-    minorganList.value = filteredData.map(item => {
-      // Uz tilini olish
-      const uzName = item.name_uz || item.uz || item.name?.uz
-      
-      return {
-        id: item.id,
-        // To'liq til variantlari
-        uz: uzName,
-        oz: item.name_oz || item.oz || item.name?.oz || uzName, // agar oz bo'lmasa uz dan foydalanish
-        ru: item.name_ru || item.ru || item.name?.ru,
-        eng: item.name_eng || item.eng || item.name?.eng || item.name?.en,
-        en: item.name_en || item.en || item.name?.en,
-        // Boshqa mumkin bo'lgan formatlar
-        name: item.name,
-        title: item.title,
-        label: item.label
-      }
-    })
+    if (filteredData.length > 0) {
+      // Ma'lumotlarni formatlash
+      const apiData = filteredData.map(item => {
+        const uzName = item.name_uz || item.uz || item.name?.uz
+        
+        return {
+          id: item.id,
+          uz: uzName,
+          oz: item.name_oz || item.oz || item.name?.oz || uzName,
+          ru: item.name_ru || item.ru || item.name?.ru,
+          eng: item.name_eng || item.eng || item.name?.eng || item.name?.en,
+          en: item.name_en || item.en || item.name?.en,
+          name: item.name,
+          title: item.title,
+          label: item.label
+        }
+      })
 
-    // Test ma'lumotlarini ishlatish agar API dan ma'lumot kelmasa
-    if (minorganList.value.length === 0) {
-      minorganList.value = generateTestData()
-      console.warn('API dan ma\'lumot topilmadi, test ma\'lumotlari ishlatilmoqda')
+      // Test ma'lumotlari + API ma'lumotlarini birlashtirish
+      const allData = [...testData, ...apiData]
+      
+      // Dublikatlarni olib tashlash (ID bo'yicha)
+      const uniqueData = allData.filter((item, index, self) => 
+        index === self.findIndex(t => t.id === item.id)
+      )
+      
+      // ID bo'yicha tartiblash
+      minorganList.value = uniqueData.sort((a, b) => a.id - b.id)
+      
+      console.log('API va test ma\'lumotlari birlashtirildi')
+    } else {
+      console.warn('API dan ma\'lumot topilmadi, faqat test ma\'lumotlari ishlatilmoqda')
     }
 
   } catch (err) {
@@ -332,19 +441,17 @@ const fetchMinorganData = async () => {
     if (err.response) {
       error.value = `Server xatosi: ${err.response.status} - ${err.response.statusText}`
     } else if (err.request) {
-      error.value = $t('network_error')
+      error.value = 'Tarmoq xatosi'
     } else {
-      error.value = `${$t('error')}: ${err.message}`
+      error.value = `Xato: ${err.message}`
     }
 
-    // Test ma'lumotlarini ko'rsatish
-    minorganList.value = generateTestData()
+    console.warn('API xatosi tufayli faqat test ma\'lumotlari ishlatilmoqda')
     
   } finally {
     loading.value = false
   }
 }
-
 
 // Form submission
 const login = async () => {
@@ -356,15 +463,17 @@ const login = async () => {
   loading.value = true
   
   try {
+    const organizationName = getLocalizedName(selectedMinorgan.value)
     console.log('Forma ma\'lumotlari:', {
       organizations_id: selectedMinorgan.value.id,
-      minorgan_name: getLocalizedName(selectedMinorgan.value),
+      organizations_name: organizationName,
       email: email.value,
       password: password.value
     })
 
     const response = await axios.post('https://back.miit.uz/api/bisap/test/user/create', {
       organizations_id: selectedMinorgan.value.id,
+      organizations_name: organizationName,
       email: email.value,
       password: password.value,
       role: 'USER'

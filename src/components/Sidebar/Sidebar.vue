@@ -45,7 +45,7 @@ import { ref, onMounted } from "vue";
 import { getNavLinks } from "../../constants/navLinks";
 
 const navlink = ref([]);
-const isCollapsed = ref(false);
+const isCollapsed = ref(true);
 
 // Sidebar holatini localStorage'da saqlash
 const toggleSidebar = () => {

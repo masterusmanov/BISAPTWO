@@ -66,7 +66,8 @@
                 Yuklanmoqda...
               </span>
               <span v-else>
-                {{ getOrganizationName(item.organizations_id) }}
+                <!-- {{ getOrganizationName(item.organizations_id) }} -->
+                {{ item.organizations_name }}
               </span>
             </td>
             <td class="px-4 py-3 text-sm text-blue-600">

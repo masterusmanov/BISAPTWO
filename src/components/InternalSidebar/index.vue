@@ -19,7 +19,8 @@
                 <img :src="gerb" alt="Gerb" class="w-full h-full object-contain">
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-[12px] font-bold truncate">{{ getLocalizedName(minorganListwo[0]) }}</p>
+                <!-- <p class="text-[12px] font-bold truncate">{{ getLocalizedName(minorganListwo[0]) }}</p> -->
+                <p class="text-[12px] font-bold truncate">{{ el.organizations_name }}</p>
                 <p class="font-bold text-[10px] truncate">
                   {{$t('ministry.project')}}: 
                   <span class="font-normal">{{$t(`${el.name}`)}}</span>
@@ -154,7 +155,7 @@
         <p class="w-[8px] h-[8px] rounded-full bg-green-500 float-right"></p>
       </div>
       <div>
-        <p class="text-justify font-bold">{{ getLocalizedName(minorganListwo[0]) }}</p>
+        <p class="text-justify font-bold">{{ selectedProject.organizations_name }}</p>
         <p class="text-sm"><strong>{{$t('ministry.project')}}:</strong> {{ selectedProject.name }}</p>
       </div>
     </div>

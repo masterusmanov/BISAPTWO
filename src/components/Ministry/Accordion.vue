@@ -64,7 +64,7 @@
                 }"
                 class="w-8 h-16 text-white rounded-l flex items-center justify-center font-bold text-sm transition-colors"
               >
-                {{ index + 2 }}
+                {{ index + 1 }}
               </div>
               <div>
                 <p class="text-sm text-gray-700">{{ formatDate(new Date()) }}</p>

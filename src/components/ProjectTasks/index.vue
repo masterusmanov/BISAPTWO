@@ -96,7 +96,7 @@
           <p class="w-[8px] h-[8px] rounded-full bg-green-500 float-right"></p>
         </div>
         <div class="space-y-2">
-          <p class="text-sm font-[700]">{{ selectedProject.organizationName }}</p>
+          <p class="text-sm font-[700]">{{ selectedProject.organizations_name }}</p>
           <p class="text-sm"><strong>{{$t('ministry.project')}}:</strong> {{ selectedProject.name }}</p>
           <p class="text-xs text-gray-500">Project ID: {{ selectedProject.id }}</p>
         </div>
@@ -181,7 +181,7 @@ const groupProjectsByOrganization = () => {
   projectsList.value.forEach(project => {
     if (project.organizations_id) {
       const orgId = project.organizations_id
-      const orgName = getOrgName(orgId)
+      const orgName = project.organizations_name || getOrgName(orgId)
       
       if (!grouped.has(orgId)) {
         grouped.set(orgId, {
@@ -210,7 +210,7 @@ const filterProjectsBySearch = () => {
   projectsList.value.forEach(project => {
     if (project.organizations_id) {
       const orgId = project.organizations_id
-      const orgName = getOrgName(orgId)
+      const orgName = project.organizations_name || getOrgName(orgId)
       
       // Tashkilot nomi yoki loyiha nomi bo'yicha qidirish
       const matchesOrganization = orgName.toLowerCase().includes(searchQuery.value.toLowerCase())
