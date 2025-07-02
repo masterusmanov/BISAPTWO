@@ -37,16 +37,17 @@
             <div class="flex items-center space-x-2">
               <!-- <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div> -->
                <div class="flex items-center space-x-2">
-  <!-- <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div> -->
-  <div 
-    class="w-[8px] h-[8px] rounded-full transition-colors duration-300"
-    :class="getOrganizationIndicatorColor(organization.projects)"
-  ></div>
-  <!-- <i 
-    class='bx text-lg text-gray-600 transition-transform duration-200'
-    :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
-  ></i> -->
-</div>
+                <!-- <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div> -->
+              <div 
+                class="w-[8px] h-[8px] rounded-full transition-colors duration-300"
+                :class="getOrganizationIndicatorColor(organization.projects)"
+                :title="getDominantStatusText(organization.projects)"
+              ></div>
+                <!-- <i 
+                  class='bx text-lg text-gray-600 transition-transform duration-200'
+                  :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
+                ></i> -->
+              </div>
               <i 
                 class='bx text-lg text-gray-600 transition-transform duration-200'
                 :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
@@ -175,10 +176,72 @@ const saveToLocalStorage = (selectItem, organizationName = null) => {
   console.log('selectedProject.value after setting:', selectedProject.value);
 }
 
-// Organization uchun indikator rangini hisoblash funksiyasi
+// Organization uchun indikator rangini hisoblash funksiyasi (eng ko'p status bo'yicha)
 const getOrganizationIndicatorColor = (projects) => {
   if (!projects || projects.length === 0) {
     return 'bg-gray-400'
+  }
+  
+  const statusCounts = {
+    NEW: 0,
+    RESOLVED: 0,
+    TO_REVIEW: 0,
+    REJECTED: 0,
+    ACCEPTED: 0,
+    APPROVED: 0
+  }
+  
+  // Statuslarni sanash
+  projects.forEach(project => {
+    if (project.is_approved === true) {
+      statusCounts.APPROVED++
+    } else if (project.status === 'NEW') {
+      statusCounts.NEW++
+    } else if (project.status === 'RESOLVED') {
+      statusCounts.RESOLVED++
+    } else if (project.status === 'TO_REVIEW') {
+      statusCounts.TO_REVIEW++
+    } else if (project.status === 'REJECTED') {
+      statusCounts.REJECTED++
+    } else if (project.status === 'ACCEPTED') {
+      statusCounts.ACCEPTED++
+    }
+  })
+  
+  // Eng ko'p statusni topish
+  let maxCount = 0
+  let dominantStatus = 'APPROVED'
+  
+  Object.entries(statusCounts).forEach(([status, count]) => {
+    if (count > maxCount) {
+      maxCount = count
+      dominantStatus = status
+    }
+  })
+  
+  // Eng ko'p statusga mos rang qaytarish
+  switch (dominantStatus) {
+    case 'NEW':
+      return 'bg-green-500'
+    case 'RESOLVED':
+      return 'bg-yellow-500'
+    case 'TO_REVIEW':
+      return 'bg-purple-500'
+    case 'REJECTED':
+      return 'bg-red-500'
+    case 'ACCEPTED':
+      return 'bg-blue-500'
+    case 'APPROVED':
+      return 'bg-gray-400'
+    default:
+      return 'bg-gray-300'
+  }
+}
+
+// Eng ko'p statusni matn ko'rinishida qaytarish
+const getDominantStatusText = (projects) => {
+  if (!projects || projects.length === 0) {
+    return 'Loyiha yo\'q'
   }
   
   const statusCounts = {
@@ -206,23 +269,27 @@ const getOrganizationIndicatorColor = (projects) => {
     }
   })
   
-  if (statusCounts.REJECTED > 0) {
-    return 'bg-red-500'
-  } else if (statusCounts.NEW > 0) {
-    return 'bg-green-500'
-  } else if (statusCounts.TO_REVIEW > 0) {
-    return 'bg-purple-500'
-  } else if (statusCounts.RESOLVED > 0) {
-    return 'bg-yellow-500'
-  } else if (statusCounts.ACCEPTED > 0) {
-    return 'bg-blue-500'
-  } else if (statusCounts.APPROVED > 0) {
-    return 'bg-gray-400'
-  } else {
-    return 'bg-gray-300'
+  let maxCount = 0
+  let dominantStatus = 'APPROVED'
+  
+  Object.entries(statusCounts).forEach(([status, count]) => {
+    if (count > maxCount) {
+      maxCount = count
+      dominantStatus = status
+    }
+  })
+  
+  const statusNames = {
+    NEW: 'Yangi',
+    RESOLVED: 'Hal qilingan',
+    TO_REVIEW: 'Ko\'rib chiqilmoqda',
+    REJECTED: 'Rad etilgan',
+    ACCEPTED: 'Qabul qilingan',
+    APPROVED: 'Tasdiqlangan'
   }
+  
+  return `${maxCount} ta ${statusNames[dominantStatus]}`
 }
-
 
 // Accordion funksiyalari
 const toggleOrganizationAccordion = (organizationId) => {
