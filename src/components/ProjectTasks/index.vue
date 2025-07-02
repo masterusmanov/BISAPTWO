@@ -50,7 +50,7 @@
           >
             <div class="max-h-60 overflow-y-auto" >
               <div 
-                v-for="project in organization.projects.slice().reverse()" 
+                v-for="project in organization.projects.slice()" 
                 :key="project.id" 
                 @click="saveToLocalStorage(project, organization.name)"
                 class="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0"
