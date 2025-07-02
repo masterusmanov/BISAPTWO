@@ -514,313 +514,240 @@
     <div class="max-h-[70vh] overflow-y-auto">
       <div class="space-y-2">
         
-        <!-- Dynamic content based on current section -->
-        <template v-if="getCurrentSectionData(currentSection).status">
-          
-          <!-- ==================== RESOLVED HOLATI ==================== -->
-          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="flex items-center justify-between">
-            <div class="space-y-2 bg-gray-200 w-full p-4">
-              <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
-                <i class='bx bx-info-circle text-[18px] mr-1'></i>
-                Qayta ko'rib chiqish uchun
-              </p>
-              <p class="text-[12px] text-gray-500 font-semibold">
+ 
+  <!-- ====================== USER YUBORGAN FAYLLAR BIRINCHI ====================== -->
+  
+  <!-- USER FILES SECTION - Foydalanuvchi yuborgan fayllar -->
+  <template v-if="getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0">
+    <!-- User files header -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+      <h3 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+        <i class='bx bx-file text-xl mr-2'></i>
+        Yuborilgan hujjatlar
+      </h3>
+      <p class="text-sm text-blue-600">
+        Sana: {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+        {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+      </p>
+    </div>
+
+    <!-- User files list -->
+    <div class="m-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div class="space-y-2">
+        <div 
+          v-for="(file, index) in getCurrentSectionData(currentSection).files" 
+          :key="file.id || index"
+          class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-100 hover:border-blue-200 transition-all"
+        >
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-500 text-white border border-blue-500 rounded-lg flex items-center justify-center font-bold text-sm">
+              {{ index + 1 }}
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">
                 {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
                 {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
               </p>
+              <p class="text-sm font-semibold text-gray-800">{{ file.fileName }}</p>
             </div>
           </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
-            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
-          </div>
-          
-          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
-              class="m-4 p-4 bg-blue-100 rounded-lg border border-blue-200">
-            <p class="text-sm font-semibold text-blue-800 mb-3 flex items-center">
-              <i class='bx bx-paperclip text-lg mr-2'></i>
-              Javob bilan biriktirilgan fayllar:
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div 
-                v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
-                :key="answerFile.id || idx"
-                class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
-                @click="downloadProjectFile(answerFile.url, answerFile.name)"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <i class='bx bxs-file-pdf text-blue-600 text-xl'></i>
-                    </div>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">
-                      {{ answerFile.name || `Fayl ${idx + 1}` }}
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      {{ answerFile.created_at?.slice(0, 10) || '' }}
-                    </p>
-                  </div>
-                  <div class="flex-shrink-0">
-                    <i class='bx bx-download text-blue-600 text-lg'></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> 
-          
-          <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 mt-[50px] p-4 bg-gray-50">
-            <div class="space-y-2">
-              <div 
-                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
-                :key="file.id || index"
-                class="flex items-center justify-between bg-gray-200 rounded p-1"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
-                      {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
-                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
-                  </div>
-                </div>
-                <button 
-                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
-                  :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
-                >
-                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white p-2 rounded-full text-green-500'></i>
-                </button>
-              </div>
-            </div>
-          </div> 
-          
-                
-
-          <!-- ==================== TO_REVIEW HOLATI (YANGI) ==================== -->
-          <div v-else-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
-            <div class="space-y-2 bg-gray-200 w-full p-4">
-              <p class="text-[14px] font-semibold text-[#4A51DD] flex items-center">
-                <i class='bx bx-refresh text-[18px] mr-1'></i>
-                Ko'rib chiqilmoqda
-              </p>
-              <p class="text-[12px] text-gray-500 font-semibold">
-                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
-                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
-              </p>
-            </div>
-          </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="m-4 mt-[50px] p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
-            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Ko\'rib chiqilmoqda...' }}</p>
-          </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
-            <div class="space-y-2">
-              <div 
-                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
-                :key="file.id || index"
-                class="flex items-center justify-between bg-gray-100 rounded p-1"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
-                      {{ file.createdAt?.slice(11, 16) }}</p>
-                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
-                  </div>
-                </div>
-                <button 
-                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
-                  :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
-                >
-                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                  <i class='bx bx-download text-[15px] bg-white hover:bg-gblue-500 hover:text-white p-2 rounded-full text-green-500'></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- ==================== REJECTED HOLATI ==================== -->
-          <div v-else-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="flex items-center justify-between">
-            <div class="space-y-2 bg-gray-200 w-full p-4">
-              <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
-                <i class='bx bx-info-circle text-[18px] mr-1'></i>
-                Izoh
-              </p>
-              <p class="text-[12px] text-gray-500 font-semibold">
-                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
-                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
-              </p>
-            </div>
-          </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="m-4 mt-[50px] p-4 bg-red-50 border-l-4 border-red-400 rounded">
-            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
-          </div>
-
-          <!-- REJECTED holati uchun (answer files ko'rsatish) -->
-          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
-              class="m-4 p-4 bg-red-100 rounded-lg border border-red-200">
-            <p class="text-[12px] font-semibold text-red-800 mb-3 flex items-center">
-              <i class='bx bx-paperclip text-lg mr-2'></i>
-              Javob bilan biriktirilgan fayllar:
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <div 
-                v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
-                :key="answerFile.id || idx"
-                class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
-                @click="downloadProjectFile(answerFile.url, answerFile.name)"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <i class='bx bxs-file-pdf text-red-600 text-xl'></i>
-                    </div>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">
-                      {{ answerFile.name || `Fayl ${idx + 1}` }}
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      {{ answerFile.created_at?.slice(0, 10) || '' }}
-                    </p>
-                  </div>
-                  <div class="flex-shrink-0">
-                    <i class='bx bx-download text-red-600 text-lg'></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
-           <div class="space-y-2">
-              <div 
-                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
-                :key="file.id || index"
-                class="flex items-center justify-between bg-gray-100 rounded p-1"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">{{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
-                      {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}</p>
-                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
-                  </div>
-                </div>
-                <button 
-                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
-                  :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
-                >
-                <span class="bg-white hover:bg-gray-100 p-2 rounded">Faylni yuklash</span>
-                <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white p-2 rounded-full text-green-500'></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          
-
-          <!-- ==================== ACCEPTED HOLATI ==================== -->
-          <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
-            <div class="space-y-2 bg-gray-200 w-full p-4">
-              <p class="text-[14px] font-semibold text-green-600 flex items-center">
-                <i class='bx bx-check-circle text-[18px] mr-1'></i>
-                Tasdiqlangan
-              </p>
-              <p class="text-[12px] text-gray-500 font-semibold">
-                {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
-                {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
-              </p>
-            </div>
-          </div>
-
-          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="m-4 mt-[50px] p-4 bg-green-50 border-l-4 border-green-400 rounded">
-            <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Tasdiqlandi' }}</p>
-          </div>
-          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
-          class="m-4 p-4 bg-green-100 rounded-lg border border-green-200">
-        <p class="text-sm font-semibold text-green-800 mb-3 flex items-center">
-          <i class='bx bx-paperclip text-lg mr-2'></i>
-          Javob bilan biriktirilgan fayllar:
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div 
-            v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
-            :key="answerFile.id || idx"
-            class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
-            @click="downloadProjectFile(answerFile.url, answerFile.name)"
+          <button 
+            @click="downloadProjectFile(file.fileUrl, file.fileName)"
+            class="px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700"
+            :disabled="!file.fileUrl"
+            :class="{ 'bg-gray-200 cursor-not-allowed text-gray-500': !file.fileUrl }"
           >
-            <div class="flex items-center space-x-3">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <i class='bx bxs-file-pdf text-green-600 text-xl'></i>
-                </div>
+            <span>Yuklab olish</span>
+            <i class='bx bx-download text-lg'></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ====================== STATUS VA JAVOB QISMI ====================== -->
+  
+  <!-- Dynamic content based on current section status -->
+  <template v-if="getCurrentSectionData(currentSection).status">
+    
+    <!-- ==================== RESOLVED HOLATI ==================== -->
+    <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="flex items-center justify-between">
+      <div class="space-y-2 bg-gray-200 w-full p-4">
+        <p class="text-[14px] font-semibold text-[#6DA1F8] flex items-center">
+          <i class='bx bx-info-circle text-[18px] mr-1'></i>
+          Qayta ko'rib chiqish uchun
+        </p>
+        <p class="text-[12px] text-gray-500 font-semibold">
+          {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+          {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+        </p>
+      </div>
+    </div>
+
+    <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED'" class="m-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+      <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
+    </div>
+    
+    <div v-if="getCurrentSectionData(currentSection).status === 'RESOLVED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+        class="m-4 p-4 bg-blue-100 rounded-lg border border-blue-200">
+      <p class="text-sm font-semibold text-blue-800 mb-3 flex items-center">
+        <i class='bx bx-paperclip text-lg mr-2'></i>
+        Javob bilan biriktirilgan fayllar:
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div 
+          v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+          :key="answerFile.id || idx"
+          class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+          @click="downloadProjectFile(answerFile.url, answerFile.name)"
+        >
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class='bx bxs-file-pdf text-blue-600 text-xl'></i>
               </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ answerFile.name || `Fayl ${idx + 1}` }}
-                </p>
-                <p class="text-xs text-gray-500">
-                  {{ answerFile.created_at?.slice(0, 10) || '' }}
-                </p>
-              </div>
-              <div class="flex-shrink-0">
-                <i class='bx bx-download text-green-600 text-lg'></i>
-              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ answerFile.name || `Fayl ${idx + 1}` }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ answerFile.created_at?.slice(0, 10) || '' }}
+              </p>
+            </div>
+            <div class="flex-shrink-0">
+              <i class='bx bx-download text-blue-600 text-lg'></i>
             </div>
           </div>
         </div>
-          </div>
+      </div>
+    </div>
+    
+    <!-- ==================== TO_REVIEW HOLATI ==================== -->
+    <div v-else-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="flex items-center justify-between">
+      <div class="space-y-2 bg-gray-200 w-full p-4">
+        <p class="text-[14px] font-semibold text-[#4A51DD] flex items-center">
+          <i class='bx bx-refresh text-[18px] mr-1'></i>
+          Ko'rib chiqilmoqda
+        </p>
+        <p class="text-[12px] text-gray-500 font-semibold">
+          {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+          {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+        </p>
+      </div>
+    </div>
 
-          <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).files && getCurrentSectionData(currentSection).files.length > 0" class="m-4 p-4 bg-gray-50 rounded">
-            <div class="space-y-2">
-              <div 
-                v-for="(file, index) in getCurrentSectionData(currentSection).files" 
-                :key="file.id || index"
-                class="flex items-center justify-between bg-gray-100 rounded p-1"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-10 bg-blue-500 text-white border border-blue-500 rounded flex items-center justify-center font-bold text-sm">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">{{ file.createdAt?.slice(0, 10) }} 
-                      {{ file.createdAt?.slice(11, 16) }}</p>
-                      <p class="text-sm font-semibold text-gray-700">{{ file.fileName }}</p>
-                  </div>
-                </div>
-                <button 
-                  @click="downloadProjectFile(file.fileUrl, file.fileName)"
-                  class="px-3 py-1 rounded text-[12px] transition-colors flex items-center space-x-1"
-                  :disabled="!file.fileUrl"
-                  :class="{ 'bg-gray-200 cursor-not-allowed': !file.fileUrl }"
-                >
-                  <span class="bg-white hover:bg-gray-100 p-2 rounded">Fayl yuklash</span>
-                  <i class='bx bx-download text-[15px] bg-white hover:bg-blue-500 hover:text-white rounded-full p-2 text-green-500'></i>
-                </button>
+    <div v-if="getCurrentSectionData(currentSection).status === 'TO_REVIEW'" class="m-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+      <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Ko\'rib chiqilmoqda...' }}</p>
+    </div>
+
+    <!-- ==================== REJECTED HOLATI ==================== -->
+    <div v-else-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="flex items-center justify-between">
+      <div class="space-y-2 bg-gray-200 w-full p-4">
+        <p class="text-[14px] font-semibold text-[#F60000] flex items-center">
+          <i class='bx bx-info-circle text-[18px] mr-1'></i>
+          Izoh
+        </p>
+        <p class="text-[12px] text-gray-500 font-semibold">
+          {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+          {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+        </p>
+      </div>
+    </div>
+
+    <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED'" class="m-4 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+      <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Izoh mavjud emas' }}</p>
+    </div>
+
+    <div v-if="getCurrentSectionData(currentSection).status === 'REJECTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+        class="m-4 p-4 bg-red-100 rounded-lg border border-red-200">
+      <p class="text-[12px] font-semibold text-red-800 mb-3 flex items-center">
+        <i class='bx bx-paperclip text-lg mr-2'></i>
+        Javob bilan biriktirilgan fayllar:
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div 
+          v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+          :key="answerFile.id || idx"
+          class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+          @click="downloadProjectFile(answerFile.url, answerFile.name)"
+        >
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <i class='bx bxs-file-pdf text-red-600 text-xl'></i>
               </div>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ answerFile.name || `Fayl ${idx + 1}` }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ answerFile.created_at?.slice(0, 10) || '' }}
+              </p>
+            </div>
+            <div class="flex-shrink-0">
+              <i class='bx bx-download text-red-600 text-lg'></i>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- ACCEPTED holati uchun (answer files ko'rsatish) -->
-      
-        </template>
+    <!-- ==================== ACCEPTED HOLATI ==================== -->
+    <div v-else-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="flex items-center justify-between">
+      <div class="space-y-2 bg-gray-200 w-full p-4">
+        <p class="text-[14px] font-semibold text-green-600 flex items-center">
+          <i class='bx bx-check-circle text-[18px] mr-1'></i>
+          Tasdiqlangan
+        </p>
+        <p class="text-[12px] text-gray-500 font-semibold">
+          {{ getCurrentSectionData(currentSection).createdAt.slice(0, 10) }} 
+          {{ getCurrentSectionData(currentSection).createdAt.slice(11, 16) }}
+        </p>
+      </div>
+    </div>
+
+    <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED'" class="m-4 p-4 bg-green-50 border-l-4 border-green-400 rounded">
+      <p class="text-justify">{{ getCurrentSectionData(currentSection).answer || 'Tasdiqlandi' }}</p>
+    </div>
+    
+    <div v-if="getCurrentSectionData(currentSection).status === 'ACCEPTED' && getCurrentSectionData(currentSection).answerFiles && getCurrentSectionData(currentSection).answerFiles.length > 0" 
+        class="m-4 p-4 bg-green-100 rounded-lg border border-green-200">
+      <p class="text-sm font-semibold text-green-800 mb-3 flex items-center">
+        <i class='bx bx-paperclip text-lg mr-2'></i>
+        Javob bilan biriktirilgan fayllar:
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div 
+          v-for="(answerFile, idx) in getCurrentSectionData(currentSection).answerFiles" 
+          :key="answerFile.id || idx"
+          class="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+          @click="downloadProjectFile(answerFile.url, answerFile.name)"
+        >
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <i class='bx bxs-file-pdf text-green-600 text-xl'></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ answerFile.name || `Fayl ${idx + 1}` }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ answerFile.created_at?.slice(0, 10) || '' }}
+              </p>
+            </div>
+            <div class="flex-shrink-0">
+              <i class='bx bx-download text-green-600 text-lg'></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </template>
 
         <!-- HISTORY SECTION SEPARATOR -->
     <div v-if="getHistoryData(currentSection).length > 0" class="border-t-2 border-gray-300 my-6">
