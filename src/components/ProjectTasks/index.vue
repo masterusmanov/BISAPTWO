@@ -177,64 +177,39 @@ const saveToLocalStorage = (selectItem, organizationName = null) => {
 }
 
 // Organization uchun indikator rangini hisoblash funksiyasi (eng ko'p status bo'yicha)
+// Organization uchun indikator rangini hisoblash funksiyasi (eng oxirgi status bo'yicha)
 const getOrganizationIndicatorColor = (projects) => {
   if (!projects || projects.length === 0) {
     return 'bg-gray-400'
   }
   
-  const statusCounts = {
-    NEW: 0,
-    RESOLVED: 0,
-    TO_REVIEW: 0,
-    REJECTED: 0,
-    ACCEPTED: 0,
-    APPROVED: 0
-  }
+  // Eng oxirgi loyihani topish (updated_at yoki created_at bo'yicha)
+  let latestProject = projects[0]
   
-  // Statuslarni sanash
   projects.forEach(project => {
-    if (project.is_approved === true) {
-      statusCounts.APPROVED++
-    } else if (project.status === 'NEW') {
-      statusCounts.NEW++
-    } else if (project.status === 'RESOLVED') {
-      statusCounts.RESOLVED++
-    } else if (project.status === 'TO_REVIEW') {
-      statusCounts.TO_REVIEW++
-    } else if (project.status === 'REJECTED') {
-      statusCounts.REJECTED++
-    } else if (project.status === 'ACCEPTED') {
-      statusCounts.ACCEPTED++
+    const currentDate = new Date(project.updated_at || project.created_at)
+    const latestDate = new Date(latestProject.updated_at || latestProject.created_at)
+    
+    if (currentDate > latestDate) {
+      latestProject = project
     }
   })
   
-  // Eng ko'p statusni topish
-  let maxCount = 0
-  let dominantStatus = 'APPROVED'
-  
-  Object.entries(statusCounts).forEach(([status, count]) => {
-    if (count > maxCount) {
-      maxCount = count
-      dominantStatus = status
-    }
-  })
-  
-  // Eng ko'p statusga mos rang qaytarish
-  switch (dominantStatus) {
-    case 'NEW':
-      return 'bg-green-500'
-    case 'RESOLVED':
-      return 'bg-yellow-500'
-    case 'TO_REVIEW':
-      return 'bg-purple-500'
-    case 'REJECTED':
-      return 'bg-red-500'
-    case 'ACCEPTED':
-      return 'bg-blue-500'
-    case 'APPROVED':
-      return 'bg-gray-400'
-    default:
-      return 'bg-gray-300'
+  // Eng oxirgi loyiha statusiga mos rang qaytarish
+  if (latestProject.is_approved === true) {
+    return 'bg-gray-400' // Tasdiqlangan
+  } else if (latestProject.status === 'NEW') {
+    return 'bg-green-500' // Yangi
+  } else if (latestProject.status === 'RESOLVED') {
+    return 'bg-yellow-500' // Hal qilingan
+  } else if (latestProject.status === 'TO_REVIEW') {
+    return 'bg-purple-500' // Ko'rib chiqilmoqda
+  } else if (latestProject.status === 'REJECTED') {
+    return 'bg-red-500' // Rad etilgan
+  } else if (latestProject.status === 'ACCEPTED') {
+    return 'bg-blue-500' // Qabul qilingan
+  } else {
+    return 'bg-gray-300' // Default
   }
 }
 
