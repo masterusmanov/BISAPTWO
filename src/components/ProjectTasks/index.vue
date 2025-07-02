@@ -35,7 +35,18 @@
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div>
+              <!-- <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div> -->
+               <div class="flex items-center space-x-2">
+  <!-- <div class="w-[8px] h-[8px] rounded-full bg-green-500"></div> -->
+  <div 
+    class="w-[8px] h-[8px] rounded-full transition-colors duration-300"
+    :class="getOrganizationIndicatorColor(organization.projects)"
+  ></div>
+  <!-- <i 
+    class='bx text-lg text-gray-600 transition-transform duration-200'
+    :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
+  ></i> -->
+</div>
               <i 
                 class='bx text-lg text-gray-600 transition-transform duration-200'
                 :class="openAccordions.includes(organization.id) ? 'bx-chevron-up' : 'bx-chevron-down'"
@@ -163,6 +174,55 @@ const saveToLocalStorage = (selectItem, organizationName = null) => {
   // Force reactivity update
   console.log('selectedProject.value after setting:', selectedProject.value);
 }
+
+// Organization uchun indikator rangini hisoblash funksiyasi
+const getOrganizationIndicatorColor = (projects) => {
+  if (!projects || projects.length === 0) {
+    return 'bg-gray-400'
+  }
+  
+  const statusCounts = {
+    NEW: 0,
+    RESOLVED: 0,
+    TO_REVIEW: 0,
+    REJECTED: 0,
+    ACCEPTED: 0,
+    APPROVED: 0
+  }
+  
+  projects.forEach(project => {
+    if (project.is_approved === true) {
+      statusCounts.APPROVED++
+    } else if (project.status === 'NEW') {
+      statusCounts.NEW++
+    } else if (project.status === 'RESOLVED') {
+      statusCounts.RESOLVED++
+    } else if (project.status === 'TO_REVIEW') {
+      statusCounts.TO_REVIEW++
+    } else if (project.status === 'REJECTED') {
+      statusCounts.REJECTED++
+    } else if (project.status === 'ACCEPTED') {
+      statusCounts.ACCEPTED++
+    }
+  })
+  
+  if (statusCounts.REJECTED > 0) {
+    return 'bg-red-500'
+  } else if (statusCounts.NEW > 0) {
+    return 'bg-green-500'
+  } else if (statusCounts.TO_REVIEW > 0) {
+    return 'bg-purple-500'
+  } else if (statusCounts.RESOLVED > 0) {
+    return 'bg-yellow-500'
+  } else if (statusCounts.ACCEPTED > 0) {
+    return 'bg-blue-500'
+  } else if (statusCounts.APPROVED > 0) {
+    return 'bg-gray-400'
+  } else {
+    return 'bg-gray-300'
+  }
+}
+
 
 // Accordion funksiyalari
 const toggleOrganizationAccordion = (organizationId) => {
