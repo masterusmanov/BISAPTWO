@@ -99,7 +99,6 @@
   
   const locales = {
     uz: "O'zbek",
-    oz: "Ўзбек",
     ru: "Русский",
     en: "English",
   };

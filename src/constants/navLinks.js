@@ -33,34 +33,34 @@ const allNavLinks = [
     icon: home,
     roles: ["MODERATOR"],
   },
-  {
-    id: 5,
-    title: "sidebar.metod",
-    link: "#",
-    icon: metod,
-    roles: ["USER"],
-  },
-  {
-    id: 6,
-    title: "sidebar.nhh",
-    link: "#",
-    icon: nhh,
-    roles: ["USER"],
-  },
-  {
-    id: 7,
-    title: "sidebar.report",
-    link: "#",
-    icon: report,
-    roles: ["USER"],
-  },
-  {
-    id: 8,
-    title: "sidebar.contact",
-    link: "#",
-    icon: contact,
-    roles: ["USER"],
-  },
+  // {
+  //   id: 5,
+  //   title: "sidebar.metod",
+  //   link: "#",
+  //   icon: metod,
+  //   roles: ["USER"],
+  // },
+  // {
+  //   id: 6,
+  //   title: "sidebar.nhh",
+  //   link: "#",
+  //   icon: nhh,
+  //   roles: ["USER"],
+  // },
+  // {
+  //   id: 7,
+  //   title: "sidebar.report",
+  //   link: "#",
+  //   icon: report,
+  //   roles: ["USER"],
+  // },
+  // {
+  //   id: 8,
+  //   title: "sidebar.contact",
+  //   link: "#",
+  //   icon: contact,
+  //   roles: ["USER"],
+  // },
 ];
 
 export const getNavLinks = () => {

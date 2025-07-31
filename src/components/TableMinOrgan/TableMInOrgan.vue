@@ -31,15 +31,15 @@
             </th>
             <th class="px-4 py-3 text-left font-medium">
               {{$t('tabmod.mail')}}
-              <svg class="inline ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <!-- <svg class="inline ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12l-5-5 1.41-1.41L10 9.17l3.59-3.58L15 7l-5 5z"/>
-              </svg>
+              </svg> -->
             </th>
             <th class="px-4 py-3 text-left font-medium">
               {{$t('tabmod.createDate')}}
-              <svg class="inline ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <!-- <svg class="inline ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12l-5-5 1.41-1.41L10 9.17l3.59-3.58L15 7l-5 5z"/>
-              </svg>
+              </svg> -->
             </th>
             <th class="px-4 py-3 text-left font-medium">{{$t('tabmod.action')}}</th>
           </tr>

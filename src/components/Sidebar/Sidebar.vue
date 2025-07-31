@@ -94,7 +94,15 @@ const downloadReport = async (type: string) => {
   try {
     const response = await axios.post(
       "https://back.miit.uz/api/bisap/test/project/export-excel",
-      { type }
+      { type },
+       {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        },
+        timeout: 30000, // 30 sekund timeout
+        // responseType: 'json' // Response turini aniq belgilang
+      }
     );
     const fileUrl = response.data?.data;
     if (fileUrl) {

@@ -93,9 +93,9 @@
             </div>
         </div>
         
-        <div class="h-full flex items-center px-[16px] border-l border-gray-300">
+        <!-- <div class="h-full flex items-center px-[16px] border-l border-gray-300">
             <i class='bx bx-menu text-[36px] text-gray-500'></i>
-        </div>
+        </div> -->
     </div>
                     <!-- Parol yangilash modal -->
 <div v-if="showPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
