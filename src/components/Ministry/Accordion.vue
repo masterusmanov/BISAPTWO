@@ -85,12 +85,12 @@
       >
         <div class="mb-4 w-full flex px-4 py-3 space-x-4">
           <input
-            v-model="docnumberconcep"
+            v-model="docDateData.docnumberconcep"
             type="text"
             class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             placeholder="Hujjat raqami №. . ."
           />
-          <input v-model="selectedDate" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
+          <input v-model="docDateData.selectedDate" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
         </div>
         <div class="space-y-2 px-4">
           <div
@@ -317,13 +317,14 @@
         v-show="openSections.technical && isTechnicalEnabled"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-      <div class="mb-4 w-full flex px-4 py-3">
+      <div class="mb-4 w-full flex px-4 py-3 space-x-4">
           <input
-            v-model="docnumbertech"
+            v-model="docDateDataTech.docnumberTech"
             type="text"
             class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             placeholder="Hujjat raqami №. . ."
           />
+          <input v-model="docDateDataTech.selectedDateTech" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
         </div>
         <div class="space-y-2 px-4">
           <div
@@ -552,6 +553,15 @@
         v-show="openSections.lbx && isLbxEnabled"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
+      <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+          <input
+            v-model="docDateDataLBX.docnumberLBX"
+            type="text"
+            class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="Hujjat raqami №. . ."
+          />
+          <input v-model="docDateDataLBX.selectedDateLBX" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
+        </div>
       <div class="mb-4 w-full flex px-4 py-3">
           <input
             v-model="docnumberlbx"
@@ -1399,6 +1409,18 @@ import axios from "axios";
 const projectData = ref(null);
 const loading = ref(false);
 const error = ref(null);
+const docDateData = ref({
+  docnumberconcep: '',
+  selectedDate: ''
+});
+const docDateDataTech = ref({
+  docnumberTech: '',
+  selectedDateTech: ''
+});
+const docDateDataLBX = ref({
+  docnumberLBX: '',
+  selectedDateLBX: ''
+})
 
 // Computed property holatiga o'tkazamiz
 const projectDatatwo = computed(() => {
@@ -1944,6 +1966,7 @@ const sendConceptionFiles = async () => {
       throw new Error("Ministry ID not found in sessionStorage");
     }
 
+    
     // Status ni aniqlash - agar REJECTED yoki RESOLVED bo'lsa, TO_REVIEW yuborish
     const documentStatus =
       projectDatatwo.value === "REJECTED" || projectDatatwo.value === "RESOLVED"
@@ -1964,15 +1987,22 @@ const sendConceptionFiles = async () => {
     sessionStorage.setItem("conceptionDocumentId", projectDocumentId);
     documentIds.conception = projectDocumentId;
 
+     if (!projectDocumentId) {
+      toast.error("Project document yaratib bo'lmadi!");
+      return;
+    }
+
+    console.log("3. Project document ID:", projectDocumentId);
+
     // Prepare document data - to'g'ri project_document_id ishlatish
     const documentData = {
-      project_document_id: projectDocumentId, // Bu projectDocumentId bo'lishi kerak, ministryId.id emas
+      project_document_id: projectDocumentId, // Bu projectDocumentId bo'lishi kerak
       letter_file_id: fileIds.conception.letter_file_id,
       solution_file_id: fileIds.conception.solution_file_id,
       concept_project_file_id: fileIds.conception.concept_project_file_id,
       protocol_file_id: fileIds.conception.protocol_file_id,
-      date: selectedDate,
-      serial_number: docnumberconcep
+      date: docDateData.value.selectedDate,
+      serial_number: docDateData.value.docnumberconcep
     };
 
     console.log("Document data being sent:", documentData);
@@ -2037,6 +2067,8 @@ const sendTechnicalFiles = async () => {
       solution_file_id: fileIds.technical.solution_file_id,
       concept_project_file_id: fileIds.technical.concept_project_file_id,
       protocol_file_id: fileIds.technical.protocol_file_id,
+      date: docDateDataTech.value.selectedDateTech,
+      serial_number: docDateDataTech.value.docnumberTech
     };
 
     console.log("🔧 Yuborilayotgan technical documents:", documentData);
@@ -2106,6 +2138,8 @@ const sendLbxFiles = async () => {
       solution_file_id: fileIds.lbx.solution_file_id,
       concept_project_file_id: fileIds.lbx.concept_project_file_id,
       protocol_file_id: fileIds.lbx.protocol_file_id,
+      date: docDateDataLBX.value.selectedDateLBX,
+      serial_number: docDateDataLBX.value.docnumberLBX
     };
 
     console.log("📊 Yuborilayotgan LBX documents:", documentData);
