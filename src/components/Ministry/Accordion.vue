@@ -1994,7 +1994,7 @@ const sendConceptionFiles = async () => {
       concept_project_file_id: fileIds.conception.concept_project_file_id,
       protocol_file_id: fileIds.conception.protocol_file_id,
       date: docDateData.value.selectedDate,
-      serial_number: docDateData.value.docnumberconcep
+      serial_number: `№${docDateData.value.docnumberconcep}`
     };
 
     console.log("Document data being sent:", documentData);
@@ -2060,7 +2060,7 @@ const sendTechnicalFiles = async () => {
       concept_project_file_id: fileIds.technical.concept_project_file_id,
       protocol_file_id: fileIds.technical.protocol_file_id,
       date: docDateDataTech.value.selectedDateTech,
-      serial_number: docDateDataTech.value.docnumberTech
+      serial_number: `№${docDateDataTech.value.docnumberTech}`
     };
 
     console.log("🔧 Yuborilayotgan technical documents:", documentData);
@@ -2131,7 +2131,7 @@ const sendLbxFiles = async () => {
       concept_project_file_id: fileIds.lbx.concept_project_file_id,
       protocol_file_id: fileIds.lbx.protocol_file_id,
       date: docDateDataLBX.value.selectedDateLBX,
-      serial_number: docDateDataLBX.value.docnumberLBX
+      serial_number: `№${docDateDataLBX.value.docnumberLBX}`
     };
 
     console.log("📊 Yuborilayotgan LBX documents:", documentData);

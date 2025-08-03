@@ -2060,7 +2060,7 @@ const handleSubmitLBXModal = async () => {
       answer: lbxFormData.answare,
       type: answerType,
       date: docDateDataAnswareLBX.value.selectedDateLBXAnsware,
-      serial_number: docDateDataAnswareLBX.value.docnumberLBXAnsware
+      serial_number: `№${docDateDataAnswareLBX.value.docnumberLBXAnsware}`
     };
 
     if (fileIds.length > 0) {
@@ -2198,7 +2198,7 @@ const handleSubmitTechnicalModal = async () => {
       answer: technicalFormData.answare,
       type: answerType,
       date: docDateDataAnswareTech.value.selectedDateTechAnsware,
-      serial_number: docDateDataAnswareTech.value.docnumberTechAnsware
+      serial_number: `№${docDateDataAnswareTech.value.docnumberTechAnsware}`
     };
 
     if (fileIds.length > 0) {
@@ -2632,7 +2632,7 @@ const handleSubmitModal = async () => {
       answer: formData.answare,
       type: answerType,
       date: docDateDataAnswareConsep.value.selectedDateConsepAnsware,
-      serial_number: docDateDataAnswareConsep.value.docnumberConsepAnsware
+      serial_number: `№${docDateDataAnswareConsep.value.docnumberConsepAnsware}`
 
     };
 
