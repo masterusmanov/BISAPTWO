@@ -653,3 +653,88 @@ onMounted(async() => {
   animation: spin 1s linear infinite;
 }
 </style>
+
+
+
+<!-- const getList = async (page = currentPage.value) => {
+  try {
+    store.state.load = true;
+    store.state.errorMessage = "";
+
+    console.log("Fetching data for both USER and LIMITED_USER...");
+
+    // 1. USER rolini olish
+    const userParams = {
+      limit: itemsPerPage.value,
+      page: page,
+      role: 'USER',
+    };
+    
+    console.log('USER uchun parametrlar:', userParams);
+    const userResponse = await useMinorgan.list(userParams);
+    console.log('USER response:', userResponse);
+    
+    // 2. LIMITED_USER rolini olish
+    const limitedUserParams = {
+      limit: itemsPerPage.value,
+      page: page,
+      role: 'LIMITED_USER',
+    };
+    
+    console.log('LIMITED_USER uchun parametrlar:', limitedUserParams);
+    const limitedUserResponse = await useMinorgan.list(limitedUserParams);
+    console.log('LIMITED_USER response:', limitedUserResponse);
+    
+    // 3. Natijalarni olish
+    let userList = [];
+    let limitedUserList = [];
+    
+    // USER ma'lumotlarini olish
+    if (userResponse?.data?.data?.results) {
+      userList = userResponse.data.data.results;
+    } else if (userResponse?.data && Array.isArray(userResponse.data)) {
+      userList = userResponse.data;
+    }
+    
+    // LIMITED_USER ma'lumotlarini olish
+    if (limitedUserResponse?.data?.data?.results) {
+      limitedUserList = limitedUserResponse.data.data.results;
+    } else if (limitedUserResponse?.data && Array.isArray(limitedUserResponse.data)) {
+      limitedUserList = limitedUserResponse.data;
+    }
+    
+    // 4. Ikkala ro'yxatni birlashtirish
+    const combinedList = [...userList, ...limitedUserList];
+    
+    console.log('USER ma\'lumotlari:', userList.length, 'ta');
+    console.log('LIMITED_USER ma\'lumotlari:', limitedUserList.length, 'ta');
+    console.log('Jami birlashtirilgan:', combinedList.length, 'ta');
+    
+    // 5. Store ga saqlash
+    store.state.list = combinedList;
+    
+    // 6. Rollarni tekshirish
+    console.log("Barcha rollar:", combinedList.map(item => ({ 
+      id: item.id, 
+      role: item.role,
+      email: item.email 
+    })));
+
+    currentPage.value = page;
+    
+  } catch (error) {
+    console.error("API Error:", error);
+    store.state.errorMessage = "Ma'lumotlarni yuklashda xatolik yuz berdi";
+    
+    if (
+      error.response?.status === 401 ||
+      error.message === "token expired" ||
+      error.message === "token not found"
+    ) {
+      console.log("Authentication error, redirecting to login");
+      router.push({ name: "login" });
+    }
+  } finally {
+    store.state.load = false;
+  }
+}; -->

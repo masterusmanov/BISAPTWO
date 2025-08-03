@@ -434,6 +434,15 @@
         </div>
 
         <form @submit.prevent="handleSubmitModal">
+          <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+            <input
+              v-model="docDateDataAnswareConsep.docnumberConsepAnsware"
+              type="text"
+              class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="Hujjat raqami №. . ."
+            />
+            <input v-model="docDateDataAnswareConsep.selectedDateConsepAnsware" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
+          </div>
           <!-- Textarea -->
           <div class="my-4 border border-gray-300 rounded-md p-4">
             <textarea 
@@ -573,6 +582,15 @@
       </div>
 
       <form @submit.prevent="handleSubmitTechnicalModal">
+        <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+          <input
+            v-model="docDateDataAnswareTech.docnumberTechAnsware"
+            type="text"
+            class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="Hujjat raqami №. . ."
+          />
+          <input v-model="docDateDataAnswareTech.selectedDateTechAnsware" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
+        </div>
         <!-- Textarea -->
         <div class="my-4 border border-gray-300 rounded-md p-4">
           <textarea 
@@ -708,6 +726,15 @@
       </div>
 
       <form @submit.prevent="handleSubmitLBXModal">
+        <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+          <input
+            v-model="docDateDataAnswareLBX.docnumberLBXAnsware"
+            type="text"
+            class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="Hujjat raqami №. . ."
+          />
+          <input v-model="docDateDataAnswareLBX.selectedDateLBXAnsware" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
+        </div>
         <!-- Textarea -->
         <div class="my-4 border border-gray-300 rounded-md p-4">
           <textarea 
@@ -1335,6 +1362,18 @@ const clearAllCache = () => {
 const isHistoryModalOpen = ref(false);
 const currentHistorySection = ref('');
 
+const docDateDataAnswareConsep = ref({
+  docnumberConsepAnsware: '',
+  selectedDateConsepAnsware: ''
+})
+const docDateDataAnswareTech = ref({
+  docnumberTechAnsware: '',
+  selectedDateTechAnsware: ''
+})
+const docDateDataAnswareLBX = ref({
+  docnumberLBXAnsware: '',
+  selectedDateLBXAnsware: ''
+})
 
 // 2. Forced refresh funktsiyasi
 const fetchFilesConsepForced = async (bypassCache = true) => {
@@ -2019,7 +2058,9 @@ const handleSubmitLBXModal = async () => {
     const answerData = {
       project_document_id: projectDoc.id,
       answer: lbxFormData.answare,
-      type: answerType
+      type: answerType,
+      date: docDateDataAnswareLBX.value.selectedDateLBXAnsware,
+      serial_number: docDateDataAnswareLBX.value.docnumberLBXAnsware
     };
 
     if (fileIds.length > 0) {
@@ -2155,7 +2196,9 @@ const handleSubmitTechnicalModal = async () => {
     const answerData = {
       project_document_id: projectDoc.id,
       answer: technicalFormData.answare,
-      type: answerType
+      type: answerType,
+      date: docDateDataAnswareTech.value.selectedDateTechAnsware,
+      serial_number: docDateDataAnswareTech.value.docnumberTechAnsware
     };
 
     if (fileIds.length > 0) {
@@ -2587,7 +2630,10 @@ const handleSubmitModal = async () => {
     const answerData = {
       project_document_id: projectDoc.id,
       answer: formData.answare,
-      type: answerType
+      type: answerType,
+      date: docDateDataAnswareConsep.value.selectedDateConsepAnsware,
+      serial_number: docDateDataAnswareConsep.value.docnumberConsepAnsware
+
     };
 
     // Fayllar mavjud bo'lsa, file_ids qo'shish

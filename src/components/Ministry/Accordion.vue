@@ -83,7 +83,7 @@
         v-show="openSections.conception"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-        <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+        <div v-if="projectDatatwo !== 'ACCEPTED'" class="mb-4 w-full flex px-4 py-3 space-x-4">
           <input
             v-model="docDateData.docnumberconcep"
             type="text"
@@ -317,7 +317,7 @@
         v-show="openSections.technical && isTechnicalEnabled"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-      <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+      <div v-if="technicalProjectStatus !== 'ACCEPTED'" class="mb-4 w-full flex px-4 py-3 space-x-4">
           <input
             v-model="docDateDataTech.docnumberTech"
             type="text"
@@ -553,7 +553,7 @@
         v-show="openSections.lbx && isLbxEnabled"
         class="pb-4 transition-all duration-300 ease-in-out"
       >
-      <div class="mb-4 w-full flex px-4 py-3 space-x-4">
+      <div v-if="lbxProjectStatus !== 'ACCEPTED'" class="mb-4 w-full flex px-4 py-3 space-x-4">
           <input
             v-model="docDateDataLBX.docnumberLBX"
             type="text"
@@ -561,14 +561,6 @@
             placeholder="Hujjat raqami №. . ."
           />
           <input v-model="docDateDataLBX.selectedDateLBX" type="date" class="w-[150px] px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Sanani tanlang">
-        </div>
-      <div class="mb-4 w-full flex px-4 py-3">
-          <input
-            v-model="docnumberlbx"
-            type="text"
-            class="w-[200px] ml-auto px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            placeholder="Hujjat raqami №. . ."
-          />
         </div>
         <div class="space-y-2 px-4">
           <div

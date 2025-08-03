@@ -70,7 +70,10 @@
                   Kirish
                 </button>
               </form>
-              <router-link to="/register" class="mx-[110px] text-[14px] text-[#178BF1] font-bold">{{$t(`register`)}}</router-link>
+              <div class="flex items-center justify-center">
+                <p class="text-[12px] cursor-pointer text-[#178BF1] font-bold">Parol esingizdan chiqdimi?</p> <span class="text-[12px] px-2">yoki</span>
+              <router-link to="/register" class="text-[12px] text-[#178BF1] font-bold">{{$t(`register`)}}</router-link>
+              </div>
             </div>
         </div>
     </div>
@@ -116,7 +119,7 @@ const loginUser = ()=> {
       } else if (res?.data?.data?.role === 'MODERATOR') {
         toast.success("Success", {autoClose: 500})
         return router.push("/dashboard/minorgan");
-      } else if (res?.data?.data?.role === 'USER') {
+      } else if (res?.data?.data?.role === 'USER' || res?.data?.data?.role === 'LIMITED_USER') {
         toast.success("Success", {autoClose: 500})
         return router.push("/dashboard");
       } else {

@@ -10,7 +10,7 @@ const allNavLinks = [
     title: `sidebar.home`,
     link: "/dashboard/home",
     icon: home,
-    roles: ["USER"],
+    roles: ["USER", "LIMITED_USER"],
   },
   {
     id: 2,
