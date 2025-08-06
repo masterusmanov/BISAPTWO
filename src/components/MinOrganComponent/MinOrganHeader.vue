@@ -726,7 +726,7 @@ const login = async () => {
       organizations_name: organizationName,
       email: email.value,
       password: password.value,
-      role: selectedRole.value
+      role: 'USER'
     });
 
     const response = await axios.post(
@@ -736,7 +736,7 @@ const login = async () => {
         organizations_name: organizationName,
         email: email.value,
         password: password.value,
-        role: selectedRole.value,
+        role: 'USER',
       },
       {
         headers: {

@@ -31,10 +31,11 @@ export const useMinorgan = {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
     }),
-  update: (id, state) =>
-    axios.patch(`/user/${id}`, state, {
+  update: (state) =>
+    axios.patch(`/user/update`, state, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        'Content-Type': 'application/json'
       },
     }),
 };
