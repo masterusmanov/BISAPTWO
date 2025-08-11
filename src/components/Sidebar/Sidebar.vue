@@ -30,7 +30,7 @@
             class="w-full flex items-center p-2 rounded-lg text-[14px] bg-gradient-to-r from-[#34548C] via-[#1E417F] to-[#052C71] text-white overflow-hidden"
             :class="isCollapsed ? 'justify-center' : ''"
           >
-            <img :src="link.icon" :alt="$t(link.title) + ' icon'" class="min-w-[20px]">
+            <img :src="link.icon" :alt="$t(link.title) + ' icon'" class="min-w-[20px] max-w-[20px] text-white">
             <span v-if="!isCollapsed" class="ml-3 whitespace-nowrap transition-opacity duration-300">
               {{ $t(`${link.title}`) }}
             </span>

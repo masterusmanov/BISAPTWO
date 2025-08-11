@@ -3,6 +3,7 @@ import metod from "../assets/images/sidebar/metod.svg";
 import nhh from "../assets/images/sidebar/nhh.svg";
 import report from "../assets/images/sidebar/report.svg";
 import contact from "../assets/images/sidebar/contact.svg";
+import settings from "../assets/images/sidebar/settings.png";
 
 const allNavLinks = [
   {
@@ -61,6 +62,13 @@ const allNavLinks = [
   //   icon: contact,
   //   roles: ["USER"],
   // },
+   {
+    id: 8,
+    title: "settings",
+    link: "/dashboard/profile",
+    icon: settings,
+    roles: ["USER"],
+  },
 ];
 
 export const getNavLinks = () => {

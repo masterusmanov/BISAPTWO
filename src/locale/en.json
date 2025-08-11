@@ -113,5 +113,6 @@
     "remark": "A remark has been made",
     "minorganname": "Name of ministries or agencies",
     "marquetext": "The program is currently in the testing phase, and work is underway to fix inaccuracies and technical errors in the data!!!",
-    "docnum": "Document number"
+    "docnum": "Document number",
+    "settings": "Profile"
 }
