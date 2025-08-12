@@ -196,10 +196,10 @@
                     if (firstInput) firstInput.focus();
                 }, 100);
             } else {
-                toast.error('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.', {autoClose: 1000});
+                toast.error('Email mavjud emas! Iltimos, qayta urinib ko\'ring.', {autoClose: 1000});
             }
         } catch (error) {
-            toast.error('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.', {autoClose: 1000});
+            toast.error('Email mavjud emas! Iltimos, qayta urinib ko\'ring.', {autoClose: 1000});
         } finally {
             isEmailLoading.value = false;  // Loading tugashi
         }
