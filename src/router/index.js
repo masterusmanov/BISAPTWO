@@ -5,8 +5,9 @@ import Home from '../views/Home/Home.vue';
 // import Ministry from '../components/Ministry/Ministry.vue';
 import Role from '../views/Role/Role.vue';
 import MinOrgan from '../views/Role/MinOrgan.vue';
-import Profile from '../views/Auth/Profile.vue';
+// import Profile from '../views/Auth/UserDataUpdate.vue';
 import ProjectsAndTasks from '../views/ProjectsAndTasks/ProjectsAndTasks.vue';
+import UserDataUpdate from '../views/Auth/UserDataUpdate.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,7 +32,7 @@ const router = createRouter({
         {
           path: "/dashboard/profile",
           name: "profile",
-          component: Profile,
+          component: UserDataUpdate,
           meta: {
             hideInternalSidebar: true,
           },

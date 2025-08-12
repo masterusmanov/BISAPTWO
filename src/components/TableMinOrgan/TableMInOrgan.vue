@@ -1,3 +1,4 @@
+<!-- tableminorgan -->
 <template>
   <div class="bg-white"> 
     <!-- Loading state -->
