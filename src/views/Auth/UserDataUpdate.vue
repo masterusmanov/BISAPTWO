@@ -180,6 +180,9 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import user from "../../assets/images/header/user.svg";
+import { toast } from 'vue3-toastify';
+import "vue3-toastify/dist/index.css";
+
 
 // Reactive variables
 const meInfo = ref(null);
@@ -214,9 +217,6 @@ const getUserMe = async () => {
         },
       }
     );
-
-    console.log("Full API Response:", response?.data?.data);
-    console.log("User data:", response.data.data);
 
     // API response ni to'g'ri qaytarish
     if (response.data && response.data.data) {
@@ -258,11 +258,11 @@ const refreshUserInfo = async () => {
 };
 
 // Logout function
-const logout = () => {
-  sessionStorage.removeItem("token");
-  sessionStorage.removeItem("meInfo");
-  window.location.href = "/login";
-};
+// const logout = () => {
+//   sessionStorage.removeItem("token");
+//   sessionStorage.removeItem("meInfo");
+//   window.location.href = "/login";
+// };
 
 const openUpdateModal = () => {
   if (meInfo.value) {
@@ -285,7 +285,6 @@ const closeUpdateModal = () => {
 const updateUserInfo = async () => {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    alert("Token topilmadi. Qayta login qiling.");
     return;
   }  
 
@@ -304,25 +303,23 @@ const updateUserInfo = async () => {
       }
     );
 
-    alert("Ma'lumotlar muvaffaqiyatli yangilandi!");
+    toast("Ma'lumotlar muvaffaqiyatli yangilandi!", {autoClose: 500});
     closeUpdateModal();
     refreshUserInfo(); // qayta yuklash
   } catch (err) {
     console.error(err);
-    alert("Xatolik: " + (err.response?.data?.message || err.message));
+    toast("Xatolik: " + (err.response?.data?.message || err.message), {autoClose: 500});
   }
 };
 
 // Component mounted
 onMounted(async () => {
-  console.log("Component mounted");
 
   // Avval sessionStorage dan ma'lumot olishga harakat qilish
   const savedInfo = sessionStorage.getItem("meInfo");
   if (savedInfo) {
     try {
       const parsedInfo = JSON.parse(savedInfo);
-      console.log("Saved info loaded:", parsedInfo);
       meInfo.value = parsedInfo;
     } catch (e) {
       console.error("Saved info parsing error:", e);
