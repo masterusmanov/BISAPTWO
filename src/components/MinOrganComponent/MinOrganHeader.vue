@@ -730,7 +730,7 @@ const login = async () => {
     });
 
     const response = await axios.post(
-      "https://back.miit.uz/api/bisap/test/user/create",
+      import.meta.env.VITE_APP_BASE_URL + "/user/create",
       {
         organizations_id: selectedMinorgan.value.id,
         organizations_name: organizationName,

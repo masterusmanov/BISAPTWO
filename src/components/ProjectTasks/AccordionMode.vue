@@ -1403,7 +1403,7 @@ const fetchFilesConsepForced = async (bypassCache = true) => {
   try {
     const timestamp = new Date().getTime();
     
-    const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedProject.id}`, {
+    const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + `/project/${selectedProject.id}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -2482,7 +2482,7 @@ const uploadFileToServer = async (file) => {
   formData.append('file', file);
 
   try {
-    const response = await axios.post('https://back.miit.uz/api/bisap/test/files/create', formData, {
+    const response = await axios.post(import.meta.env.VITE_APP_BASE_URL + '/files/create', formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -2513,7 +2513,7 @@ const sendAnswer = async (answerData) => {
   }
 
   try {
-    const response = await axios.post('https://back.miit.uz/api/bisap/test/answers/create', answerData, {
+    const response = await axios.post(import.meta.env.VITE_APP_BASE_URL + '/answers/create', answerData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -2731,7 +2731,7 @@ const fetchFilesList = async () => {
 
   try {
     console.log('Fayllar ro\'yxatini API dan olish...');
-    const response = await axios.get('https://back.miit.uz/api/bisap/test/files/list', {
+    const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + '/files/list', {
       params: {
         page: 1,
         limit: 100000
@@ -2808,7 +2808,7 @@ const fetchFilesConsep = async () => {
   try {
     console.log('Project ID:', selectedProject.id);
     
-    const response = await axios.get(`https://back.miit.uz/api/bisap/test/project/${selectedProject.id}`, {
+    const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + `/project/${selectedProject.id}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',

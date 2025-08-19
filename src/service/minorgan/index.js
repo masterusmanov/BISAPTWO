@@ -1,7 +1,5 @@
 import axios from "../axios";
 
-
-
 export const useMinorgan = {
   create: (state) =>
     axios.post("/user/create", state, {

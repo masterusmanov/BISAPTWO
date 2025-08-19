@@ -210,7 +210,7 @@ const getUserMe = async () => {
 
   try {
     const response = await axios.get(
-      "https://back.miit.uz/api/bisap/test/user/me",
+      import.meta.env.VITE_APP_BASE_URL + "/user/me",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -290,7 +290,7 @@ const updateUserInfo = async () => {
 
   try {
     const res = await axios.patch(
-      "https://back.miit.uz/api/bisap/test/user/update",
+      import.meta.env.VITE_APP_BASE_URL + "/user/update",
       {
         id: meInfo.value.id,
         ...updateForm.value,

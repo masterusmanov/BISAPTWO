@@ -343,7 +343,7 @@ const addInvestor = async () => {
 
   try {
     const response = await axios.post(
-      "https://back.miit.uz/api/bisap/test/investors/create",
+      import.meta.env.VITE_APP_BASE_URL + "/investors/create",
       {
         name: currentInvestor.value.trim()
       },
@@ -558,7 +558,7 @@ const getUserMe = async () => {
   }
   try {
     const response = await axios.get(
-      "https://back.miit.uz/api/bisap/test/user/me",
+      import.meta.env.VITE_APP_BASE_URL + "user/me",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -575,7 +575,7 @@ const getUserMe = async () => {
 const fetchProjectsList = async () => {
   try {
     const response = await axios.get(
-      "https://back.miit.uz/api/bisap/test/project/list?limit=10000&page=1",
+      import.meta.env.VITE_APP_BASE_URL + "/project/list?limit=10000&page=1",
       {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -645,7 +645,7 @@ const login = async () => {
     console.log("Yuborilayotgan ma'lumotlar:", requestData);
 
     const response = await axios.post(
-      "https://back.miit.uz/api/bisap/test/project/create",
+      import.meta.env.VITE_APP_BASE_URL + "/project/create",
       requestData,
       {
         headers: {

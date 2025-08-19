@@ -145,7 +145,7 @@ const getUserMe = async () => {
         return null;
     }
     try {
-        const response = await axios.get('https://back.miit.uz/api/bisap/test/user/me', {
+        const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + '/user/me', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

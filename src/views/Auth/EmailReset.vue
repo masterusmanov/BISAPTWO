@@ -185,7 +185,7 @@
     const submitForm = async () => {
         isEmailLoading.value = true;  // Loading boshlanishi
         try {
-            const response = await axios.post('https://back.miit.uz/api/bisap/test/otps/forgot-password', { email: email.value });
+            const response = await axios.post(import.meta.env.VITE_APP_BASE_URL + '/otps/forgot-password', { email: email.value });
             if (response.data) {
                 toast.success('Parolni tiklash uchun elektron pochta yuborildi!', {autoClose: 1000});
                 emailSent.value = true;  // Email yuborildi deb belgilaymiz
@@ -305,7 +305,7 @@
         const code = otpCode.value.join('');
         isCodeLoading.value = true;  // Loading boshlanishi
         try {
-            const response = await axios.post('https://back.miit.uz/api/bisap/test/otps/verify-otp', {
+            const response = await axios.post(import.meta.env.VITE_APP_BASE_URL + '/otps/verify-otp', {
                 email: email.value,
                 otp: code
             });
@@ -342,7 +342,7 @@
     // Kodni qayta yuborish
     const resendCode = async () => {
         try {
-            const response = await axios.post('https://back.miit.uz/api/bisap/test/otps/forgot-password', { email: email.value });
+            const response = await axios.post(import.meta.env.VITE_APP_BASE_URL + '/otps/forgot-password', { email: email.value });
             if (response.data) {
                 toast.success('Kod qayta yuborildi!', {autoClose: 1000});
                 startCountdown();
@@ -373,7 +373,7 @@
 
         isPasswordLoading.value = true;  // Loading boshlanishi
         try {
-            const response = await axios.put('https://back.miit.uz/api/bisap/test/otps/reset-password', {
+            const response = await axios.put(import.meta.env.VITE_APP_BASE_URL + '/otps/reset-password', {
                 email: email.value,
                 new_password: newPassword.value
             }, {

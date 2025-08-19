@@ -1502,7 +1502,7 @@ const fetchProjectData = async () => {
 
   try {
     const response = await axios.get(
-      `https://back.miit.uz/api/bisap/test/project/${selectedMinistry.id}`,
+      import.meta.env.VITE_APP_BASE_URL + `/project/${selectedMinistry.id}`,
       {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
@@ -1560,7 +1560,7 @@ const fetchProjectData = async () => {
 };
 
 // API Base URL
-const API_BASE_URL = "https://back.miit.uz/api/bisap/test";
+const API_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 // Get auth token from localStorage or sessionStorage
 const getAuthToken = () => {

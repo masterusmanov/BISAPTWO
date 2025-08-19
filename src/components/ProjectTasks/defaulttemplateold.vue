@@ -260,7 +260,7 @@
           return null;
       }
       try {
-          const response = await axios.get('https://back.miit.uz/api/bisap/test/user/me', {
+          const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + '/user/me', {
               headers: {
                   'Authorization': `Bearer ${token}`
               }
@@ -275,7 +275,7 @@
   // Loyihalar ro'yxatini backenddan olish
   const fetchProjectsList = async () => {
     try {
-      const response = await axios.get('https://back.miit.uz/api/bisap/test/project/list?limit=100000&page=1', {
+      const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + '/project/list?limit=100000&page=1', {
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }

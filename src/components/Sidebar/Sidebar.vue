@@ -93,7 +93,7 @@ const downloadReport = async (type: string) => {
   isOpen.value = false;
   try {
     const response = await axios.post(
-      "https://back.miit.uz/api/bisap/test/project/export-excel",
+      import.meta.env.VITE_APP_BASE_URL + "/project/export-excel",
       { type },
        {
         headers: {

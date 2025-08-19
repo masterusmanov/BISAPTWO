@@ -273,7 +273,7 @@ const updatePassword = async () => {
     passwordSuccess.value = null;
     
     try {
-        const response = await axios.put('https://back.miit.uz/api/bisap/test/user/update-password', {
+        const response = await axios.put(import.meta.env.VITE_APP_BASE_URL + '/user/update-password', {
             password: passwordForm.value.currentPassword,
             new_password: passwordForm.value.newPassword
         }, {
@@ -358,7 +358,7 @@ const getUserMe = async () => {
     errorMessage.value = null;
     
     try {
-        const response = await axios.get('https://back.miit.uz/api/bisap/test/user/me', {
+        const response = await axios.get(import.meta.env.VITE_APP_BASE_URL + '/user/me', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
